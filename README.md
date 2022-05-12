@@ -2,5 +2,4 @@
 Web App per giocare a ping pong a Povo
 ivan
 
-**provate 'npm start'**
-dentro tecmint-app
+**startare con 'node index.js' e provare metodo get su localhost/3000**
