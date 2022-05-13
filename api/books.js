@@ -21,8 +21,8 @@ module.exports = function (app, mongoose) {
   })
   //GET ONE BOOK
   app.get('/books/:id', (req, res) => {
-    c//onst schema =  mongoose.model('Book',schema
-    //const id = req.params.id;
+    const schema =  mongoose.model('Book',schema)
+    const id = req.params.id;
     Book.find({ "_id": id},function (err, docs) {res.send(docs)})
     
   });
