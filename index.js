@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
 
-mongoose.connect('mongodb+srv://Hydran00:aaa@cluster0.5c9ts.mongodb.net/test');
+mongoose.connect('');
 global.path = require('path')
 
 //declaring app
