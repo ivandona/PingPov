@@ -1,12 +1,14 @@
-module.exports = function (app) {
 
+module.exports = function (app) {
     //var used for storing profile information
     var userProfile;
     //result of logging
     
     app.get('/auth/success', (req, res) => {
+        req.session.logged=true;
+        //req.session.nickname=GET_FROM_DB
         let path_name = ('pages/success');
-        res.render(path_name,{user:userProfile});
+        res.render(path_name,{user:userProfile,log_status:req.session.logged});
     })
     app.get('/auth/error', (req, res) => res.send("error logging in"));
 
@@ -18,8 +20,9 @@ module.exports = function (app) {
         cb(null, obj);
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-    const GOOGLE_CLIENT_ID = 'TELEGRAM';
-    const GOOGLE_CLIENT_SECRET = 'TELEGRAM';
+    const GOOGLE_CLIENT_ID = 'guardate telegram';
+    const GOOGLE_CLIENT_SECRET = 'guardate telegram';
+
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,

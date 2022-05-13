@@ -20,7 +20,10 @@ app.use(require('body-parser').json());
 app.use(session({
   resave: false,
   saveUninitialized: true,
-  secret: 'SECRET' 
+  logged:false,
+  nickname:'',
+  rank:'',
+  secret: 'thisismysecret' 
 }));
 app.use(passport.session());
 //get method for login
