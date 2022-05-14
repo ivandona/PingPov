@@ -5,7 +5,9 @@ module.exports = function (app) {
     //result of logging
     
     app.get('/auth/success', (req, res) => {
-        req.session.logged=true;
+        if(userProfile.id){
+            req.session.logged=true;
+        }
         //req.session.nickname=GET_FROM_DB
         let path_name = ('pages/success');
         res.render(path_name,{user:userProfile,log_status:req.session.logged});
@@ -20,8 +22,8 @@ module.exports = function (app) {
         cb(null, obj);
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-    const GOOGLE_CLIENT_ID = 'guardate telegram';
-    const GOOGLE_CLIENT_SECRET = 'guardate telegram';
+    const GOOGLE_CLIENT_ID = ''
+    const GOOGLE_CLIENT_SECRET = '';
 
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
