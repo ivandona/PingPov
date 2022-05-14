@@ -1,4 +1,5 @@
 {
+  "User" :{
   "username":"Hydran",
   "email":"ndav...",
   "rank":"123",
@@ -6,8 +7,8 @@
   "difesa":"zughri",
   "statistiche":"da calcolare"
 }
-
-{
+,
+"Torneo":{
   "nome_torneo":"abc",
   "data":"02--",
   "ora":"13:15",
@@ -15,4 +16,5 @@
   "sede":"Povo0",
   "max_partecipanti":"8",
   "partecipanti":"4"
+}
 }

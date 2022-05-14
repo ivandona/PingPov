@@ -48,5 +48,10 @@ module.exports = function (app) {
             //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
             res.redirect('/auth/success');
         });
-
+    app.get('/auth/logout',function(req, res){
+        req.session.log_status = false;
+        req.session.username='';
+        req.session.rank='';
+        res.render("pages/home");
+    })
 }
