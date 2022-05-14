@@ -9,7 +9,7 @@ global.passport = require('passport');
 
 
 
-mongoose.connect('');
+mongoose.connect('mongodb+srv://nicolazilio0:aaa@cluster0.ioquu.mongodb.net/torneo');
 global.path = require('path')
 
 //declaring app
@@ -36,13 +36,13 @@ app.get('/home', function(req, res) {
   res.render('pages/home');
 });
 function requireAutentication(req,res,next){
-  if(req.session.logged == true || req.originalUrl.includes('/auth')){
+  if( req.isAuthenticated() == true || req.originalUrl.includes('/auth')){
       next();
   }else{
       res.render('pages/auth');
   }
 }
-//app.all('*',requireAutentication)
+app.all('*',requireAutentication)
 
 // Starting app after calling every api
 require('./api/api_index')(app,mongoose);

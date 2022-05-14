@@ -11,10 +11,12 @@ module.exports = function (app, mongoose) {
 
     //GET EVERY BOOK
     app.get('/tornei', (req, res) => {
+        console.log("efnsd")
         Torneo.find({}, function(err, Tornei){
             if(err){
               console.log(err);
             } else{
+
                 res.render('pages/lista_tornei',{tornei: Tornei})
                 console.log('retrieved list of names', Tornei.length, Tornei[0]);
             }
