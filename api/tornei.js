@@ -15,6 +15,7 @@ module.exports = function (app, mongoose) {
             if(err){
               console.log(err);
             } else{
+
                 res.render('pages/lista_tornei',{tornei: Tornei})
                 console.log('retrieved list of names', Tornei.length, Tornei[0]);
             }

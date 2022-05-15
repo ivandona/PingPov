@@ -22,8 +22,9 @@ module.exports = function (app) {
         cb(null, obj);
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-    const GOOGLE_CLIENT_ID = '71410486894-clfqt9gadnobb4j27vn4sk36dbh0l5di.apps.googleusercontent.com'
-    const GOOGLE_CLIENT_SECRET = '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';
+
+    const GOOGLE_CLIENT_ID = ''
+    const GOOGLE_CLIENT_SECRET = '';
 
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
@@ -52,6 +53,5 @@ module.exports = function (app) {
         req.session.log_status = false;
         req.session.username='';
         req.session.rank='';
-        res.render("pages/home");
     })
 }

@@ -4,18 +4,14 @@
     <title>Lista Tornei</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> <!-- load bulma css -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- load fontawesome -->
-<<<<<<< HEAD
-=======
       <style>
+          body { padding-top:70px; }
       </style>
->>>>>>> 9c767b7f8ceac137c956b38715c1ab1bf6e10ce1
   </head>
+  <script>
+    document.getElementById("lista").innerHTML = JSON.stringify(<%= tornei%>, null, 4);
+  </script>
   <body>
-<<<<<<< HEAD
-    <div id="navbar"></div>
-    <script src="/scripts/addnavbar.js"></script>
-    <div id="navigation"></div>
-=======
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
        
 
@@ -67,7 +63,7 @@
           <% } else{
             %>
             <li class="nav-item active">
-              <a class="nav-link" href="/auth">Login<span class="sr-only">(current)</span> </a>
+              <a class="nav-link" href="#/auth">Login<span class="sr-only">(current)</span> </a>
             </li>
             
             <%}%>
@@ -82,23 +78,14 @@
   
   
   
->>>>>>> 9c767b7f8ceac137c956b38715c1ab1bf6e10ce1
     <div class="container">
       <div class="jumbotron">
+          <h1 class="text-primary  text-center"><span class="fa fa-user"></span> Profile Information</h1>
           <div class="row">
             <div class="col-sm-6">
                 <div class="well">
                         <p id="lista">
-<<<<<<< HEAD
-                            <%=tornei%>
-=======
-                            <% for (let i = 0; i < tornei.length; i++){%>
-                            <div style="border-top: solid;">
-                            <%=tornei[i]['nome_torneo'] %> <br>
-                            <%=tornei[i]['sede']%> <br>
-                            </div>
-                            <%}%>
->>>>>>> 9c767b7f8ceac137c956b38715c1ab1bf6e10ce1
+                            dhfsdfsih
                         </p>
                 </div>
             </div>
