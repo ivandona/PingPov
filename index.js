@@ -9,7 +9,7 @@ global.passport = require('passport');
 
 
 
-mongoose.connect('mongodb+srv://Ivan:ingsoft2@pingpov.itc9p.mongodb.net/pingpovDB?retryWrites=true&w=majority');
+mongoose.connect('');
 global.path = require('path')
 
 //declaring app
