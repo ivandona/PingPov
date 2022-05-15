@@ -9,7 +9,7 @@ global.passport = require('passport');
 
 
 
-mongoose.connect('');
+mongoose.connect('mongodb+srv://Hydran00:aaa@cluster0.5c9ts.mongodb.net/test');
 global.path = require('path')
 
 //declaring app
