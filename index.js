@@ -9,7 +9,7 @@ global.passport = require('passport');
 
 
 
-mongoose.connect('');
+mongoose.connect('mongodb+srv://Ivan:ingsoft2@pingpov.itc9p.mongodb.net/pingpovDB?retryWrites=true&w=majority');
 global.path = require('path')
 
 //declaring app
@@ -47,7 +47,7 @@ function requireAutentication(req,res,next){
 // Starting app after calling every api
 require('./api/api_index')(app,mongoose);
 app.listen(4000, () => {
-    console.log('server started!');
-  });
+  console.log('server started!');
+});
 
 
