@@ -4,7 +4,7 @@ module.exports = function (app) {
     var userProfile;
     //result of logging
     
-    app.get('/auth/success', (req, res) => {
+    app.get('/v1/auth/success', (req, res) => {
         if(userProfile.id){
             req.session.logged=true;
         }
@@ -12,7 +12,7 @@ module.exports = function (app) {
         let path_name = ('pages/success');
         res.render(path_name,{user:userProfile,log_status:req.session.logged});
     })
-    app.get('/auth/error', (req, res) => res.send("error logging in"));
+    app.get('/v1/auth/error', (req, res) => res.send("error logging in"));
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);
@@ -36,7 +36,7 @@ module.exports = function (app) {
         }
     ));
 
-    app.get('/auth/google',
+    app.get('/v1/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));
 
     app.get('/auth/google/callback',
@@ -48,7 +48,7 @@ module.exports = function (app) {
             //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
             res.redirect('/auth/success');
         });
-    app.get('/auth/logout',function(req, res){
+    app.get('/v1/auth/logout',function(req, res){
         req.session.log_status = false;
         req.session.username='';
         req.session.rank='';

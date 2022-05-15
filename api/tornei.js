@@ -10,7 +10,7 @@ module.exports = function (app, mongoose) {
     }));
 
     //GET EVERY BOOK
-    app.get('/tornei', (req, res) => {
+    app.get('/v1/tornei', (req, res) => {
         Torneo.find({}, function(err, Tornei){
             if(err){
               console.log(err);
@@ -22,8 +22,7 @@ module.exports = function (app, mongoose) {
     })
 
 //PUT 
-app.put('/aggiungiTorneo', (req, res) => {
-
+app.post('/v1/tornei/aggiungiTorneo', (req, res) => {
     const nuovo_Torneo = new Torneo({
         nome_torneo: req.body.nome_torneo,
         data: req.body.data,
@@ -36,20 +35,18 @@ app.put('/aggiungiTorneo', (req, res) => {
     res.send(Torneo.nuovo_Torneo)
 })
 //GET ONE BOOK
-app.get('/torneo/:id', (req, res) => {
+app.get('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
     console.log('id:' + id)
     Torneo.find({ "_id": id }, function (err, docs) { res.send(docs) })
 });
 
 //DELETE
-app.delete('/torneo/:id', (req, res) => {
-    const ObjectID = require('mongoose').ObjectID;
+app.delete('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
-    const query = { '_id': new ObjectID(id) };
     Torneo.find({ "_id": id }, function (err, docs) {
         if (docs.organizzatore == req.session.username) {
-            Torneo.findByIdAndRemove(id, function (docs, err) {
+            Torneo.findByIdAndRemove(id, function (err, docs) {
                 if (err) {
                     res.send('Torneo non trovato')
                 } else {
@@ -62,4 +59,23 @@ app.delete('/torneo/:id', (req, res) => {
     })
 
 })
+app.put('/v1/tornei/:id', (req, res) => {
+    const id = req.params.id;
+    Torneo.find({ "_id": id }, function (err, docs) {
+        if (docs.organizzatore == req.session.username) {
+            Torneo.findByIdAndUpdate(id, function (err, docs) {
+                if (err) {
+                    res.send('Torneo non trovato')
+                } else {
+                    res.send('Torneo correttamente cancellato')
+                }
+            });
+        } else {
+            res.send("Non sei tu l'organizzatore")
+        }
+    })
+})
+
+
+
 }
