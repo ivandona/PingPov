@@ -2,18 +2,21 @@
 const express = require('express');
 //use session
 const session = require('express-session');
-//connection to db
+
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
-
-
-
-mongoose.connect('mongodb+srv://Ivan:ingsoft2@pingpov.itc9p.mongodb.net/pingpovDB?retryWrites=true&w=majority');
-global.path = require('path')
-
+//db credentials
+require('dotenv').config()
+//console.log(process.env) // remove this after you've confirmed it working
+/*var env = process.env.NODE_ENV || 'development';
+var config = require('./config')[env];*/
 //declaring app
 const app = express();
+//connection to db
+mongoose.connect(process.env.DB_URL);
+global.path = require('path');
+
 app.use(passport.initialize());
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
