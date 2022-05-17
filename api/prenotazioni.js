@@ -25,16 +25,19 @@ module.exports = function (app, mongoose) {
 //PUT 
 app.put('/aggiungiPrenotazione/:id',async function(req, res){
     //const ObjectID = require('mongoose').ObjectID;
+ 
     const id = req.params.id;
     const query = { 'id':id };
     const body = {
-      prenotatore: req.body.prenotatore,
-      giorno: req.body.giorno,
-      sede: req.body.sede
+      prenotatore:req.body.prenotatore,
+      giorno:req.body.giorno,
+      sede:req.body.sede,
+      utente:req.utente 
     };
     try{
     res.json(await Prenotazione.findById(id).update(req.params.prenotatore,body));
-    }  catch (err) {
+    }  
+    catch (err) {
         console.error(`Error while updating programming language`, err.message);
         next(err);
       }
@@ -42,6 +45,32 @@ app.put('/aggiungiPrenotazione/:id',async function(req, res){
 
   
 });
+app.delete('/aggiungiPrenotazione/:id',async function(req, res){
+    //const ObjectID = require('mongoose').ObjectID;
+    console.log(req.session.user.displayName);
+    console.log(req.body.prenotatore);
+    if(' '+(req.session.user.displayName) == req.body.prenotatore){
+    const id = req.params.id;
+    const query = { 'id':id };
+    const body = {
+      prenotatore:'',
+      
+    };
+    try{
+    res.json(await Prenotazione.findById(id).update(req.params.prenotatore,body));
+    }  
+    catch (err) {
+        console.error(`Error while updating programming language`, err.message);
+        next(err);
+      }
+    }else{
+        res.send("non puoi annullare la prentoazione di un'altra persona");
+    }
+
+  
+});
+
+
 //GET ONE BOOK
 app.get('/Prenotazione/:id', (req, res) => {
     const id = req.params.id;

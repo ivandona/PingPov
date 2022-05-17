@@ -71,15 +71,14 @@
       </div>
     </nav>
   
-      <form  action="/prenotazioni" method="get">
-        <input type="date" id="data" name="data">
-        <input type="time" id="ora" name="ora">
-        <input type="text" id="sede" name="sede">
-        <input type="submit" value="Ricerca">
+      <form  action="/prenotazioni" method="get" style="background-color: rgb(66,63,63);">
+        <input type="date" id="data" name="data" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
+        <input type="time" id="ora" name="ora" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
+        <input type="text" id="sede" name="sede" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
+        <input type="submit" value="Ricerca" style="color: rgb(66,63,63); background-color:rgb(115,102,102);">
       </form>
 
    
-      <p id="username" > </p>
 
       <% var day= new Date(Date.parse(query['data'] + 'T'+query['ora'] +':00'));%>
     <div class="jumbotron" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
@@ -104,7 +103,7 @@
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              prenotatore: sessionStorage.getItem('utente'),
+              prenotatore:sessionStorage.getItem('utente'),
             })
           });
           setTimeout('',7000);
@@ -115,21 +114,22 @@
        <%  } else{%>
           <Button disabled style="background-color:firebrick; color: rgb(115,102,102);"> Prenotato</Button>
        
-                     
-         <button  onclick=" fetch('/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
-            method: 'PUT',
+         <button id="button<%=i%>" onclick=" fetch('/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+            method: 'DELETE',
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              prenotatore: '',
-            })
+              prenotatore:'<%=prenotazioni[i]['prenotatore']%>',
+              utente:sessionStorage.getItem('utente')
+
+                        })
           });
           setTimeout('',7000);
           window.location.reload();
         " style="background-color:lightslategray; color: rgb(115,102,102);"> Annulla prenotazione </button>
-        <%}}}}%>
+        <%}}}}%> 
 
       </div>
 
@@ -140,7 +140,6 @@
     <script>
     
     let name =sessionStorage.getItem('utente');
-    document.getElementById("username").innerHTML=name;
     </script>
 
 
