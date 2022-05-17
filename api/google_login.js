@@ -7,6 +7,7 @@ module.exports = function (app) {
     app.get('/v1/auth/success', (req, res) => {
         if(userProfile.id){
             req.session.logged=true;
+            req.session.username=userProfile.displayName
         }
         //req.session.nickname=GET_FROM_DB
         let path_name = ('pages/success');
@@ -23,8 +24,8 @@ module.exports = function (app) {
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
-    const GOOGLE_CLIENT_ID = ''
-    const GOOGLE_CLIENT_SECRET = '';
+    const GOOGLE_CLIENT_ID = '71410486894-clfqt9gadnobb4j27vn4sk36dbh0l5di.apps.googleusercontent.com'
+    const GOOGLE_CLIENT_SECRET = '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';
 
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
@@ -47,7 +48,7 @@ module.exports = function (app) {
             req.session.user = userProfile
             //console.log(req.session.user)
             //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
-            res.redirect('/auth/success');
+            res.redirect('/v1/auth/success');
         });
     app.get('/v1/auth/logout',function(req, res){
         req.session.log_status = false;

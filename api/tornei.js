@@ -6,8 +6,10 @@ module.exports = function (app, mongoose) {
         organizzatore: String,
         sede: String,
         max_partecipanti: Number,
-        partecipanti: Number
+        numero_partecipanti: Number,
+        giocatori: [String]
     }));
+
 
     //GET EVERY BOOK
     app.get('/v1/tornei', (req, res) => {
@@ -17,28 +19,47 @@ module.exports = function (app, mongoose) {
             } else{
 
                 res.render('pages/lista_tornei',{tornei: Tornei})
-                console.log('retrieved list of names', Tornei.length, Tornei[0]);
             }
         })
     })
 
-//PUT 
-app.post('/v1/tornei/aggiungiTorneo', (req, res) => {
+app.get('/v1/tornei/creaTorneo', (req, res) => {
+    res.render("pages/crea_torneo");
+});
+
+app.post('/v1/tornei/creaTorneo',(req, res) => {
+    console.log(req.session.username)
     const nuovo_Torneo = new Torneo({
-        nome_torneo: req.body.nome_torneo,
-        data: req.body.data,
-        organizzatore: req.body.organizzatore,
-        sede: req.body.sede,
-        max_partecipanti: req.body.max_partecipanti,
-        partecipanti: req.body.partecipanti
+        nome_torneo: req.body.torneo.nome_torneo,
+        data: req.body.torneo.data,
+        organizzatore: req.session.username,
+        sede: req.body.torneo.sede,
+        max_partecipanti: req.body.torneo.numero_partecipanti,
+        numero_partecipanti: 0,
     })
+    if (req.body.torneo.admin_gioca == true){
+        nuovo_Torneo.giocatori.push(req.session.username);
+        nuovo_Torneo.numero_partecipanti =1
+    }
+    
+    console.log(nuovo_Torneo)
+    /*
+    if (nuovo_Torneo.organizzatore == "" || nuovo_Torneo.organizzatore == undefined){
+        res.send("Errore, login non eseguito");
+        return;
+    }
     nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
-    res.send(Torneo.nuovo_Torneo)
-})
+    console.log(nuovo_Torneo);
+    res.send(Torneo.nuovo_Torneo);*/
+});
+
+
+
+
+
 //GET ONE BOOK
 app.get('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
-    console.log('id:' + id)
     Torneo.find({ "_id": id }, function (err, docs) { res.send(docs) })
 });
 
@@ -60,6 +81,7 @@ app.delete('/v1/tornei/:id', (req, res) => {
     })
 
 })
+
 app.put('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
     Torneo.find({ "_id": id }, function (err, docs) {

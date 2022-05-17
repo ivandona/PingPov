@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Crea Torneo</title>
+
+  <!-- load fontawesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+  <script>
+    window.onload = function () {
+      document.getElementById("form").onsubmit = function onSubmit(form) {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        const value = Object.fromEntries(data.entries());
+        value.admin_gioca = document.getElementById('admin_gioca').checked;
+        //inoltro JSON
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/v1/tornei/creaTorneo", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({
+          torneo: value
+        }));
+        alert("Torneo creato")
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <img src="/images/Logo_Ping_Pov.png" width="70px" height="70px" href="/home">
+
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+      <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item active">
+          <a class="nav-link" href="/tornei">Tornei<span class="sr-only">(current)</span> </a>
+        </li>
+
+
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Prenotazioni<span class="sr-only">(current)</span> </a>
+        </li>
+
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Dropdown
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">Disabled</a>
+        </li>
+        <li>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </li>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/v1/auth">Login</a>
+        </li>
+
+      </ul>
+
+    </div>
+  </nav>
+  <form id="form" action="/v1/tornei/creaTorneo" method="post">
+    <div class="form-group">
+      <label for="nome_torneo">Nome Torneo</label>
+      <input type="text" class="form-control" id="nome_torneo" name="nome_torneo" required>
+    </div>
+    <div class="form-group">
+      <label for="numero_partecipanti">Numero partecipanti</label>
+      <input type="number" class="form-control" id="numero_partecipanti" name="numero_partecipanti" required max="64" min="2">
+    </div>
+    <br>
+    <div>
+    <label for="data">Data:</label>
+    <input type="datetime-local" id="data" name="data">
+    </div><br>
+    <label for="sede">Sede:</label>
+    <select class="custom-select" id="sede" name="sede" required>
+      <option selected>Scegli Sede</option>
+      <option value="Povo0">Povo 0</option>
+      <option value="Povo1">Povo 1</option>
+    </select>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="admin_gioca" value="" id="admin_gioca">
+      <label class="form-check-label" for="defaultCheck1">
+        Partecipo al torneo
+      </label>
+    </div>
+    <input type="submit" value="Crea Torneo" class="btn btn-danger"></button>
+
+  </form>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>
