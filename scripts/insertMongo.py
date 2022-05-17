@@ -1,3 +1,4 @@
+#necessita di pymongo (pip install pymongo) e pymongo[srv] (pip install pymongo[srv])
 import pymongo
 from datetime import datetime
  
