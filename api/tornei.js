@@ -17,7 +17,6 @@ module.exports = function (app, mongoose) {
             if(err){
               console.log(err);
             } else{
-
                 res.render('pages/lista_tornei',{tornei: Tornei})
             }
         })
@@ -58,7 +57,7 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 //GET ONE BOOK
 app.get('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
-    Torneo.find({ "_id": id }, function (err, docs) { res.send(docs) })
+    Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{torneo:JSON.stringify(torneo)}) })
 });
 
 //DELETE
