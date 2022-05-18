@@ -26,6 +26,8 @@ app.get('/v1/tornei/creaTorneo', (req, res) => {
     res.render("pages/crea_torneo");
 });
 
+
+
 app.post('/v1/tornei/creaTorneo',(req, res) => {
     console.log(req.session.username)
     const nuovo_Torneo = new Torneo({
@@ -51,6 +53,20 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 });
 
 
+
+app.post('/v1/iscrivi/:id' , async function(req,res){
+
+    const nome_utente=req.body.username; 
+    const id= req.params.id;
+    try{
+        res.json(await Torneo.findById(id).update({ $push: { giocatori: nome_utente } }));
+        }  catch (err) {
+            console.error(`Error while updating programming language`, err.message);
+            next(err);
+          }
+       
+
+});
 
 
 

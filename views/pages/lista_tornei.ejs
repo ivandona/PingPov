@@ -81,7 +81,18 @@
               <td><%=tornei[i]['data']%></td>
               <td><%=tornei[i]['sede']%></td>
               <td><%=tornei[i]['organizzatore']%></td>
-              <td id="tasto_iscriviti"><button type="button" class="btn btn-success">Iscriviti</button></td>
+              <td id="tasto_iscriviti"><button type="button" class="btn btn-success" onclick="fetch('/v1/iscrivi/<%=tornei[i]['_id']%>' ,{
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  username: sessionStorage.getItem('utente'),
+
+                })
+              });
+              ">Iscriviti</button></td>
             </tr>
             <%}%>
           </tbody>
