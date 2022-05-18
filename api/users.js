@@ -1,23 +1,24 @@
 // api/users.js
 module.exports = function (app, mongoose) {
+    //Schema di user
+    const User =  mongoose.model('User',{
+        name: String,
+        email: String,
+        statistiche: {
+            attacco: Number, 
+            difesa: Number, 
+            spin: Number, 
+            chop: Number, 
+            all_around: Number
+        }
+    })
     //GET EVERY USER
     app.get('/users', (req, res) => {
         res.send('Response')
     });
   
-    //POST FUNZIONA
+    //POST
     app.post('/users', (req, res) => {
-        const User =  mongoose.model('User',{
-            name: String,
-            email: String,
-            statistiche: {
-                attacco: Number, 
-                difesa: Number, 
-                spin: Number, 
-                chop: Number, 
-                all_around: Number
-            }
-        })
         const user = new User({
             name: req.body.name,
             email: req.body.email,
@@ -28,21 +29,17 @@ module.exports = function (app, mongoose) {
                 chop: req.body.chop,
                 all_around: req.body.all_around
             }
+            
         })
-        user.save().then(() => console.log('meow'));
-        res.send(user.name)
+        user.save().then(() => console.log('user inserito'));
+        res.send(user.name);
     })
     //GET ONE USER
     app.get('/users/:id', (req, res) => {
-        //const schema =  mongoose.model('Book',schema
-        //const id = req.params.id;
         User.find({ "_id": id},function (err, docs) {res.send(docs)})  
     });
     //PUT
     app.put('/users/:id', (req, res) => {
-        const ObjectID = require('mongoose').ObjectID;
-        const id = req.params.id;
-        const query = { '_id': new ObjectID(id) };
         const body = {
             name: req.body.name,
             email: req.body.email,
@@ -54,25 +51,28 @@ module.exports = function (app, mongoose) {
                 all_around: req.body.all_around
             }
         };
-    database.collection('users').update(query, body, (err, result) => {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send(result);
-        }
-    });
-    })
-    //DELETE
-    app.delete('/users/:id', (req, res) => {
-        const ObjectID = require('mongoose').ObjectID;
-        const id = req.params.id;
-        const query = { '_id': new ObjectID(id) };
-        database.collection('users').remove(query, (err, result) => {
+        database.collection('users').update(query, body, (err, result) => {
             if (err) {
                 res.send(err);
             } else {
                 res.send(result);
             }
         });
+    })
+    //DELETE
+    app.delete('/users/:id', (req, res) => {
+        const id = req.params.id;
+        const query = { '_id': id };
+        User.find(query, function (err, docs) {
+            User.findByIdAndRemove(id, function (docs, err) {
+                if (err) {
+                    res.send('User non trovato')
+                } else {
+                    res.send(result)
+                    res.send('User cancellato')
+                }
+            });
+        })
+    
     })
   } 

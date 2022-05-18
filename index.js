@@ -6,11 +6,8 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
-//db credentials
-require('dotenv').config()
-//console.log(process.env) // remove this after you've confirmed it working
-/*var env = process.env.NODE_ENV || 'development';
-var config = require('./config')[env];*/
+//include .env
+require('dotenv').config();
 //declaring app
 const app = express();
 //connection to db
