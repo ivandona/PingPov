@@ -5,76 +5,49 @@ HOST: https://polls.apiblueprint.org/
 
 Polls is a simple API allowing consumers to view polls and vote in them.
 
-## Questions Collection [/questions]
+## Prenotazioni Tavolo [/Prenotazioni_Tavolo]
 
-### List All Questions [GET]
-
+### /prenotaioni [GET]
+/prenotazioni serve per ricercare all'interno del database tutti i possibili slot di prenotazione che vengono visualizzati in ordine temporale a partire dalla data e ora selezionate e inoltre filtra anche per la sede
+ 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
+                "prenotazioni":[
+                    {"_id":{"$oid":"62825720c87c317dbcb1579f"},
+                    "prenotatore":" Pippomarco",
+                    "sede":"Povo1"
+                    ,"giorno":{"$date":{"$numberLong":"1652662800000"}
                     }
-                ]
-            }
+                    },
+                    {
+                "prenotazioni": [
+                    {"_id":{"$oid":"62825745c87c317dbcb1579f"},
+                    "prenotatore":"",
+                    "sede":"Povo1"
+                    ,"giorno":{"$date":{"$numberLong":"1652662800000"}
+                    }
+                    }
+                  
+           
         ]
+        
+        
+        
+        
+        
+        
+        
+### /aggiungiPrenotazione/:id [PUT]
+/aggiungiPrenotazione/:id va a cercare all'interno del database la prenotazione con l'id che arriva dalla richiesta, quindi aggiorna il campo "prenotatore" con il nome dell'utente che ha effettuato la richiesta
 
-### Create a New Question [POST]
+ + Response 200 ()
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
 
-+ Request (application/json)
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
+### /aggiungiPrenotazione/:id [DELETE]
+/aggiungiPrenotazione/:id va a cercare all'interno del database la prenotazione con l'id che arriva dalla richiesta, quindi aggiorna il campo "prenotatore" con la stringa vuota, che rappresenta una prenotazione non effettuata
+nel caso in cui l'utente che effettui la richiesta non sia lo stesso che ha precedentemente effettuato la prenotazione, gli viene inviato un messaggio di errore.
 
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
+ + Response 200 ()
