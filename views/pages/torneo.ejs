@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Lista Tornei</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="/style/brackets.css">
+  <script>
+    $(document).ready(function() {
+      torneo=$('#torneo').html()
+      torneo = JSON.parse(torneo)
+      var knownBrackets = [2, 4, 8, 16, 32, 64], // brackets with "perfect" proportions (full fields, no byes)
+        exampleTeams = _.shuffle(torneo[0].giocatori)
+        bracketCount = 0; 
+
+      /*
+      * Build our bracket "model"
+      */
+      function getBracket(base) {
+
+        var closest = _.find(knownBrackets, function (k) { return k >= base; }),
+          byes = closest - base;
+
+        if (byes > 0) base = closest;
+
+        var brackets = [],
+          round = 1,
+          baseT = base / 2,
+          baseC = base / 2,
+          teamMark = 0,
+          nextInc = base / 2;
+
+        for (i = 1; i <= (base - 1); i++) {
+          var baseR = i / baseT,
+            isBye = false;
+
+          if (byes > 0 && (i % 2 != 0 || byes >= (baseT - i))) {
+            isBye = true;
+            byes--;
+          }
+
+          var last = _.map(_.filter(brackets, function (b) { return b.nextGame == i; }), function (b) { return { game: b.bracketNo, teams: b.teamnames }; });
+
+          brackets.push({
+            lastGames: round == 1 ? null : [last[0].game, last[1].game],
+            nextGame: nextInc + i > base - 1 ? null : nextInc + i,
+            teamnames: round == 1 ? [exampleTeams[teamMark], exampleTeams[teamMark + 1]] : [last[0].teams[_.random(1)], last[1].teams[_.random(1)]],
+            bracketNo: i,
+            roundNo: round,
+            bye: isBye
+          });
+          teamMark += 2;
+          if (i % 2 != 0) nextInc--;
+          while (baseR >= 1) {
+            round++;
+            baseC /= 2;
+            baseT = baseT + baseC;
+            baseR = i / baseT;
+          }
+        }
+
+        renderBrackets(brackets);
+      }
+
+      /*
+      * Inject our brackets
+      */
+      function renderBrackets(struct) {
+        var groupCount = _.uniq(_.map(struct, function (s) { return s.roundNo; })).length;
+
+        var group = $('<div class="group' + (groupCount + 1) + '" id="b' + bracketCount + '"></div>'),
+          grouped = _.groupBy(struct, function (s) { return s.roundNo; });
+        for (g = 1; g <= groupCount; g++) {
+          var round = $('<div class="r' + g + '"></div>');
+          _.each(grouped[g], function (gg) {
+            if (gg.bye)
+              round.append('<div></div>');
+            else
+              //, gg.bracketNo, gg.teamnames[0], gg.teamnames[1]
+              round.append('<div><div class="bracketbox"><span class="info1">' + gg.bracketNo + '</span><span class="info2">' + gg.bracketNo + '</span><span class="teama">' +gg.teamnames[0] + '</span><span class="teamb">' +gg.teamnames[1] + '</span></div></div>');
+          });
+          group.append(round);
+        }
+        group.append('<div class="r' + (groupCount + 1) + '"><div class="final"><div class="bracketbox"><span class="teamc">' + _.last(struct).teamnames[_.random(1)] + '</span></div></div></div>');
+        $('#brackets').append(group);
+
+        bracketCount++;
+        $('html,body').animate({
+          scrollTop: $("#b" + (bracketCount - 1)).offset().top
+        });
+      }
+
+      $('#add').on('click', function () {
+       //var opts = parseInt(prompt('Bracket size (number of teams):', 32));
+       var opts = torneo[0].numero_partecipanti
+        console.log(torneo[0].numero_partecipanti)
+        if (!_.isNaN(opts) && opts <= _.last(knownBrackets))
+          getBracket(opts);
+        else
+          alert('The bracket size you specified is not currently supported.');
+        $('#clear').off('click');
+        $('#clear').on('click', function () {
+          $('#brackets').html("");
+        });
+      });
+
+
+    })
+  </script>
+
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li>
+          <img src="/images/Logo_Ping_Pov.png" alt="PingPov Logo" width="70px" height="70px">
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/tornei">Tornei<span class="sr-only">(current)</span> </a>
+        </li>
+
+
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Prenotazioni Tavolo<span class="sr-only">(current)</span> </a>
+        </li>
+
+
+
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Partite<span class="sr-only">(current)</span> </a>
+        </li>
+
+
+
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Partite<span class="sr-only">(current)</span> </a>
+        </li>
+
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Ricerca un utente..."
+            aria-label="Ricerca un utente...">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Ricerca</button>
+        </form>
+      </ul>
+
+    </div>
+    <div>
+      <ul class="navbar-nav mr-auto">
+
+        <a>
+          <% if(typeof log_status !=='undefined' ) { %>
+        </a>
+        <li class="nav-item active">
+          <a class="nav-link" href="/auth/logout">Logout<span class="sr-only">(current)</span> </a>
+        </li>
+        <li>
+          <img src="<%= user.photos[0].value %>" alt="profile pic" width="70px" height="70px"
+            style="border-radius: 50%;">
+        </li>
+        <% } else{ %>
+          <li class="nav-item active">
+            <a class="nav-link" href="#/auth">Login<span class="sr-only">(current)</span> </a>
+          </li>
+
+          <%}%>
+      </ul>
+
+    </div>
+  </nav>
+  <p hidden id="torneo"><%=torneo%></p>
+  <div id="add" class="btn btn-outline-success my-2 my-sm-0" type="submit">Crea Torneo</div>
+  <div id="clear" class="metroBtn">Clear</div>
+  <div class="brackets" id="brackets"></div>
+  <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.3/underscore-umd-min.js"></script>
+</body>
+
+</html>
