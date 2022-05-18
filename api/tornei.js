@@ -12,7 +12,9 @@ module.exports = function (app, mongoose) {
     }));
 
     //GET EVERY BOOK
-    app.get('/v1/tornei', (req, res) => {
+    app.get('/v1/tornei/:username', (req, res) => {
+        req.query.username=req.params.username;
+        res.locals.query=req.query;
         Torneo.find({}, function(err, Tornei){
             if(err){
               console.log(err);
@@ -25,6 +27,8 @@ module.exports = function (app, mongoose) {
 app.get('/v1/tornei/creaTorneo', (req, res) => {
     res.render("pages/crea_torneo");
 });
+
+
 
 app.post('/v1/tornei/creaTorneo',(req, res) => {
     console.log(req.session.user)
@@ -52,11 +56,37 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 
 
 
+app.post('/v1/iscrivi/:id' , async function(req,res){
+
+    const nome_utente=req.body.username; 
+    const id= req.params.id;
+    try{
+        res.json(await Torneo.findById(id).update({ $push: { giocatori: nome_utente } }));
+        }  catch (err) {
+            console.error(`Error while updating programming language`, err.message);
+            next(err);
+          }
+       
+
+});
+app.post('/v1/disiscrivi/:id' , async function(req,res){
+
+    const nome_utente=req.body.username; 
+    const id= req.params.id;
+    try{
+        res.json(await Torneo.findById(id).update({ $pull: { giocatori: nome_utente } }));
+        }  catch (err) {
+            console.error(`Error while updating programming language`, err.message);
+            next(err);
+          }
+       
+
+});
+
 
 
 //GET ONE BOOK
-app.get('/v1/tornei/:id', (req, res) => {
-    
+app.get('/v1/torneo/:id', (req, res) => {
     const id = req.params.id;
     Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{torneo:JSON.stringify(torneo)}) })
 });
@@ -81,7 +111,7 @@ app.delete('/v1/tornei/:id', (req, res) => {
 
 })
 
-app.put('/v1/tornei/:id', (req, res) => {
+app.put('/v1/torneo/:id', (req, res) => {
     const id = req.params.id;
     Torneo.find({ "_id": id }, function (err, docs) {
         if (docs.organizzatore == req.session.username) {

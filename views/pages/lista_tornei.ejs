@@ -71,14 +71,76 @@
             <% for (let i = 0; i < tornei.length; i++){%>
             <tr>
               <th scope="row"><%=i+1%></th>
-              <td><a href="/v1/tornei/<%=tornei[i]['_id']%>"><%=tornei[i]['nome_torneo']%> </a></td>
-              <td><%=tornei[i]['numero_partecipanti']%>/<%=tornei[i]['max_partecipanti']%></td>
+              <td><a href="/v1/torneo/<%=tornei[i]['_id']%>"><%=tornei[i]['nome_torneo']%> </a></td>
+              <td><%=tornei[i]['giocatori'].length%>/<%=tornei[i]['max_partecipanti']%></td>
               <td><%=tornei[i]['data']%></td>
               <td><%=tornei[i]['sede']%></td>
               <td><%=tornei[i]['organizzatore']%></td>
-              <td id="tasto_iscriviti"><button type="button" class="btn btn-success">Iscriviti</button></td>
+              
+              <%  var iscritto=false;
+              for(let j=0; j<tornei[i]['giocatori'].length; j++){
+                console.log(query['username']);
+                console.log(tornei[i]['giocatori'][j]);
+                 if (tornei[i]['giocatori'][j] == (' ' +query['username'])){
+
+
+                  iscritto=true;
+                  break;
+                 }  
+
+          }
+                console.log(tornei[i]['giocatori'].length);
+                if((tornei[i]['giocatori'].length == tornei[i]['max_partecipanti']) && (!iscritto)){
+                  %>
+                  
+                  
+                  
+                  
+              <td id="tasto_disiscrivi"><button type="button" class="btn btn-secondary" disabled >Pieno</button>
+                  </td>
             </tr>
-            <%}%>
+                  <%
+
+                }else{
+         
+              if(iscritto){
+              %>
+
+
+
+              <td id="tasto_disiscrivi"><button type="button" class="btn btn-danger" onclick="fetch('/v1/disiscrivi/<%=tornei[i]['_id']%>' ,{
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  username: sessionStorage.getItem('utente'),
+
+                })
+              });
+              setTimeout('',10000);
+          window.location.reload();
+              ">Disiscriviti</button></td>
+            </tr>
+            <%}else{%>
+
+              <td id="tasto_iscriviti"><button type="button" class="btn btn-success" onclick="fetch('/v1/iscrivi/<%=tornei[i]['_id']%>' ,{
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  username: sessionStorage.getItem('utente'),
+
+                })
+              });
+              setTimeout('',10000);
+          window.location.reload();
+              ">Iscriviti</button></td>
+            </tr>
+            <%}}}%>
           </tbody>
         </table>
       </div>
