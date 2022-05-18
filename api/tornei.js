@@ -42,15 +42,13 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
         nuovo_Torneo.numero_partecipanti =1
     }
     
-    console.log(nuovo_Torneo)
-    /*
     if (nuovo_Torneo.organizzatore == "" || nuovo_Torneo.organizzatore == undefined){
         res.send("Errore, login non eseguito");
         return;
     }
     nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
     console.log(nuovo_Torneo);
-    res.send(Torneo.nuovo_Torneo);*/
+    res.send(Torneo.nuovo_Torneo);
 });
 
 
