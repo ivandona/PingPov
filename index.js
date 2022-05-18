@@ -6,8 +6,9 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
+require('dotenv').config()
 
-mongoose.connect('');
+mongoose.connect(process.env.DB_URL);
 
 global.path = require('path')
 
