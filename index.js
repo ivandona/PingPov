@@ -2,18 +2,21 @@
 const express = require('express');
 //use session
 const session = require('express-session');
-//connection to db
+
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
-require('dotenv').config()
-require('underscore')
-mongoose.connect(process.env.DB_URL);
+//include .env
+require('dotenv').config();
 
 global.path = require('path')
 
 //declaring app
 const app = express();
+//connection to db
+mongoose.connect(process.env.DB_URL);
+global.path = require('path');
+
 app.use(passport.initialize());
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
