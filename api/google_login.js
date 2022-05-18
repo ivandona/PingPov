@@ -7,7 +7,7 @@ module.exports = function (app) {
     app.get('/v1/auth/success', (req, res) => {
         if(userProfile.id){
             req.session.logged=true;
-            req.session.username=userProfile.displayName
+            req.session.username=userProfile.displayName;
         }
         //req.session.nickname=GET_FROM_DB
         let path_name = ('pages/success');
