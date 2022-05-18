@@ -9,8 +9,6 @@ global.passport = require('passport');
 //include .env
 require('dotenv').config();
 
-mongoose.connect('');
-
 global.path = require('path')
 
 //declaring app

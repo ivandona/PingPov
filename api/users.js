@@ -1,17 +1,7 @@
 // api/users.js
 module.exports = function (app, mongoose) {
     //Schema di user
-    const User =  mongoose.model('User',{
-        name: String,
-        email: String,
-        statistiche: {
-            attacco: Number, 
-            difesa: Number, 
-            spin: Number, 
-            chop: Number, 
-            all_around: Number
-        }
-    })
+    const User = require('./user');
     //GET EVERY USER
     app.get('/users', (req, res) => {
         res.send('Response')
@@ -19,20 +9,20 @@ module.exports = function (app, mongoose) {
   
     //POST
     app.post('/users', (req, res) => {
-        const user = new User({
-            name: req.body.name,
+        const new_user = new User({
+            username: req.body.username,
             email: req.body.email,
             stastistiche: {
                 attacco: req.body.attacco,
                 difesa: req.body.difesa,
                 spin: req.body.spin,
-                chop: req.body.chop,
+                controllo: req.body.controllo,
                 all_around: req.body.all_around
             }
             
         })
-        user.save().then(() => console.log('user inserito'));
-        res.send(user.name);
+        new_user.save().then(() => console.log('user inserito'));
+        res.send(new_user.username);
     })
     //GET ONE USER
     app.get('/users/:id', (req, res) => {
@@ -41,13 +31,13 @@ module.exports = function (app, mongoose) {
     //PUT
     app.put('/users/:id', (req, res) => {
         const body = {
-            name: req.body.name,
+            username: req.body.username,
             email: req.body.email,
             stastistiche: {
                 attacco: req.body.attacco,
                 difesa: req.body.difesa,
                 spin: req.body.spin,
-                chop: req.body.chop,
+                controllo: req.body.controllo,
                 all_around: req.body.all_around
             }
         };
