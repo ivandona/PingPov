@@ -49,38 +49,39 @@
         </li>
 
       </ul>
-
-    </div>
-  </nav>
-
-  <div class="container">
-    <div class="jumbotron">
-      <p><a class="btn btn-primary" href="/v1/tornei/creaTorneo" role="button">Crea nuovo torneo</a></p>
-      
-      <table class="table" style="padding: top 30px;">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            <th scope="col">Nome Torneo</th>
-            <th scope="col">#Giocatori</th>
-            <th scope="col">Creatore</th>
-            <th scope="col">Sede</th>
-            <th scoper="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (let i=0; i < tornei.length; i++){%>
-          <tr>
-            <th scope="row"><%=i+1%></th>
-            <td> <%=tornei[i]['nome_torneo'] %></td>
-            <td><%=tornei[i]['numero_partecipanti']%>/<%=tornei[i]['max_partecipanti']%></td>
-            <td><%=tornei[i]['organizzatore']%></td>
-            <td> <%=tornei[i]['sede']%> </td>
-            <td scoper="col"><a class="btn btn-success" href="/v1/tornei/creaTorneo" role="button">Iscriviti</a></td>
-          </tr>
-          <%}%>
-        </tbody>
-      </table>
+    
+      </div>
+    </nav>
+  
+    <div class="container">
+      <div class="jumbotron">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Nome Torneo</th>
+              <th scope="col">Giocatori</th>
+              <th scope="col">Data</th>
+              <th scope="col">Sede</th>
+              <th scope="col">Organizzatore</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (let i = 0; i < tornei.length; i++){%>
+            <tr>
+              <th scope="row"><%=i+1%></th>
+              <td><a href="/v1/tornei/<%=tornei[i]['_id']%>"><%=tornei[i]['nome_torneo']%> </a></td>
+              <td><%=tornei[i]['numero_partecipanti']%>/<%=tornei[i]['max_partecipanti']%></td>
+              <td><%=tornei[i]['data']%></td>
+              <td><%=tornei[i]['sede']%></td>
+              <td><%=tornei[i]['organizzatore']%></td>
+              <td id="tasto_iscriviti"><button type="button" class="btn btn-success">Iscriviti</button></td>
+            </tr>
+            <%}%>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </body>

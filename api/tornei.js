@@ -11,14 +11,12 @@ module.exports = function (app, mongoose) {
         giocatori: [String]
     }));
 
-
     //GET EVERY BOOK
     app.get('/v1/tornei', (req, res) => {
         Torneo.find({}, function(err, Tornei){
             if(err){
               console.log(err);
             } else{
-
                 res.render('pages/lista_tornei',{tornei: Tornei})
             }
         })
@@ -43,13 +41,12 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
         nuovo_Torneo.numero_partecipanti =1
     }
     
-    console.log(nuovo_Torneo)
-    
     if (nuovo_Torneo.organizzatore == "" || nuovo_Torneo.organizzatore == undefined){
         res.send("Errore, login non eseguito");
         return;
     }
     nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
+    console.log(nuovo_Torneo);
     res.send(Torneo.nuovo_Torneo);
 });
 
@@ -59,15 +56,14 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 
 //GET ONE BOOK
 app.get('/v1/tornei/:id', (req, res) => {
+    
     const id = req.params.id;
-    Torneo.find({ "_id": id }).lean().exec((err, docs) =>{ 
-        console.log(docs)
-        res.render('pages/torneo',{torneo: JSON.stringify(docs)})
-    })
+    Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{torneo:JSON.stringify(torneo)}) })
 });
 
 //DELETE
 app.delete('/v1/tornei/:id', (req, res) => {
+    
     const id = req.params.id;
     Torneo.find({ "_id": id }.lean(), function (err, docs) {
         if (docs.organizzatore == req.session.username) {
