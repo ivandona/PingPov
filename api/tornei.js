@@ -10,7 +10,6 @@ module.exports = function (app, mongoose) {
         giocatori: [String]
     }));
 
-
     //GET EVERY BOOK
     app.get('/v1/tornei', (req, res) => {
         Torneo.find({}, function(err, Tornei){
@@ -56,12 +55,14 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 
 //GET ONE BOOK
 app.get('/v1/tornei/:id', (req, res) => {
+    
     const id = req.params.id;
     Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{torneo:JSON.stringify(torneo)}) })
 });
 
 //DELETE
 app.delete('/v1/tornei/:id', (req, res) => {
+    
     const id = req.params.id;
     Torneo.find({ "_id": id }, function (err, docs) {
         if (docs.organizzatore == req.session.username) {

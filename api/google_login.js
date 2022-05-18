@@ -54,5 +54,6 @@ module.exports = function (app) {
         req.session.log_status = false;
         req.session.username='';
         req.session.rank='';
+        res.render('pages/home.ejs')
     })
 }
