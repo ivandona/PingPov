@@ -1,81 +1,88 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Lista Tornei</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> <!-- load bulma css -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- load fontawesome -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.js"></script>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <img src="/images/Logo_Ping_Pov.png" width="70px" height="70px" href="/home">
-      
-      
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-       
-        <ul class="navbar-nav mr-auto">
-         
-          <li class="nav-item active">
-            <a class="nav-link" href="/tornei">Tornei<span class="sr-only">(current)</span> </a>
-          </li>
-          
-          
-          <li class="nav-item active">
-            <a class="nav-link" href="#">Prenotazioni<span class="sr-only">(current)</span> </a>
-          </li>
+
+<head>
+  <title>Lista Tornei</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- load bulma css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- load fontawesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
   
-  
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Dropdown
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Disabled</a>
-          </li> 
-          <li>   <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form></li>
-       </li>
-         <li class="nav-item">
-        <a class="nav-link" href="/v1/auth">Login</a>
-      </li>  
-      
+ 
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <img src="/images/Logo_Ping_Pov.png" width="70px" height="70px" href="/home">
+
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+      <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item active">
+          <a class="nav-link" href="/v1/tornei">Tornei<span class="sr-only">(current)</span> </a>
+        </li>
+
+
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Prenotazioni<span class="sr-only">(current)</span> </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">Disabled</a>
+        </li>
+        <li>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </li>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/v1/auth">Login</a>
+        </li>
+
       </ul>
-    
-      </div>
-    </nav>
-  
-    <div class="container">
-      <div class="jumbotron">
-          <div class="row">
-            <div class="col-sm-6">
-                <div class="well">
-                  <a class="btn btn-primary" href="/v1/tornei/creaTorneo" role="button">Crea nuovo torneo</a>
-                        <p id="lista">
-                            <% for (let i = 0; i < tornei.length; i++){%>
-                            <div style="border-top: solid;">
-                            <%=tornei[i]['nome_torneo'] %> <br>
-                            <%=tornei[i]['sede']%> <br>
-                            </div>
-                            <%}%>
-                        </p>
-                </div>
-            </div>
-        </div>
-      </div>
+
     </div>
-  </body>
+  </nav>
+
+  <div class="container">
+    <div class="jumbotron">
+      <p><a class="btn btn-primary" href="/v1/tornei/creaTorneo" role="button">Crea nuovo torneo</a></p>
+      
+      <table class="table" style="padding: top 30px;">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Nome Torneo</th>
+            <th scope="col">#Giocatori</th>
+            <th scope="col">Creatore</th>
+            <th scope="col">Sede</th>
+            <th scoper="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let i=0; i < tornei.length; i++){%>
+          <tr>
+            <th scope="row"><%=i+1%></th>
+            <td> <%=tornei[i]['nome_torneo'] %></td>
+            <td><%=tornei[i]['numero_partecipanti']%>/<%=tornei[i]['max_partecipanti']%></td>
+            <td><%=tornei[i]['organizzatore']%></td>
+            <td> <%=tornei[i]['sede']%> </td>
+            <td scoper="col"><a class="btn btn-success" href="/v1/tornei/creaTorneo" role="button">Iscriviti</a></td>
+          </tr>
+          <%}%>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
 </html>

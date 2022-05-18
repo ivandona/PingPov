@@ -2,12 +2,12 @@
 module.exports = function (app) {
     //var used for storing profile information
     var userProfile;
-    //result of logging
-    
+    require('dotenv').config()
+    console.log(process.env.GOOGLE_CLIENT_ID)
     app.get('/v1/auth/success', (req, res) => {
         if(userProfile.id){
             req.session.logged=true;
-            req.session.username=userProfile.displayName
+            req.session.user=userProfile.displayName
         }
         //req.session.nickname=GET_FROM_DB
         let path_name = ('pages/success');
@@ -24,8 +24,8 @@ module.exports = function (app) {
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
-    const GOOGLE_CLIENT_ID = ''
-    const GOOGLE_CLIENT_SECRET = '';
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    const GOOGLE_CLIENT_SECRET =  process.env.GOOGLE_CLIENT_SECRET;
 
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
@@ -52,7 +52,7 @@ module.exports = function (app) {
         });
     app.get('/v1/auth/logout',function(req, res){
         req.session.log_status = false;
-        req.session.username='';
+        req.session.user='';
         req.session.rank='';
     })
 }

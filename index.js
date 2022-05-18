@@ -6,8 +6,9 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
-
-mongoose.connect('');
+require('dotenv').config()
+require('underscore')
+mongoose.connect(process.env.DB_URL);
 
 global.path = require('path')
 
@@ -41,7 +42,7 @@ function requireAutentication(req,res,next){
       res.render('pages/auth');
   }
 }
-app.all('*',requireAutentication)
+//app.all('*',requireAutentication)
 
 // Starting app after calling every api
 require('./api/api_index')(app,mongoose);

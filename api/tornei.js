@@ -1,5 +1,6 @@
 // api/tornei.js
 module.exports = function (app, mongoose) {
+
     const Torneo = mongoose.model('Torneo', mongoose.Schema({
         nome_torneo: String,
         data: Date,
@@ -28,29 +29,28 @@ app.get('/v1/tornei/creaTorneo', (req, res) => {
 });
 
 app.post('/v1/tornei/creaTorneo',(req, res) => {
-    console.log(req.session.username)
+    console.log(req.session.user)
     const nuovo_Torneo = new Torneo({
         nome_torneo: req.body.torneo.nome_torneo,
         data: req.body.torneo.data,
-        organizzatore: req.session.username,
+        organizzatore: req.session.user,
         sede: req.body.torneo.sede,
         max_partecipanti: req.body.torneo.numero_partecipanti,
         numero_partecipanti: 0,
     })
     if (req.body.torneo.admin_gioca == true){
-        nuovo_Torneo.giocatori.push(req.session.username);
+        nuovo_Torneo.giocatori.push(req.session.user);
         nuovo_Torneo.numero_partecipanti =1
     }
     
     console.log(nuovo_Torneo)
-    /*
+    
     if (nuovo_Torneo.organizzatore == "" || nuovo_Torneo.organizzatore == undefined){
         res.send("Errore, login non eseguito");
         return;
     }
     nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
-    console.log(nuovo_Torneo);
-    res.send(Torneo.nuovo_Torneo);*/
+    res.send(Torneo.nuovo_Torneo);
 });
 
 
@@ -60,13 +60,16 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 //GET ONE BOOK
 app.get('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
-    Torneo.find({ "_id": id }, function (err, docs) { res.send(docs) })
+    Torneo.find({ "_id": id }).lean().exec((err, docs) =>{ 
+        console.log(docs)
+        res.render('pages/torneo',{torneo: JSON.stringify(docs)})
+    })
 });
 
 //DELETE
 app.delete('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
-    Torneo.find({ "_id": id }, function (err, docs) {
+    Torneo.find({ "_id": id }.lean(), function (err, docs) {
         if (docs.organizzatore == req.session.username) {
             Torneo.findByIdAndRemove(id, function (err, docs) {
                 if (err) {
@@ -98,7 +101,8 @@ app.put('/v1/tornei/:id', (req, res) => {
         }
     })
 })
+app.get('/v1/torneo', (req, res) => {
 
-
-
+    res.render("pages/torneo")
+})
 }
