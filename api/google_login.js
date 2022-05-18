@@ -4,15 +4,16 @@ module.exports = function (app) {
     var userProfile;
     //result of logging
     
-    app.get('/auth/success', (req, res) => {
+    app.get('/v1/auth/success', (req, res) => {
         if(userProfile.id){
             req.session.logged=true;
+            req.session.username=userProfile.displayName
         }
         //req.session.nickname=GET_FROM_DB
         let path_name = ('pages/success');
         res.render(path_name,{user:userProfile,log_status:req.session.logged});
     })
-    app.get('/auth/error', (req, res) => res.send("error logging in"));
+    app.get('/v1/auth/error', (req, res) => res.send("error logging in"));
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);
@@ -22,8 +23,9 @@ module.exports = function (app) {
         cb(null, obj);
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-    const GOOGLE_CLIENT_ID = '71410486894-clfqt9gadnobb4j27vn4sk36dbh0l5di.apps.googleusercontent.com';
-    const GOOGLE_CLIENT_SECRET = "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";
+
+    const GOOGLE_CLIENT_ID = ''
+    const GOOGLE_CLIENT_SECRET = '';
 
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
@@ -36,7 +38,7 @@ module.exports = function (app) {
         }
     ));
 
-    app.get('/auth/google',
+    app.get('/v1/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));
 
     app.get('/auth/google/callback',
@@ -46,12 +48,11 @@ module.exports = function (app) {
             req.session.user = userProfile
             //console.log(req.session.user)
             //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
-            res.redirect('/auth/success');
+            res.redirect('/v1/auth/success');
         });
-    app.get('/auth/logout',function(req, res){
+    app.get('/v1/auth/logout',function(req, res){
         req.session.log_status = false;
         req.session.username='';
         req.session.rank='';
-        res.render("pages/home");
     })
 }

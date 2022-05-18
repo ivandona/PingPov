@@ -15,6 +15,15 @@
   "organizzatore":"nicola",
   "sede":"Povo0",
   "max_partecipanti":"8",
-  "partecipanti":"4"
+  "partecipanti":"4",
+  "match":[ { id: { s: 1, r: 1, m: 1 }, // semi 1
+    p: [ 1, 4 ] },
+  { id: { s: 1, r: 1, m: 2 }, // semi 2
+    p: [ 3, 2 ] },
+  { id: { s: 1, r: 2, m: 1 }, // grand final
+    p: [ 0, 0 ] },
+  { id: { s: 2, r: 1, m: 1 }, // bronze final
+    p: [ 0, 0 ] } ]
+ 
 }
 }

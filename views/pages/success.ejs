@@ -28,12 +28,12 @@
           <img src="/images/Logo_Ping_Pov.png" alt="PingPov Logo" width="70px" height="70px">
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="#/tornei">Tornei<span class="sr-only">(current)</span> </a>
+            <a class="nav-link" href="/v1/tornei">Tornei<span class="sr-only">(current)</span> </a>
           </li>
           
           
           <li class="nav-item active">
-            <a class="nav-link" href="#">Prenotazioni Tavolo<span class="sr-only">(current)</span> </a>
+            <a class="nav-link" href="/prenotazioni">Prenotazioni Tavolo<span class="sr-only">(current)</span> </a>
           </li>
   
   
@@ -60,7 +60,7 @@
         
         <a> <% if(typeof log_status !== 'undefined') { %> </a> 
           <li class="nav-item active">
-          <a class="nav-link" href="/auth/logout">Logout<span class="sr-only">(current)</span> </a> 
+          <a class="nav-link" href="/logout">Logout<span class="sr-only">(current)</span> </a> 
        </li>
        <li>
           <img src="<%= user.photos[0].value %>" alt="profile pic" width="70px" height="70px" style="border-radius: 50%;">
@@ -100,8 +100,12 @@
                           <strong>Logged State</strong>:<%=log_status%><br>
                             <strong>Id</strong>: <%= user.id %><br>
                             <strong>Email</strong>: <%= user.emails[0].value %><br>
-                            <strong>Name</strong>: <%= user.displayName %>
+                           <strong>Name</strong>: <a id="name"> <%= user.displayName %></a>
                             
+
+                         
+                        
+
                         </p>
                 </div>
             </div>
@@ -109,7 +113,7 @@
       </div>
     </div>
   
-
+    <div id="ciao">fhdsjf</div>
     <div style="width: 100%;">
       <div style="width: 50%; height: 100px; float: left; "> 
           
@@ -119,6 +123,9 @@
         <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
 
             <script>
+
+            window.sessionStorage.setItem('utente',document.getElementById("name").textContent);
+            document.getElementById('ciao').textContent=document.getElementById('name').textContent;
             var xValues = ["Attacco", "Difesa", "Allaround", "Spin", "Controllo"];
               var yValues = [55, 49, 44, 24, 15];
             var barColors = ["red", "green","blue","orange","brown"];
@@ -157,4 +164,5 @@
 
 
   </body>
+
 </html>
