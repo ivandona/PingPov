@@ -12,17 +12,7 @@ module.exports = function (app, mongoose) {
     }));
 
     //GET EVERY BOOK
-    app.get('/v1/tornei/:username', (req, res) => {
-        req.query.username=req.params.username;
-        res.locals.query=req.query;
-        Torneo.find({}, function(err, Tornei){
-            if(err){
-              console.log(err);
-            } else{
-                res.render('pages/lista_tornei',{tornei: Tornei})
-            }
-        })
-    })
+    
 
 app.get('/v1/tornei/creaTorneo', (req, res) => {
     res.render("pages/crea_torneo");
@@ -31,17 +21,17 @@ app.get('/v1/tornei/creaTorneo', (req, res) => {
 
 
 app.post('/v1/tornei/creaTorneo',(req, res) => {
-    console.log(req.session.user)
+    console.log(req.session.username)
     const nuovo_Torneo = new Torneo({
         nome_torneo: req.body.torneo.nome_torneo,
         data: req.body.torneo.data,
-        organizzatore: req.session.user,
+        organizzatore: req.session.username,
         sede: req.body.torneo.sede,
         max_partecipanti: req.body.torneo.numero_partecipanti,
         numero_partecipanti: 0,
     })
     if (req.body.torneo.admin_gioca == true){
-        nuovo_Torneo.giocatori.push(req.session.user);
+        nuovo_Torneo.giocatori.push(req.session.username);
         nuovo_Torneo.numero_partecipanti =1
     }
     
@@ -130,5 +120,18 @@ app.put('/v1/torneo/:id', (req, res) => {
 app.get('/v1/torneo', (req, res) => {
 
     res.render("pages/torneo")
+
+})
+
+app.get('/v1/tornei/', (req, res) => {
+    //req.query.username=req.params.username;
+    res.locals.query=req.query;
+    Torneo.find({}, function(err, Tornei){
+        if(err){
+          console.log(err);
+        } else{
+            res.render('pages/lista_tornei',{tornei: Tornei})
+        }
+    })
 })
 }

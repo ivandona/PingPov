@@ -45,7 +45,7 @@ function requireAutentication(req,res,next){
       res.render('pages/auth');
   }
 }
-//app.all('*',requireAutentication)
+app.all('*',requireAutentication)
 
 // Starting app after calling every api
 require('./api/api_index')(app,mongoose);
