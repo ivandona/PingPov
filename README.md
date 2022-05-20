@@ -6,7 +6,6 @@ node index.js
 Aprire localhost:4000/auth
 =======
 Web App per giocare a ping pong a Povo
-ivan
 
 **startare con 'node index.js' e provare api su localhost/4000**
 
