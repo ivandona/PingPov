@@ -26,9 +26,12 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   logged:false,
+  user_id:'',
   username:'',
+  email:'',
+  user_image: '',
   rank:'',
-  secret: 'thisismysecret' 
+  secret: 'thisismysecret', 
 }));
 app.use(passport.session());
 //get method for login
@@ -45,7 +48,7 @@ function requireAutentication(req,res,next){
       res.render('pages/auth');
   }
 }
-//app.all('*',requireAutentication)
+app.all('*',requireAutentication)
 
 // Starting app after calling every api
 require('./api/api_index')(app,mongoose);

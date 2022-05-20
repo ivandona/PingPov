@@ -8,16 +8,12 @@ module.exports = function (app, mongoose) {
 
     //GET EVERY BOOK
     app.get('/prenotazioni', (req, res) => {
-        console.log("efnsd");
         res.locals.query = req.query;
-
         Prenotazione.find({}, function(err, Prenotazioni){
             if(err){
               console.log(err);
             } else{
-
-                res.render('pages/ricerca_prenotazioni',{prenotazioni: Prenotazioni})
-                console.log('retrieved list of names', Prenotazioni.length, Prenotazioni[0]);
+                res.render('pages/ricerca_prenotazioni',{prenotazioni: Prenotazioni,session: req.session})
             }
         })
     })

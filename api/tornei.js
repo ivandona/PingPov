@@ -11,7 +11,6 @@ module.exports = function (app, mongoose) {
         giocatori: [String]
     }));
 
-    //GET EVERY BOOK
     app.get('/v1/tornei/:username', (req, res) => {
         req.query.username=req.params.username;
         res.locals.query=req.query;
