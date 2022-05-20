@@ -57,9 +57,13 @@
     
       </div>
     </nav>
+
+
+   
   
     <div class="container">
       <div class="jumbotron">
+        <button type="button" class="btn btn-primary" onclick="window.location.replace('/v1/tornei/creaTorneo')">Crea Torneo</button>
         <table class="table table-striped">
           <thead>
             <tr>
@@ -84,9 +88,8 @@
               
               <%  var iscritto=false;
               for(let j=0; j<tornei[i]['giocatori'].length; j++){
-                console.log(query['username']);
-                console.log(tornei[i]['giocatori'][j]);
-                 if (tornei[i]['giocatori'][j] == (' ' +query['username'])){
+               
+                 if (tornei[i]['giocatori'][j] == (' ' +query['username']['displayName'])){
 
 
                   iscritto=true;
@@ -94,7 +97,6 @@
                  }  
 
           }
-                console.log(tornei[i]['giocatori'].length);
                 if((tornei[i]['giocatori'].length == tornei[i]['max_partecipanti']) && (!iscritto)){
                   %>
                   

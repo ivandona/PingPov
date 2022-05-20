@@ -24,12 +24,12 @@
         <ul class="navbar-nav mr-auto">
          
           <li class="nav-item active">
-            <a class="nav-link" href="/tornei">Tornei<span class="sr-only">(current)</span> </a>
+            <a class="nav-link" href="/v1/tornei">Tornei<span class="sr-only">(current)</span> </a>
           </li>
           
           
           <li class="nav-item active">
-            <a class="nav-link" href="#">Prenotazioni<span class="sr-only">(current)</span> </a>
+            <a class="nav-link" href="/v1/prenotazioni">Prenotazioni<span class="sr-only">(current)</span> </a>
           </li>
   
 
@@ -51,17 +51,17 @@
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form></li>
-        <a> <% if(typeof log_status !== 'undefined') { %> </a> 
+        <a> <% if(query['username'] != 'undefined') { %> </a> 
           <li class="nav-item active">
-          <a class="nav-link" href="/logout">Logout<span class="sr-only">(current)</span> </a> 
+          <a class="nav-link" href="/v1/auth/logout">Logout<span class="sr-only">(current)</span> </a> 
        </li>
        <li>
-          <img src="<%= user.photos[0].value %>" alt="profile pic" width="70px" height="70px" style="border-radius: 50%;">
+          <img src="<%=query['username']['photos'][0].value %>" alt="profile pic" width="70px" height="70px" style="border-radius: 50%;">
        </li>
           <% } else{
             %>
             <li class="nav-item active">
-              <a class="nav-link" href="#/auth">Login<span class="sr-only">(current)</span> </a>
+              <a class="nav-link" href="/v1/auth">Login<span class="sr-only">(current)</span> </a>
             </li>
             
             <%}%>
@@ -71,15 +71,18 @@
       </div>
     </nav>
   
-      <form  action="/prenotazioni" method="get">
+      <form  action="/v1/prenotazioni" method="get">
         <input type="date" id="data" name="data">
         <input type="time" id="ora" name="ora">
-        <input type="text" id="sede" name="sede">
+
+        <select id="sede" name="sede">
+          <option value="Povo0">Povo0</option>
+          <option value="Povo1">Povo1</option>
+        </select>
         <input type="submit" value="Ricerca">
       </form>
 
    
-      <p id="username" > </p>
 
       <% var day= new Date(Date.parse(query['data'] + 'T'+query['ora'] +':00'));%>
     <div class="jumbotron" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
@@ -97,7 +100,7 @@
         </div>
         <% if(prenotazioni[i]['prenotatore'] == "" ){ %>
 
-          <button  onclick="fetch('/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+          <button  onclick="fetch('/v1/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
             method: 'PUT',
             headers: {
               'Accept': 'application/json',
@@ -116,7 +119,7 @@
           <Button disabled style="background-color:firebrick; color: rgb(115,102,102);"> Prenotato</Button>
        
                      
-         <button  onclick=" fetch('/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+         <button  onclick=" fetch('/v1/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
             method: 'PUT',
             headers: {
               'Accept': 'application/json',

@@ -7,10 +7,11 @@ module.exports = function (app, mongoose) {
     }));
 
     //GET EVERY BOOK
-    app.get('/prenotazioni', (req, res) => {
-        console.log("efnsd");
-        res.locals.query = req.query;
-
+    app.get('/v1/prenotazioni', (req, res) => {
+        
+        req.query.username=req.session.user;
+        res.locals.query=req.query
+        console.log(res.locals.query);
         Prenotazione.find({}, function(err, Prenotazioni){
             if(err){
               console.log(err);
@@ -23,10 +24,11 @@ module.exports = function (app, mongoose) {
     })
 
 //PUT 
-app.put('/aggiungiPrenotazione/:id',async function(req, res){
+app.put('/v1/aggiungiPrenotazione/:id',async function(req, res){
     //const ObjectID = require('mongoose').ObjectID;
     const id = req.params.id;
     const query = { 'id':id };
+  ;
     const body = {
       prenotatore: req.body.prenotatore,
       giorno: req.body.giorno,
@@ -35,7 +37,7 @@ app.put('/aggiungiPrenotazione/:id',async function(req, res){
     try{
     res.json(await Prenotazione.findById(id).update(req.params.prenotatore,body));
     }  catch (err) {
-        console.error(`Error while updating programming language`, err.message);
+        console.error(`Iscrizione non riuscita`, err.message);
         next(err);
       }
    
@@ -43,14 +45,14 @@ app.put('/aggiungiPrenotazione/:id',async function(req, res){
   
 });
 //GET ONE BOOK
-app.get('/Prenotazione/:id', (req, res) => {
+app.get('/v1/Prenotazione/:id', (req, res) => {
     const id = req.params.id;
     console.log('id:' + id)
     Prenotazione.find({ "_id": id }, function (err, docs) { res.send(docs) })
 });
 
 //DELETE
-app.delete('/Prenotazione/:id', (req, res) => {
+app.delete('/v1/Prenotazione/:id', (req, res) => {
     const ObjectID = require('mongoose').ObjectID;
     const id = req.params.id;
     const query = { '_id': new ObjectID(id) };

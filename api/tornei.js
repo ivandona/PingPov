@@ -12,8 +12,9 @@ module.exports = function (app, mongoose) {
 
 
     //GET EVERY BOOK
-    app.get('/v1/tornei/:username', (req, res) => {
-        req.query.username=req.params.username;
+    app.get('/v1/tornei', (req, res) => {
+        console.log(req.session.user);
+        req.query.username=req.session.user;
         res.locals.query=req.query;
         Torneo.find({}, function(err, Tornei){
             if(err){
@@ -63,10 +64,10 @@ app.post('/v1/iscrivi/:id' , async function(req,res){
     try{
         res.json(await Torneo.findById(id).update({ $push: { giocatori: nome_utente } }));
         }  catch (err) {
-            console.error(`Error while updating programming language`, err.message);
+            console.error(`iscrizione non riuscita`, err.message);
             next(err);
           }
-       
+    console.log("iscrizione avvenuta");
 
 });
 app.post('/v1/disiscrivi/:id' , async function(req,res){
@@ -76,10 +77,11 @@ app.post('/v1/disiscrivi/:id' , async function(req,res){
     try{
         res.json(await Torneo.findById(id).update({ $pull: { giocatori: nome_utente } }));
         }  catch (err) {
-            console.error(`Error while updating programming language`, err.message);
+            console.error(`disiscrizione non riuscita`, err.message);
             next(err);
           }
        
+          console.log("disiscrizione avvenuta");
 
 });
 
