@@ -31,7 +31,8 @@
           <a class="nav-link px-4" href="/v1/tornei"><b>Tornei</b><span class="sr-only">(current)</span> </a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link px-4" href="/v1/prenotazioni"><b>Prenotazione Tavolo</b><span class="sr-only">(current)</span> </a>
+          <a class="nav-link px-4" href="/v1/prenotazioni"><b>Prenotazione Tavolo</b><span
+              class="sr-only">(current)</span> </a>
         </li>
         <li class="nav-item active">
           <a class="nav-link px-4" href="/v1/leaderboard"><b>Leaderboard</b><span class="sr-only">(current)</span> </a>
@@ -44,24 +45,26 @@
       <% if(session.logged==true) { %>
         <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
           <li class="nav-item px-3">
-            <a class="btn btn-outline-danger btn-sm" href="/v1/auth/logout" role="button">Logout<span class="sr-only">(current)</span> </a>
+            <a class="btn btn-outline-danger btn-sm" href="/v1/auth/logout" role="button">Logout<span
+                class="sr-only">(current)</span> </a>
           </li>
           <li> <a href="/v1/success"><img src="<%=session.user_image%>" alt="profile pic" width="50px" height="50px"
                 style="border-radius: 50%;"></a>
           </li>
           <li class="nav-item px-3">
-            <a class="nav-text"><%=session.username%></a>
+            <a class="nav-text">
+              <%=session.username%>
+            </a>
             <img src="/images/rank_imgs/bronze.png" alt="profile_rank" width="20px" height="20px">
             <br>
             <%=session.rank%>
-            rank #53
+              rank #53
           </li>
-      <% } else{ %>
+          <% } else{ %>
             <li class="nav-item active">
               <a class="nav-link" href="/v1/auth"><b>Login</b></a>
             </li>
-
-      <%}%>
+            <%}%>
 
 
         </ul>
@@ -70,12 +73,19 @@
     </div>
   </nav>
 
-  <form action="/prenotazioni" method="get">
+
+  <form action="/v1/prenotazioni" method="get">
     <input type="date" id="data" name="data">
     <input type="time" id="ora" name="ora">
-    <input type="text" id="sede" name="sede">
+
+    <select id="sede" name="sede">
+      <option value="Povo0">Povo0</option>
+      <option value="Povo1">Povo1</option>
+    </select>
     <input type="submit" value="Ricerca">
   </form>
+
+
 
   <% var day=new Date(Date.parse(query['data'] + 'T' +query['ora'] +':00'));%>
     <div class="jumbotron" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
@@ -92,39 +102,37 @@
                   </a>
         </div>
         <% if(prenotazioni[i]['prenotatore']=="" ){ %>
-
-          <button onclick="fetch('/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
-            method: 'PUT',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              prenotatore: sessionStorage.getItem('utente'),
-            })
-          });
-          setTimeout('',7000);
-          window.location.reload();
-        " style="background-color:green; color: rgb(115,102,102);"> Prenota </button>
-
+          <button onclick="fetch('/v1/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prenotatore: sessionStorage.getItem('utente'),
+        })
+      });
+      setTimeout('',7000);
+      window.location.reload();
+    " style="background-color:green; color: rgb(115,102,102);"> Prenota </button>
 
           <% } else{%>
             <Button disabled style="background-color:firebrick; color: rgb(115,102,102);"> Prenotato</Button>
 
 
-            <button onclick=" fetch('/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
-            method: 'PUT',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              prenotatore: '',
-            })
-          });
-          setTimeout('',7000);
-          window.location.reload();
-        " style="background-color:lightslategray; color: rgb(115,102,102);"> Annulla prenotazione </button>
+            <button onclick=" fetch('/v1/rimuoviPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prenotatore: '',
+        })
+      });
+      setTimeout('',7000);
+      window.location.reload();
+    " style="background-color:lightslategray; color: rgb(115,102,102);"> Annulla prenotazione </button>
             <%}}}}%>
 
     </div>

@@ -41,16 +41,16 @@ app.use(session({
 app.use(passport.session());
 //get method for login
 app.get('/v1/auth', function(req, res) {
-  res.render('pages/auth');
+  res.render('pages/auth', { session: req.session });
 });
 app.get('/v1/home', function(req, res) {
-  res.render('pages/home');
+  res.render('pages/home', { session: req.session });
 });
 function requireAutentication(req,res,next){
   if( req.isAuthenticated() == true || req.originalUrl.includes('/auth')){
       next();
   }else{
-      res.render('pages/auth');
+      res.render('pages/auth', { session: req.session });
   }
 }
 app.all('*',requireAutentication)

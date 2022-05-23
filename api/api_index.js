@@ -2,13 +2,11 @@
 const apiAuth = require('./google_login');
 const apiTornei = require('./tornei');
 const apiPrenotazioni = require('./prenotazioni');
-const apiUsers = require('./users');
 
 module.exports = function(app,mongoose) {
   apiAuth(app);
   apiTornei(app,mongoose);
   apiPrenotazioni(app,mongoose);
-  //apiUsers(app, mongoose);
 };
 
 
