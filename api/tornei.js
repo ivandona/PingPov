@@ -70,7 +70,7 @@ app.post('/v1/iscrivi/:id' , async function(req,res){
     console.log("iscrizione avvenuta");
 
 });
- app.post('/v1/disiscrivi/:id' , async function(req,res){
+ app.delete('/v1/disiscrivi/:id' , async function(req,res){
 
     const nome_utente=req.body.username; 
     const id= req.params.id;
