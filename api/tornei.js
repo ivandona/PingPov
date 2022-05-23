@@ -11,8 +11,17 @@ module.exports = function (app, mongoose) {
         giocatori: [String]
     }));
 
-    //GET EVERY BOOK
-    
+    app.get('/v1/tornei/:username', (req, res) => {
+        req.query.username=req.params.username;
+        res.locals.query=req.query;
+        Torneo.find({}, function(err, Tornei){
+            if(err){
+              console.log(err);
+            } else{
+                res.render('pages/lista_tornei',{tornei: Tornei})
+            }
+        })
+    })
 
 app.get('/v1/tornei/creaTorneo', (req, res) => {
     res.render("pages/crea_torneo");

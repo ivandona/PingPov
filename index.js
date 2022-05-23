@@ -2,6 +2,7 @@
 const express = require('express');
 //use session
 const session = require('express-session');
+const { MongoTailableCursorError } = require('mongodb');
 
 const mongoose = require('mongoose');
 //requiring passport for login states
@@ -15,6 +16,7 @@ global.path = require('path')
 const app = express();
 //connection to db
 mongoose.connect(process.env.DB_URL);
+const MongoStore = require('connect-mongo');
 global.path = require('path');
 
 app.use(passport.initialize());
@@ -26,9 +28,15 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   logged:false,
+  user_id:'',
   username:'',
+  email:'',
+  user_image: '',
   rank:'',
-  secret: 'thisismysecret' 
+  secret: 'thisismysecret', 
+  store: MongoStore.create({
+    mongoUrl: process.env.DB_URL,
+  })
 }));
 app.use(passport.session());
 //get method for login

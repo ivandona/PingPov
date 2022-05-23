@@ -24,9 +24,11 @@ module.exports = function (app) {
             res.render(path_name,{user: userProfile, log_status: req.session.logged});
         }else{
             //email trovata
-            console.log(req.session.email + " email trovata");
+            
             req.session.logged=true;
-            req.session.username=userProfile.displayName;
+            req.session.email= userProfile.emails[0].value;
+            req.session.username=user.username;
+            req.session.user_image=userProfile.photos[0].value;
             //apre pagina success
             let path_name = ('pages/success');
             res.render(path_name,{user:userProfile,log_status:req.session.logged});
