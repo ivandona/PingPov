@@ -11,20 +11,19 @@ module.exports = function (app, mongoose) {
         giocatori: [String]
     }));
 
-    app.get('/v1/tornei/:username', (req, res) => {
-        req.query.username=req.params.username;
+    app.get('/v1/tornei', (req, res) => {
         res.locals.query=req.query;
         Torneo.find({}, function(err, Tornei){
             if(err){
               console.log(err);
             } else{
-                res.render('pages/lista_tornei',{tornei: Tornei})
+                res.render('pages/lista_tornei',{session: req.session, tornei: Tornei})
             }
         })
     })
 
 app.get('/v1/tornei/creaTorneo', (req, res) => {
-    res.render("pages/crea_torneo");
+    res.render("pages/crea_torneo", { session: req.session });
 });
 
 
@@ -87,7 +86,7 @@ app.post('/v1/disiscrivi/:id' , async function(req,res){
 //GET ONE BOOK
 app.get('/v1/torneo/:id', (req, res) => {
     const id = req.params.id;
-    Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{torneo:JSON.stringify(torneo)}) })
+    Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{session: req.session, torneo:JSON.stringify(torneo)}) })
 });
 
 //DELETE
@@ -128,6 +127,6 @@ app.put('/v1/torneo/:id', (req, res) => {
 })
 app.get('/v1/torneo', (req, res) => {
 
-    res.render("pages/torneo")
+    res.render("pages/torneo", { session: req.session })
 })
 }

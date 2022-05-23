@@ -13,62 +13,61 @@
   </script>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-       
-
+      <img src="/images/Logo_Ping_Pov.png" width="70px" height="70px" href="/v1/home">
   
-    
+  
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  
         <ul class="navbar-nav mr-auto">
-          <li>
-          <img src="/images/Logo_Ping_Pov.png" alt="PingPov Logo" width="70px" height="70px">
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="/tornei">Tornei<span class="sr-only">(current)</span> </a>
-          </li>
-          
-          
-          <li class="nav-item active">
-            <a class="nav-link" href="#">Prenotazioni Tavolo<span class="sr-only">(current)</span> </a>
-          </li>
   
-  
-            
           <li class="nav-item active">
-            <a class="nav-link" href="#">Partite<span class="sr-only">(current)</span> </a>
+            <a class="nav-link px-4" href="/v1/tornei"><b>Tornei</b><span class="sr-only">(current)</span> </a>
           </li>
-
-
-            
           <li class="nav-item active">
-            <a class="nav-link" href="#">Partite<span class="sr-only">(current)</span> </a>
+            <a class="nav-link px-4" href="/v1/prenotazioni"><b>Prenotazione Tavolo</b><span
+                class="sr-only">(current)</span> </a>
           </li>
-
-         <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Ricerca un utente..." aria-label="Ricerca un utente...">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Ricerca</button>
+          <li class="nav-item active">
+            <a class="nav-link px-4" href="/v1/leaderboard"><b>Leaderboard</b><span class="sr-only">(current)</span> </a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Ricerca utente</button>
         </form>
-        </ul>
-       
-      </div>
-      <div>
-        <ul class="navbar-nav mr-auto">
-        
-        <a> <% if(typeof log_status !== 'undefined') { %> </a> 
-          <li class="nav-item active">
-          <a class="nav-link" href="/auth/logout">Logout<span class="sr-only">(current)</span> </a> 
-       </li>
-       <li>
-          <img src="<%= user.photos[0].value %>" alt="profile pic" width="70px" height="70px" style="border-radius: 50%;">
-       </li>
-          <% } else{
-            %>
-            <li class="nav-item active">
-              <a class="nav-link" href="#/auth">Login<span class="sr-only">(current)</span> </a>
+        <% if(session.logged==true) { %>
+          <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+            <li class="nav-item px-3">
+              <a class="btn btn-outline-danger btn-sm" href="/v1/auth/logout" role="button">Logout<span
+                  class="sr-only">(current)</span> </a>
             </li>
-            
-            <%}%>
-        </ul>
-
+            <li> <a href="/v1/success"><img src="<%=session.user_image%>" alt="profile pic" width="50px" height="50px"
+                  style="border-radius: 50%;"></a>
+            </li>
+            <li class="nav-item px-3">
+              <a class="nav-text">
+                <%=session.username%>
+              </a>
+              <img src="/images/rank_imgs/bronze.png" alt="profile_rank" width="20px" height="20px">
+              <br>
+              <%=session.rank%>
+                rank #53
+            </li>
+            <% } else{ %>
+              <li class="nav-item active">
+                <a class="nav-link" href="/v1/auth"><b>Login</b></a>
+              </li>
+              <%}%>
+  
+  
+          </ul>
+  
+  
       </div>
     </nav>
     <div class="container">

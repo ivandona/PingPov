@@ -18,10 +18,9 @@ module.exports = function (app) {
         if(!user){
             //email non trovata
             console.log(req.session.email + " non trovata");
-            req.session.logged=true;
             //apre pagina registrazione
             let path_name = ('pages/registrazione');
-            res.render(path_name,{user: userProfile, log_status: req.session.logged});
+            res.render(path_name,{user: userProfile, session: req.session });
         }else{
             //email trovata
             
@@ -30,8 +29,8 @@ module.exports = function (app) {
             req.session.username=user.username;
             req.session.user_image=userProfile.photos[0].value;
             //apre pagina success
-            let path_name = ('pages/success');
-            res.render(path_name,{user:userProfile,log_status:req.session.logged});
+            let path_name = ('pages/profilo');
+            res.render(path_name,{user:userProfile, session: req.session});
         }
         
     });
@@ -50,10 +49,11 @@ module.exports = function (app) {
             all_around: req.body.all_around
         })
         new_user.save().then(() => console.log('user inserito'));
-        req.session.logged=true;
-        req.session.username=userProfile.displayName;
-        let path_name = ('pages/success');
-        res.render(path_name,{user:userProfile,log_status:req.session.logged});
+        res.redirect('/v1/auth/success');
+    });
+
+    app.get('/v1/profilo', (req, res) => {
+        res.render('pages/profilo', { session: req.session });
     });
 
     passport.serializeUser(function (user, cb) {
@@ -93,6 +93,6 @@ module.exports = function (app) {
         req.session.log_status = false;
         req.session.user='';
         req.session.rank='';
-        res.render('pages/home.ejs')
+        res.render('pages/home.ejs',{ session: req.session })
     })
 }
