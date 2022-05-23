@@ -119,8 +119,8 @@
           <Button disabled style="background-color:firebrick; color: rgb(115,102,102);"> Prenotato</Button>
        
                      
-         <button  onclick=" fetch('/v1/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
-            method: 'PUT',
+         <button  onclick=" fetch('/v1/rimuoviPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+            method: 'DELETE',
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json'

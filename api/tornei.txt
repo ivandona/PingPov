@@ -70,7 +70,7 @@ app.post('/v1/iscrivi/:id' , async function(req,res){
     console.log("iscrizione avvenuta");
 
 });
- app.post('/v1/disiscrivi/:id' , async function(req,res){
+app.post('/v1/disiscrivi/:id' , async function(req,res){
 
     const nome_utente=req.body.username; 
     const id= req.params.id;
@@ -88,7 +88,7 @@ app.post('/v1/iscrivi/:id' , async function(req,res){
 
 
 //GET ONE BOOK
-app.get('/v1/tornei/:id', (req, res) => {
+app.get('/v1/torneo/:id', (req, res) => {
     const id = req.params.id;
     Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{torneo:JSON.stringify(torneo)}) })
 });
