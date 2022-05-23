@@ -12,6 +12,7 @@ module.exports = function (app, mongoose) {
     }));
 
     app.get('/v1/tornei', (req, res) => {
+        req.query.username = req.session.user.displayName;
         res.locals.query=req.query;
         Torneo.find({}, function(err, Tornei){
             if(err){
@@ -84,7 +85,7 @@ app.delete('/v1/disiscrivi/:id' , async function(req,res){
 
 
 //GET ONE BOOK
-app.get('/v1/torneo/:id', (req, res) => {
+app.get('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
     Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{session: req.session, torneo:JSON.stringify(torneo)}) })
 });
@@ -109,7 +110,7 @@ app.delete('/v1/tornei/:id', (req, res) => {
 
 })
 
-app.put('/v1/torneo/:id', (req, res) => {
+app.put('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
     Torneo.find({ "_id": id }, function (err, docs) {
         if (docs.organizzatore == req.session.username) {
@@ -125,8 +126,9 @@ app.put('/v1/torneo/:id', (req, res) => {
         }
     })
 })
+/*
 app.get('/v1/torneo', (req, res) => {
 
     res.render("pages/torneo", { session: req.session })
-})
+})*/
 }
