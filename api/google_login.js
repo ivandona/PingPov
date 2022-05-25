@@ -67,6 +67,8 @@ module.exports = function (app) {
         callbackURL: "http://localhost:4000/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
+            console.log(accessToken)
+            console.log(refreshToken)
             userProfile = profile;
             return done(null, userProfile);
         }
@@ -78,11 +80,9 @@ module.exports = function (app) {
     app.get('/auth/google/callback',
         passport.authenticate('google', { failureRedirect: '/auth/error' }),
         function (req, res) {
-            // Successful authentication, redirect success.
             req.session.user = userProfile
-            //console.log(req.session.user)
-            //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
-            res.redirect('/v1/auth/success');
+            console.log(req.user.displayName)
+            res.send('Correttamente loggato')
         });
     app.get('/v1/auth/logout',function(req, res){
         req.logout();
