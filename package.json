@@ -29,6 +29,8 @@
     "mongoose-schema-jsonschema": "^2.0.2",
     "passport": "^0.5.2",
     "passport-google-oauth": "^2.0.0",
+    "swagger-jsdoc": "^6.2.1",
+    "swagger-ui-express": "^4.4.0",
     "underscore": "^1.13.3"
   },
   "devDependencies": {

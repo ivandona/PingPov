@@ -1,0 +1,387 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: "PingPov"
+  description: Ping Pov serve per dare svariati servizi come la creazione di tornei e l'organizzazione di partite di ping pong a Povo
+  license:
+    name: MIT
+    url: https://github.com/apiaryio/polls-api/blob/master/LICENSE
+host: polls.apiblueprint.org
+basePath: /
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+
+paths:
+  /v1/auth/success:
+    x-summary: Gestione login
+    get:
+      summary: /v1/auth/success
+      description: Visualizza pagina profilo o, se non si è registrati, la pagina di registrazione
+      produces:
+        - text/html
+      responses:
+        '200':
+            description: text/html o registrazione.ejs
+            
+  /v1/auth/registrazione:
+    x-summary: Registrazione
+    post:
+      summary: /v1/auth/registrazione
+      description: >-
+        Aggiunge dati registrazione al db
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: user
+          description: user da creare
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '201':
+          description: User creato
+          
+  /v1/auth/error:
+    x-summary: Errore nel login
+    get:
+      summary: /v1/auth/error
+      produces: 
+        - text/plain
+      responses:
+        '400':
+          description: error loggin in
+          
+  /v1/auth/logout:
+    x-summary: Logout
+    get:
+      summary: /v1/auth/logout
+      description: Cancella dati sessione e visualizza pagina home
+      produces: 
+        - text/html
+      responses:
+        '200':
+          description: Logout effettuato.
+          
+  /v1/profilo:
+    x-summary: Profilo
+    get:
+      summary: /v1/profilo
+      produces:
+        - text/html
+      description: Visualizza pagina profilo
+      responses:
+        '200':
+          description: Successful response
+          
+
+  /v1/prenotazioni:
+    x-summary: Prenotazioni Tavolo
+    get:
+      summary: /v1/prenotazioni
+      description : Visualizza la pagina in cui si trovano tutte le prenotazioni
+      responses:
+        '200':
+          description: Successful Response
+          examples:
+            plain/text:
+              retrived list of names
+      
+            
+  
+  /v1/aggiungiPrenotazione/ :
+    x-summary : Aggiunta Iscrizione
+    post: 
+      summary: /v1/aggiungiPrenotazione/
+      description : aggiunge la prenotaizone ad uno slot se esso è disponibile per la prenotazione
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id per filtrare utente"
+          type : integer
+        - name : "prenotatore"
+          in : "body"
+          description : "nome del prenotatore"
+          schema :
+            $ref : "#/definitions/Prenotazione"
+          required : true
+      responses:    
+        '200':
+          description: Successful Response
+          examples:
+            plain/text:
+              Prenotazione riuscita
+        '400':  
+          description: Error in Response
+          examples:
+            plain/text:
+              Errore nella prenotazione
+ 
+ 
+  /v1/rimuoviPrenotazione/ :
+    x-summary : Rimzione Prenotazione
+    delete: 
+      summary: /v1/rimuoviPrenotazione/
+      description : rimiuove una prenotazione da uno slot nel momento in cui è presente
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id per filtrare utente"
+          type : integer
+          required : false
+          
+        - name : "prenotatore"
+          in : "body"
+          description : "nome del prenotatore"
+          schema :
+            $ref : "#/definitions/Prenotazione"
+          required : true
+      
+      responses:    
+        '200':
+          description: Successful Response
+          examples:
+            plain/text:
+              Prenotazione riuscita
+        '400':  
+          description: Error in Response
+          examples:
+            plain/text:
+              Errore nella prenotazione
+
+  /v1/iscrivi/ :
+    x-summary : Iscrizione
+    post: 
+      summary: /v1/iscrivi/
+      description : permette ad un utente di iscriversi ad un torneo
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id per filtrare torneo"
+          type : integer
+          required : false
+          
+        - name : "username"
+          in : "body"
+          description : "nome dell'utente"
+          schema : 
+            $ref : "#/definitions/User"
+          required : true
+      
+      responses:    
+        '200':
+          description: Successful Response
+          examples:
+            plain/text:
+               iscrizione avvenuta
+        '400':  
+          description: Error in Response
+          examples:
+            plain/text:
+              iscrizione non riuscita
+
+  /v1/disiscrivi/ :
+    x-summary : Disiscrizione
+    delete: 
+      summary: /v1/disiscrivi/
+      description : permette ad un utente di disiscriversi da un torneo dopo essersi iscritto
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id per filtrare torneo"
+          type : integer
+          required : false
+          
+        - name : "username"
+          in : "body"
+          description : "nome dell'utente"
+          schema : 
+            $ref : "#/definitions/User"
+          required : true
+      
+      responses:    
+        '200':
+          description: Successful Response
+          examples:
+            plain/text:
+               disiscrizione avvenuta
+        '400':  
+          description: Error in Response
+          examples:
+            plain/text:
+              disiscrizione non riuscita
+
+  /v1/tornei :
+    x-summary : Tornei disponibili e cancellazione
+    get:
+      summary: /v1/tornei
+      description : ritorna una pagina html con la lista dei tornei attivi e monitorabili
+      responses:
+        '200':
+          description: lista_tornei.ejs
+
+  /v1/tornei/:id :
+    x-summary : Dettagli torneo
+    get:
+      summary: /v1/tornei/:id
+      description : ritorna una pagina html con la lista dei tornei attivi e monitorabili
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id del torneo"
+          required : true
+          type : "string"
+      responses:
+        '200':
+          description: html inviato
+    delete:
+      summary: /v1/tornei/:id
+      description : elimina torneo specificato nell'url
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id del torneo"
+          required : true
+          type : "string"
+      responses:
+        '200':
+          description: torneo correttamente eliminato
+
+  /v1/tornei/creaTorneo :
+    x-summary : Creazione dei tornei
+    get:
+      summary: /v1/tornei/creaTorneo
+      description : richiede pagina html con form per la creazione dei tornei
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id del torneo"
+          required : true
+          type : string
+      responses:
+        '200':
+          description: crea_torneo.ejs
+    post:
+      summary: /v1/tornei/creaTorneo
+      description : crea nuovo torneo
+      parameters:
+        - name : "id"
+          in : "query"
+          description : "id del torneo"
+          required : true
+          type : string
+ 
+        - name : "nome_torneo"
+          in : "query"
+          description : "nome del torneo"
+          required : true
+          type : string
+          
+        - name : "data"
+          in : "query"
+          description : "data inizio torneo"
+          required : true
+          type : string
+          
+        - name : "organizzatore"
+          in : "query"
+          description : "nickname organizzatore"
+          required : true
+          type : string
+          
+        - name : "sede"
+          in : "query"
+          description : "sede torneo"
+          required : true
+          type : string
+          
+        - name : "max_partecipanti"
+          in : "query"
+          description : "numero massimo partecipanti del torneo(max 64)"
+          required : true
+          type : integer
+          
+        - name : "admin_gioca"
+          in : "query"
+          description : "se l'admin prenderà parte al torneo come giocatore"
+          required : true
+          type : boolean
+      responses: 
+        '200':
+          description: torneo appena creato come file json
+  
+
+
+
+definitions:
+  Prenotazione:
+    type: object
+    properties:
+      prenotatore:
+        type: string
+      giorno:
+        type: string
+        format: date
+      sede:
+        type: string
+        
+  Torneo :
+    type: object
+    properties:
+      nome_torneo: 
+        type: string
+      data:
+        type: string
+        format: date
+      organizzatore :
+        type : string
+      sede : 
+        type : string
+      max_partecipanti: 
+        type : number
+      numero_partecipanti:
+        type : number
+      giocatori : 
+        type : array 
+  
+  User:
+    type: object
+    required:
+      - email
+      - name
+      - username
+      - attacco
+      - difesa
+      - spin
+      - controllo
+      - all_around
+    properties:
+      email:
+        type: string
+      name: 
+        type: string
+      username:
+        type: string
+      attacco:
+        type: integer
+      difesa:
+        type: integer
+      spin:
+        type: integer
+      controllo: 
+        type: integer
+      all_around:
+        type: integer
+    
+    
+    
+    
+    
+    
+        
+      
+
+  
