@@ -12,16 +12,24 @@ module.exports = function (app, mongoose) {
     }));
 
     app.get('/v1/tornei', (req, res) => {
-        req.query.username = req.session.user.displayName;
+        req.query.username = req.user.displayName;
         res.locals.query=req.query;
         Torneo.find({}, function(err, Tornei){
             if(err){
               console.log(err);
             } else{
-                res.render('pages/lista_tornei',{ user : req.user, tornei: Tornei})
+                //res.render('pages/lista_tornei',{ user : req.user, tornei: Tornei})
+                res.send(Tornei)
             }
         })
     })
+
+    app.get('/tornei', (req, res) => {
+        res.render('pages/lista_tornei')
+    })
+
+
+
 
 app.get('/v1/tornei/creaTorneo', (req, res) => {
     res.render("pages/crea_torneo", { user : req.user});
