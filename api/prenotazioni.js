@@ -15,7 +15,7 @@ module.exports = function (app, mongoose) {
                 console.log(err);
             } else {
 
-                res.render('pages/ricerca_prenotazioni', { session: req.session, prenotazioni: Prenotazioni })
+                res.send({ session: req.session, prenotazioni: Prenotazioni })
                 console.log('retrieved list of names', Prenotazioni.length, Prenotazioni[0]);
             }
         })
@@ -46,15 +46,15 @@ module.exports = function (app, mongoose) {
 
 
     //DELETE
-    app.delete('/v1/rimuoviPrenotazione/:id', async function (req, res) {
-        const id = req.params.id;
+    app.delete('/v1/rimuoviPrenotazione/', async function (req, res) {
+        const id = req.body.id;
         const query = { 'id': id };
         const body = {
             prenotatore: req.body.prenotatore,
-
         };
         try {
             res.json(await Prenotazione.findById(id).update(req.params.prenotatore, body));
+            
             console.log("rimozione prenotazione riuscita");
         } catch (err) {
             console.error(`Errore nella rimozione della prenotazione`, err.message);
@@ -62,4 +62,15 @@ module.exports = function (app, mongoose) {
         }
 
     })
+
+
+app.get('/prenotazioni',(req, res)=>{
+
+    res.render('pages/ricerca_prenotazioni',req.session);
+
+
+
+
+}
+)
 }
