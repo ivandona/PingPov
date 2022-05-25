@@ -7,7 +7,7 @@ module.exports = function (app, mongoose) {
     }));
 
     app.get('/v1/prenotazioni', (req, res) => {
-
+        console.log(req.user)
         req.query.username = req.session.user;
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
