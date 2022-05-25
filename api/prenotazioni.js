@@ -7,7 +7,7 @@ module.exports = function (app, mongoose) {
     }));
 
     app.get('/v1/prenotazioni', (req, res) => {
-
+        console.log(req.user)
         req.query.username = req.session.user;
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
@@ -15,7 +15,7 @@ module.exports = function (app, mongoose) {
                 console.log(err);
             } else {
 
-                res.render('pages/ricerca_prenotazioni', { session: req.session, prenotazioni: Prenotazioni })
+                res.render('pages/ricerca_prenotazioni', {user :req.user, prenotazioni: Prenotazioni })
                 console.log('retrieved list of names', Prenotazioni.length, Prenotazioni[0]);
             }
         })

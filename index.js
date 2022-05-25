@@ -50,7 +50,6 @@ app.use(require('body-parser').json());
 app.use(session({
   resave: false,
   saveUninitialized: true,
-  logged: false,
   user_id: '',
   username: '',
   email: '',
@@ -64,16 +63,16 @@ app.use(session({
 app.use(passport.session());
 //get method for login
 app.get('/v1/auth', function (req, res) {
-  res.render('pages/auth', { session: req.session });
+  res.render('pages/auth', { user:req.user });
 });
 app.get('/v1/home', function (req, res) {
-  res.render('pages/home', { session: req.session });
+  res.render('pages/home', { user:req.user });
 });
 function requireAutentication(req, res, next) {
   if (req.isAuthenticated() == true || req.originalUrl.includes('/auth')) {
     next();
   } else {
-    res.render('pages/auth', { session: req.session });
+    res.render('pages/auth', { user:req.user });
   }
 }
 app.all('*', requireAutentication)

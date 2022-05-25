@@ -18,13 +18,13 @@ module.exports = function (app, mongoose) {
             if(err){
               console.log(err);
             } else{
-                res.render('pages/lista_tornei',{session: req.session, tornei: Tornei})
+                res.render('pages/lista_tornei',{ user : req.user, tornei: Tornei})
             }
         })
     })
 
 app.get('/v1/tornei/creaTorneo', (req, res) => {
-    res.render("pages/crea_torneo", { session: req.session });
+    res.render("pages/crea_torneo", { user : req.user});
 });
 
 
@@ -34,13 +34,13 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
     const nuovo_Torneo = new Torneo({
         nome_torneo: req.body.torneo.nome_torneo,
         data: req.body.torneo.data,
-        organizzatore: req.session.user,
+        organizzatore: req.user.displayName,
         sede: req.body.torneo.sede,
         max_partecipanti: req.body.torneo.numero_partecipanti,
         numero_partecipanti: 0,
     })
     if (req.body.torneo.admin_gioca == true){
-        nuovo_Torneo.giocatori.push(req.session.user);
+        nuovo_Torneo.giocatori.push(req.user.displayName);
         nuovo_Torneo.numero_partecipanti =1
     }
     
@@ -57,10 +57,10 @@ app.post('/v1/tornei/creaTorneo',(req, res) => {
 
 app.post('/v1/iscrivi/:id' , async function(req,res){
 
-    const nome_utente=req.body.username; 
+    const nome_utente=req.user.displayName; 
     const id= req.params.id;
     try{
-        res.json(await Torneo.findById(id).update({ $push: { giocatori: nome_utente } }));
+        res.json(await Torneo.findById(id).update({ $addToSet: { giocatori: nome_utente } }));
         }  catch (err) {
             console.error(`Error while updating programming language`, err.message);
             next(err);
@@ -70,7 +70,7 @@ app.post('/v1/iscrivi/:id' , async function(req,res){
 });
 app.delete('/v1/disiscrivi/:id' , async function(req,res){
 
-    const nome_utente=req.body.username; 
+    const nome_utente=req.user.displayName; 
     const id= req.params.id;
     try{
         res.json(await Torneo.findById(id).update({ $pull: { giocatori: nome_utente } }));
@@ -87,7 +87,7 @@ app.delete('/v1/disiscrivi/:id' , async function(req,res){
 //GET ONE BOOK
 app.get('/v1/tornei/:id', (req, res) => {
     const id = req.params.id;
-    Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{session: req.session, torneo:JSON.stringify(torneo)}) })
+    Torneo.find({ "_id": id }).lean().exec((err, torneo)=> { res.render('pages/torneo',{user : req.user, torneo:JSON.stringify(torneo)}) })
 });
 
 //DELETE

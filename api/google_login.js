@@ -12,25 +12,20 @@ module.exports = function (app) {
     //result of logging
     
     app.get('/v1/auth/success', async function (req, res) {
-        req.session.email=String(userProfile.emails[0].value);
+        //req.session.email=String(userProfile.emails[0].value);
         //cerca email nel db
-        let user = await User.findOne({email: req.session.email}).exec();
+        let user = await User.findOne({email: req.user.emails[0].value}).exec();
         if(!user){
             //email non trovata
             console.log(req.session.email + " non trovata");
             //apre pagina registrazione
             let path_name = ('pages/registrazione');
+            
             res.render(path_name,{user: userProfile, session: req.session });
         }else{
-            //email trovata
-            
-            req.session.logged=true;
-            req.session.email= userProfile.emails[0].value;
-            req.session.username=user.username;
-            req.session.user_image=userProfile.photos[0].value;
-            //apre pagina success
+            req.user.rank = user.rank
             let path_name = ('pages/profilo');
-            res.render(path_name,{user:userProfile, session: req.session});
+            res.render(path_name,{user: req.user});
         }
         
     });
@@ -53,7 +48,7 @@ module.exports = function (app) {
     });
 
     app.get('/v1/profilo', (req, res) => {
-        res.render('pages/profilo', { session: req.session });
+        res.render('pages/profilo', { user: req.user });
     });
 
     passport.serializeUser(function (user, cb) {
@@ -90,9 +85,7 @@ module.exports = function (app) {
             res.redirect('/v1/auth/success');
         });
     app.get('/v1/auth/logout',function(req, res){
-        req.session.log_status = false;
-        req.session.user='';
-        req.session.rank='';
-        res.render('pages/home.ejs',{ session: req.session })
+        req.logout();
+        res.render('pages/home.ejs',{ user : req.user})
     })
 }
