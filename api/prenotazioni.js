@@ -9,31 +9,40 @@ module.exports = function (app, mongoose) {
     app.get('/v1/prenotazioni', (req, res) => {
         console.log(req.user)
         req.query.username = req.session.user;
+        res.user=req.session.user
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
             if (err) {
                 console.log(err);
             } else {
+                risultato=[];
+                for(i=0; i<Prenotazioni.length;i++){
+                if(Prenotazioni[i]['sede']==req.query['sede']){
+                    day=new Date(Date.parse(req.query['data'] + 'T' +req.query['ora'] +':00'))
+                    if(day< Prenotazioni[i]['giorno']){
+                        risultato.push(Prenotazioni[i]);
+                    }
+                }
 
-                res.send({ session: req.session, prenotazioni: Prenotazioni })
-                console.log('retrieved list of names', Prenotazioni.length, Prenotazioni[0]);
+                }
+                res.status(200).json(risultato)
             }
         })
     })
 
     //PUT 
-    app.put('/v1/aggiungiPrenotazione/:id', async function (req, res) {
+    app.put('/v1/prenota/', async function (req, res) {
         //const ObjectID = require('mongoose').ObjectID;
-        const id = req.params.id;
-        const query = { 'id': id };
-        ;
+        const id = req.body.pre_id;
+        const query = { 'prenotatore': req.body.prenotatore };
+        res.user=req.user
+        console.log(id);
+        console.log(req.body.prenotatore)
         const body = {
             prenotatore: req.body.prenotatore,
-            giorno: req.body.giorno,
-            sede: req.body.sede
         };
         try {
-            res.json(await Prenotazione.findById(id).update(req.params.prenotatore, body));
+            res.json(await Prenotazione.findByIdAndUpdate(id,body));
             console.log("prenotazione riuscita");
         } catch (err) {
             console.error(`Errore nella prenotazione`, err.message);
@@ -46,14 +55,16 @@ module.exports = function (app, mongoose) {
 
 
     //DELETE
-    app.delete('/v1/rimuoviPrenotazione/', async function (req, res) {
-        const id = req.body.id;
+    app.delete('/v1/prenota/', async function (req, res) {
+        console.log("chiamata delete")
+        const id = req.body.pre_id;
+        res.user=req.user
         const query = { 'id': id };
         const body = {
             prenotatore: req.body.prenotatore,
         };
         try {
-            res.json(await Prenotazione.findById(id).update(req.params.prenotatore, body));
+            res.json(await Prenotazione.findByIdAndUpdate(id,body));
             
             console.log("rimozione prenotazione riuscita");
         } catch (err) {
@@ -65,8 +76,7 @@ module.exports = function (app, mongoose) {
 
 
 app.get('/prenotazioni',(req, res)=>{
-
-    res.render('pages/ricerca_prenotazioni',req.session);
+    res.render('pages/ricerca_prenotazioni',{user : req.user});
 
 
 
