@@ -14,7 +14,6 @@
 
 <body>
   <%- include('navbar.ejs') %>
-
     <div class="container">
       <div class="jumbotron">
         <table class="table table-striped">
@@ -39,8 +38,7 @@
     <script>
       class Torneo {
         constructor(data) {
-          data['_id'] = data['_id'].replace(' new ObjectId("', '')
-          data['_id'] = data['_id'].replace('")', '')
+          data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
           Object.assign(this, data);
         };
       }
@@ -53,6 +51,7 @@
             if (xhr.status === 200) {
               data = JSON.parse(xhr.responseText);
               for (let i = 0; i < data.length; i++) {
+                console.log(data[i])
                 tornei.push(new Torneo(data[i]))
               }
               createTable(tornei)
@@ -66,7 +65,6 @@
         };
 
         xhr.send(null);
-        createTable(tornei)
       }
       function createTable(tornei) {
         tbody = document.getElementById('t_body');
