@@ -89,12 +89,10 @@ module.exports = function (app) {
             }
             var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
             req.token = token
-
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: process.env.SUPER_SECRET,
               }).status(200).json({ message: token });
-            
         });
     app.get('/v1/auth/logout',function(req, res){
         req.logout();

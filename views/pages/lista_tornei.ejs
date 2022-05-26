@@ -28,7 +28,7 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <a class="btn btn-danger" href="/v1/tornei/creaTorneo" role="button">Crea torneo</a>
+          <a class="btn btn-danger" href="/tornei/creaTorneo" role="button">Crea torneo</a>
           <tbody id="t_body">
           </tbody>
         </table>
@@ -45,7 +45,7 @@
       async function req() {
         var tornei = []
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/v1/tornei", true);
+        xhr.open("GET", "/v2/tornei", true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -75,7 +75,7 @@
           cells += (i + 1)
           cells += "</td>\n"
           cells += "<td>"
-          cells += "<a href='/v1/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
+          cells += "<a href='/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
           cells += "</td>\n"
           cells += "<td>"
           cells += tornei[i]['giocatori'].length + "/" + tornei[i]['max_partecipanti']
@@ -105,7 +105,7 @@
       }
       async function iscriviti(id) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v1/iscrizione/?id=" + id, true);
+        xhr.open("POST", "/v2/iscrizione/?id=" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -126,7 +126,7 @@
         console.log('DISISCRIZIONE')
         var xhr = new XMLHttpRequest();
         console.log(id)
-        xhr.open("DELETE", "/v1/iscrizione/?id=" + id, true);
+        xhr.open("DELETE", "/v2/iscrizione/?id=" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {

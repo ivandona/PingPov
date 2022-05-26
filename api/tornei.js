@@ -1,6 +1,6 @@
 // api/tornei.js
 module.exports = function (app, mongoose) {
-    const jwt = require('jsonwebtoken');
+    const tokenChecker = require('./tokenChecker')
     const Torneo = mongoose.model('Torneo', mongoose.Schema({
         nome_torneo: String,
         data: Date,
@@ -9,39 +9,9 @@ module.exports = function (app, mongoose) {
         max_partecipanti: Number,
         giocatori: [String]
     }));
-    const tokenChecker = function(req, res,next) {
-        // check header or url parameters or post parameters for token
-        var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.cookies.token;
-      
-        // if there is no token
-        if (!token) {
-          return res.status(401).send({ 
-            success: false,
-            message: 'No token provided.'
-          });
-        }
-      
-        // decode token, verifies secret and checks exp
-        jwt.verify(token, process.env.SUPER_SECRET, function(err, decoded) {			
-          if (err) {
-            return res.status(403).send({
-              success: false,
-              message: 'Failed to authenticate token.'
-            });		
-          } else {
-            // if everything is good, save to request for use in other routes
-            console.log(decoded)
-            req.user = decoded.user;
-            console.log(req.user.displayName)
-            next();
-          }
-        });
-        
-      };
+
     //Get della lista dei tornei attivi
-    app.get('/v1/tornei', tokenChecker, (req, res) => {
-        req.query.username = req.user.displayName;
-        res.locals.query = req.query;
+    app.get('/v2/tornei', function (req, res){
         Torneo.find({}, function (err, Tornei) {
             if (err) {
                 console.log(err);
@@ -51,14 +21,14 @@ module.exports = function (app, mongoose) {
         })
     })
     //Api di post per la creazione di tornei
-    app.post('/v1/tornei/creaTorneo', (req, res) => {
-        console.log(req.query)
+    app.post('/v2/tornei/creaTorneo', tokenChecker, (req, res) => {
+        console.log(req.body)
         const nuovo_Torneo = new Torneo({
-            nome_torneo: req.query.nome_torneo,
-            data: req.query.data,
-            organizzatore: "test",
-            sede: req.query.sede,
-            max_partecipanti: req.query.numero_partecipanti
+            nome_torneo: req.body.torneo.nome_torneo,
+            data: req.body.torneo.data,
+            organizzatore: req.user.displayName,
+            sede: req.body.torneo.sede,
+            max_partecipanti: req.body.torneo.numero_partecipanti
         })
         if (req.body.torneo.admin_gioca == true) {
             nuovo_Torneo.giocatori.push(req.user.displayName);
@@ -69,81 +39,98 @@ module.exports = function (app, mongoose) {
             return;
         }
         nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
-        res.send(Torneo.nuovo_Torneo);
+        res.status(400).json(nuovo_Torneo).send(Torneo.nuovo_Torneo);
     });
 
 
     //Api di post per l'iscrizione ad un torneo dato l'id (nell'url)
-    app.post('/v1/iscrizione/', async function (req, res) {
+    app.post('/v2/iscrizione/', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
         const id = req.query.id;
         console.log('iscrizione')
         try {
-            res.json(await Torneo.findById(id).updateOne({ $addToSet: { giocatori: nome_utente } }));
-            res.status(400)
-            res.send('Iscrizione avvenuta')
+            res.status(200).json(await Torneo.findById(id).updateOne({ $addToSet: { giocatori: nome_utente } }));
         } catch (err) {
             console.error('Error while updating programming language', err.message);
 
         }
     });
-    //Api di post per la disiscrizione ad un torneo dato l'id (nell'url)
-    app.delete('/v1/iscrizione/', async function (req, res) {
+    //Api di post per la disiscrizione ad un torneo dato l'id nell'url
+    app.delete('/v2/iscrizione/', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
         let id = req.query.id;
         console.log('disiscrizione')
         try {
-            res.json(await Torneo.findById(id).updateOne({ $pull: { giocatori: nome_utente } }))
+            res.status(200).json(await Torneo.findById(id).updateOne({ $pull: { giocatori: nome_utente } }))
         } catch (err) {
             console.error(`Error while updating programming language`, err.message);
         }
     });
-
-    //Api di delete di un torneo dato il suo id nell'url
-    app.delete('/v1/tornei/:id', (req, res) => {
-
+    app.get('/v2/tornei/:id',  async function (req, res) {
         const id = req.params.id;
-        Torneo.find({ "_id": id }.lean(), function (err, docs) {
-            if (docs.organizzatore == req.session.username) {
-                Torneo.findByIdAndRemove(id, function (err, docs) {
-                    if (err) {
-                        res.send('Torneo non trovato')
-                    } else {
-                        res.send('Torneo correttamente cancellato')
-                    }
-                });
+        Torneo.findOne({ _id: req.params.id }).lean().then((torneo,err) => {
+            if (torneo) {
+                res.status(200).json(torneo)
             } else {
-                res.send("Non sei tu l'organizzatore")
+                res.status(404).json(err)
             }
         })
-
-    })
-
-    app.put('/v1/tornei/:id', (req, res) => {
-        const id = req.params.id;
-        Torneo.find({ "_id": id }, function (err, docs) {
-            if (docs.organizzatore == req.session.username) {
-                Torneo.findByIdAndUpdate(id, function (err, docs) {
-                    if (err) {
-                        res.send('Torneo non trovato')
-                    } else {
-                        res.send('Torneo correttamente cancellato')
-                    }
-                });
-            } else {
-                res.send("Non sei tu l'organizzatore")
-            }
-        })
-    })
-
-    //Get pagina web con lista tornei attivi
-    app.get('/tornei', tokenChecker, (req, res) => {
-        console.log(req.token)
-        res.render('pages/lista_tornei', { user: req.user})
-    })
-    //Get pagina web con il form per la creazione di tornei
-    app.get('/v1/tornei/creaTorneo', (req, res) => {
-        res.render("pages/crea_torneo", { user: req.user });
     });
+
+//Api di delete di un torneo dato il suo id nell'url
+app.delete('/v2/tornei/:id',tokenChecker, async function (req, res) {
+    let id = req.params.id;
+    let name = req.user.displayName; 
+    Torneo.findOne({ _id: req.params.id }).lean().then((torneo,err) => {
+        if (torneo.organizzatore == name) {
+            Torneo.findByIdAndRemove(id, function (err, docs) {
+                if (err) {
+                    res.status(404).send('Torneo non trovato')
+                } else {
+                    res.status(200).send('Torneo correttamente cancellato')
+                }
+            });
+        } else {
+            res.status(401).send("Non sei tu l'organizzatore")
+        }
+    })
+
+})
+app.put('/v2/tornei/:id', (req, res) => {
+    const id = req.params.id;
+    Torneo.find({ "_id": id }, function (err, docs) {
+        if (docs.organizzatore == req.session.username) {
+            Torneo.findByIdAndUpdate(id, function (err, docs) {
+                if (err) {
+                    res.send('Torneo non trovato')
+                } else {
+                    res.send('Torneo correttamente cancellato')
+                }
+            });
+        } else {
+            res.send("Non sei tu l'organizzatore")
+        }
+    })
+})
+
+
+
+
+
+//FRONT END
+
+
+//Get pagina web con lista tornei attivi
+app.get('/tornei', tokenChecker, (req, res) => {
+    console.log(req.token)
+    res.render('pages/lista_tornei', { user: req.user })
+})
+//Get pagina web con il form per la creazione di tornei
+app.get('/tornei/creaTorneo', (req, res) => {
+    res.render("pages/crea_torneo", { user: req.user });
+});
+app.get('/tornei/:id', (req, res) => {
+    res.render("pages/torneo", { user: req.user, id : req.params.id });
+});
 
 }

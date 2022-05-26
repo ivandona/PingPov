@@ -1,33 +1,31 @@
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 
-const tokenChecker = function(req, res, next) {
-	console.log('DENTRO TOKEN CHECKER')
+const tokenChecker = function(req, res,next) {
 	// check header or url parameters or post parameters for token
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
+	var token = req.body.token || req.query.token || req.headers['token'] || req.token || req.cookies.token;
+  
 	// if there is no token
 	if (!token) {
-		return res.status(401).send({ 
-			success: false,
-			message: 'No token provided.'
-		});
+	  return res.status(401).send({ 
+		success: false,
+		message: 'No token provided.'
+	  });
 	}
-
+  
 	// decode token, verifies secret and checks exp
 	jwt.verify(token, process.env.SUPER_SECRET, function(err, decoded) {			
-		if (err) {
-			return res.status(403).send({
-				success: false,
-				message: 'Failed to authenticate token.'
-			});		
-		} else {
-			// if everything is good, save to request for use in other routes
-			console.log(decoded)
-            req.user = decoded;
-			//next();
-		}
+	  if (err) {
+		return res.status(403).send({
+		  success: false,
+		  message: 'Failed to authenticate token.'
+		});		
+	  } else {
+		// if everything is good, save to request for use in other routes
+		req.user = decoded.user;
+		next();
+	  }
 	});
 	
-};
+  };
 
-//module.exports = tokenChecker
+module.exports = tokenChecker
