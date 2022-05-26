@@ -6,7 +6,7 @@ module.exports = function (app) {
     //importa variabili nel file .env
     require('dotenv').config();
     //importa schema di User
-    const User = require('./user');
+    const User = require('./models/user');
     //var used for storing profile information
     var userProfile;
     //result of logging
