@@ -8,7 +8,7 @@ const swaggerDocument = require('./pingpov1.json');
 
 
 const swaggerJsdoc = require('swagger-jsdoc');
-const options = {
+/*const options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -19,7 +19,7 @@ const options = {
   apis: ['./api/*'], // files containing annotations as above
 };
 
-const openapiSpecification = swaggerJsdoc(options);
+const openapiSpecification = swaggerJsdoc(options);*/
 
 
 
