@@ -1,12 +1,13 @@
 // api/Prenotazione.js
 module.exports = function (app, mongoose) {
+    const tokenChecker = require('./tokenChecker')
     const Prenotazione = mongoose.model('prenotazione', mongoose.Schema({
         prenotatore: String,
         giorno: Date,
         sede: String
     }));
 
-    app.get('/v1/prenotazioni', (req, res) => {
+    app.get('/v2/prenotazioni', (req, res) => {
         console.log(req.user)
         req.query.username = req.session.user;
         res.user=req.session.user
@@ -31,7 +32,7 @@ module.exports = function (app, mongoose) {
     })
 
     //PUT 
-    app.put('/v1/prenota/', async function (req, res) {
+    app.put('/v2/prenota/', async function (req, res) {
         //const ObjectID = require('mongoose').ObjectID;
         const id = req.body.pre_id;
         const query = { 'prenotatore': req.body.prenotatore };
@@ -55,7 +56,7 @@ module.exports = function (app, mongoose) {
 
 
     //DELETE
-    app.delete('/v1/prenota/', async function (req, res) {
+    app.delete('/v2/prenota/', async function (req, res) {
         console.log("chiamata delete")
         const id = req.body.pre_id;
         res.user=req.user

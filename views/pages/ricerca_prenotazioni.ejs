@@ -28,7 +28,7 @@
     }
     
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/v1/prenotazioni/?data="+form.data.value+"&ora="+form.ora.value+"&sede="+form.sede.value, true);
+    xhr.open("GET", "/v2/prenotazioni/?data="+form.data.value+"&ora="+form.ora.value+"&sede="+form.sede.value, true);
     xhr.onload = function (e) {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
@@ -99,7 +99,7 @@
        };
 
        async function prenota(id){
-        fetch('/v1/prenota/',{
+        fetch('/v2/prenota/',{
         method: 'PUT',
         headers: {
           'Accept': 'application/json',
@@ -116,7 +116,7 @@
        }
        async function togli_prenota(id){
         console.log("entrata rimuovi")
-         fetch('/v1/prenota/' ,{
+         fetch('/v2/prenota/' ,{
          method: 'DELETE',
          headers: {
            'Accept': 'application/json',
