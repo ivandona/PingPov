@@ -45,17 +45,10 @@ module.exports = function (app) {
         })
         new_user.save().then(() => console.log('user inserito'));
         res.redirect('/v1/auth/success');
-<<<<<<< HEAD
-        /*req.session.logged=true;
-        req.session.username=userProfile.displayName;
-        let path_name = ('pages/success');
-        res.render(path_name,{user:userProfile,log_status:req.session.logged});*/
-=======
     });
 
     app.get('/v1/profilo', (req, res) => {
         res.render('pages/profilo', { user: req.user });
->>>>>>> 34a631da2a8fba20e0202433fbb2235354a30b65
     });
 
     passport.serializeUser(function (user, cb) {
