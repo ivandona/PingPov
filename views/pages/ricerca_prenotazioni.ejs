@@ -1,94 +1,162 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- load bulma css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- load fontawesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-  <link href="Navbar.html" rel="import" />
   <title>Prenota un tavolo</title>
-</head>
+  
+  <script>class Prenotazioni {
+    constructor(data) {
+      data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+      Object.assign(this, data);
+    };
+  }
+  
+  async function req(form) {
+    var risultato = [] ;
+    console.log(typeof(risultato))
+   
+    if(form==undefined){
+      return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/v1/prenotazioni/?data="+form.data.value+"&ora="+form.ora.value+"&sede="+form.sede.value, true);
+    xhr.onload = function (e) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          data = JSON.parse(xhr.responseText);
+          
+          prenotazione = data;
+          for(i=0;i<data.length;i++){
+          risultato.push(new Prenotazioni(data[i]));
 
-<body style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
-  <%- include('navbar.ejs') %>
+          }
+          //stampa il nome del torneo numero 0
+          createTable(risultato);
+        } else {
+          console.error(xhr.statusText);
+        }
+      }
+
+  
+    };
+    xhr.onerror = function (e) {
+      console.error(xhr.statusText);
+    };
+    xhr.send(null);
+   console.log(typeof(risultato))
+   
+ 
+  function createTable(prenotazioni) {
+        tbody = document.getElementById('slot_prenotazioni');
+        let cells = ""
+        cells+= '<thead><tr><th scope="col">Sede</th><th scope="col">Prenotatore</th><th scope="col">Giorno</th><th scope="col">Prenota</th></tr></thead>'
+
+        for (let i = 0; i < prenotazioni.length; i++) {
+          cells+="<td>" 
+          cells+= prenotazioni[i]['sede']
+          cells+= "</td>"
+          cells+="<td>" 
+          cells+= prenotazioni[i]['prenotatore']
+          cells+= "</td>"
+          cells+="<td>" 
+          cells+= prenotazioni[i]['giorno']
+          cells+= "</td>"
+         
+          cells+="<td>" 
+
+          if(prenotazioni[i]['prenotatore']== '<%=user.displayName%>' ){
+            cells += '<button type="button" class="btn btn-primary" onclick="togli_prenota(\'' + prenotazioni[i]['_id'] + '\')" >Rimuovi prenotazione</button>'
+
+          } else{
+            if(prenotazioni[i]['prenotatore']!='<%=user.displayName%>' && prenotazioni[i]['prenotatore']!=''){
+              cells += '<button type="button" class="btn btn-danger" disabled">Prenotato</button>'
+
+            }
+            else{
+              cells += '<button type="button" class="btn btn-success" onclick="prenota(\'' + prenotazioni[i]['_id'] +'\') ">Prenota</button>'
+
+            }
+          } 
+          cells+= "</td>"
+          
+          cells+="</tr>"  
+
+        tbody.innerHTML=cells
+        }
+      }
 
 
-  <form action="/v1/prenotazioni" method="get">
-    <input type="date" id="data" name="data">
-    <input type="time" id="ora" name="ora">
+      
+       };
 
-    <select id="sede" name="sede">
-      <option value="Povo0">Povo0</option>
-      <option value="Povo1">Povo1</option>
-    </select>
-    <input type="submit" value="Ricerca">
-  </form>
-
-
-
-  <% var day=new Date(Date.parse(query['data'] + 'T' +query['ora'] +':00'));%>
-    <div class="jumbotron" style="background-color: rgb(66,63,63); color:rgb(115,102,102);">
-      <% for (let i=0; i < prenotazioni.length; i++){%>
-        <div style="border-top: solid;">
-          <% if(query['sede']==prenotazioni[i]['sede']){ if(day < prenotazioni[i]['giorno'] ){ %>
-
-            <%=prenotazioni[i]['giorno'] %> <br>
-              <%=prenotazioni[i]['sede']%> <br>
-                prenotatore : <%=prenotazioni[i]['prenotatore']%> <br>
-
-                  <a id="prenotazione<%=i%>" hidden>
-                    <%=prenotazioni[i]['id']%>
-                  </a>
-        </div>
-        <% if(prenotazioni[i]['prenotatore']=="" ){ %>
-          <button onclick="fetch('/v1/aggiungiPrenotazione/<%=prenotazioni[i]['id']%>' ,{
+       async function prenota(id){
+        fetch('/v1/prenota/',{
         method: 'PUT',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prenotatore: sessionStorage.getItem('utente'),
+          pre_id : id,
+          prenotatore: '<%=user.displayName%>',
         })
       });
-      setTimeout('',2000);
-      window.location.reload();
-    " style="background-color:green; color: rgb(115,102,102);"> Prenota </button>
+      window.alert("prenotazione effettuata");
+      location.reload();
+      
+       }
+       async function togli_prenota(id){
+        console.log("entrata rimuovi")
+         fetch('/v1/prenota/' ,{
+         method: 'DELETE',
+         headers: {
+           'Accept': 'application/json',
+           'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+           pre_id:id,
+           prenotatore: '',
+         })
+       });
+       window.alert("prenotazione rimossa");
+       location.reload();
 
-          <% } else{%>
-            <Button disabled style="background-color:firebrick; color: rgb(115,102,102);"> Prenotato</Button>
+        }
 
-
-            <button onclick=" fetch('/v1/rimuoviPrenotazione/<%=prenotazioni[i]['id']%>' ,{
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prenotatore: '',
-        })
-      });
-      setTimeout('',2000);
-      window.location.reload();
-    " style="background-color:lightslategray; color: rgb(115,102,102);"> Annulla prenotazione </button>
-            <%}}}}%>
-
-    </div>
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+</script>
 
 
-    <script>
+</head>
 
-      let name = sessionStorage.getItem('utente');
-      document.getElementById("username").innerHTML = name;
-    </script>
+<body  >
+  <%- include('navbar.ejs') %>
+
+ 
+  <form action="javascript:;" onsubmit="req(this)" class="form-inline">
+    <input type="date" id="data" name="data"class="form-control">
+    <input type="time" id="ora" name="ora"class="form-control">
+
+    <select id="sede" name="sede" class="form-control">
+      <option value="Povo0">Povo0</option>
+      <option value="Povo1">Povo1</option>
+    </select>
+    <input type="submit" value="Ricerca" class="btn-primary">
+  </form>
+
+    <table name="slot_prenotazioni" id="slot_prenotazioni" class="table">
+     
+
+    </table>
+
 
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
