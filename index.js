@@ -5,6 +5,8 @@ const session = require('express-session');
 const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./pingpov1.json');
+const cookieParser = require('cookie-parser');
+
 const swaggerJsdoc = require('swagger-jsdoc');
 /*const options = {
   definition: {
@@ -17,8 +19,8 @@ const swaggerJsdoc = require('swagger-jsdoc');
   apis: ['./api/*'], // files containing annotations as above
 };
 
-const openapiSpecification = swaggerJsdoc(options);*/
-const tokenChecker = require('./api/tokenChecker.js');
+const openapiSpecification = swaggerJsdoc(options);
+
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
@@ -29,6 +31,8 @@ global.path = require('path')
 
 //declaring app
 const app = express();
+//const tokenChecker = require('./api/tokenChecker.js')
+
 //connection to db
 mongoose.connect(process.env.DB_URL);
 const MongoStore = require('connect-mongo');
@@ -38,6 +42,7 @@ app.use(passport.initialize());
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
 app.use(require('body-parser').json());
+app.use(cookieParser())
 //declaring session
 app.use(session({
   resave: false,

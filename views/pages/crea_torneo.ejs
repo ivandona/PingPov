@@ -17,7 +17,7 @@
         value.admin_gioca = document.getElementById('admin_gioca').checked;
         //inoltro JSON
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v1/tornei/creaTorneo", true);
+        xhr.open("POST", "/v2/tornei/creaTorneo", true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
           torneo: value
@@ -31,7 +31,7 @@
 <body>
 
   <%- include('navbar.ejs') %>
-  <form id="form" action="/v1/tornei/creaTorneo" method="post">
+  <form id="form" action="/v2/tornei/creaTorneo" method="post">
     <div class="form-group">
       <label for="nome_torneo">Nome Torneo</label>
       <input type="text" class="form-control" id="nome_torneo" name="nome_torneo" required>

@@ -14,7 +14,6 @@
 
 <body>
   <%- include('navbar.ejs') %>
-
     <div class="container">
       <div class="jumbotron">
         <table class="table table-striped">
@@ -29,7 +28,7 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <a class="btn btn-danger" href="/v1/tornei/creaTorneo" role="button">Crea torneo</a>
+          <a class="btn btn-danger" href="/tornei/creaTorneo" role="button">Crea torneo</a>
           <tbody id="t_body">
           </tbody>
         </table>
@@ -39,20 +38,20 @@
     <script>
       class Torneo {
         constructor(data) {
-          data['_id'] = data['_id'].replace(' new ObjectId("', '')
-          data['_id'] = data['_id'].replace('")', '')
+          data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
           Object.assign(this, data);
         };
       }
       async function req() {
         var tornei = []
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/v1/tornei", true);
+        xhr.open("GET", "/v2/tornei", true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
               data = JSON.parse(xhr.responseText);
               for (let i = 0; i < data.length; i++) {
+                console.log(data[i])
                 tornei.push(new Torneo(data[i]))
               }
               createTable(tornei)
@@ -66,7 +65,6 @@
         };
 
         xhr.send(null);
-        createTable(tornei)
       }
       function createTable(tornei) {
         tbody = document.getElementById('t_body');
@@ -77,7 +75,7 @@
           cells += (i + 1)
           cells += "</td>\n"
           cells += "<td>"
-          cells += "<a href='/v1/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
+          cells += "<a href='/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
           cells += "</td>\n"
           cells += "<td>"
           cells += tornei[i]['giocatori'].length + "/" + tornei[i]['max_partecipanti']
@@ -107,7 +105,7 @@
       }
       async function iscriviti(id) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v1/iscrizione/?id=" + id, true);
+        xhr.open("POST", "/v2/iscrizione/?id=" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -128,7 +126,7 @@
         console.log('DISISCRIZIONE')
         var xhr = new XMLHttpRequest();
         console.log(id)
-        xhr.open("DELETE", "/v1/iscrizione/?id=" + id, true);
+        xhr.open("DELETE", "/v2/iscrizione/?id=" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {

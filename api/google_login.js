@@ -1,4 +1,3 @@
-
 module.exports = function (app) {
     const jwt = require('jsonwebtoken');
     var bodyParser = require('body-parser');
@@ -68,8 +67,6 @@ module.exports = function (app) {
         callbackURL: "http://localhost:4000/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
-            console.log(accessToken)
-            console.log(refreshToken)
             userProfile = profile;
             return done(null, userProfile);
         }
@@ -91,13 +88,11 @@ module.exports = function (app) {
                 expiresIn: 86400 // expires in 24 hours
             }
             var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
-
-            res.json({
-                success: true,
-                message: 'Enjoy your token!',
-                token: token
-            });
-            console.log(token);
+            req.token = token
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.SUPER_SECRET,
+              }).status(200).json({ message: token });
         });
     app.get('/v1/auth/logout',function(req, res){
         req.logout();
