@@ -8,51 +8,12 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- load fontawesome -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
-  
- 
+
+
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <img src="/images/Logo_Ping_Pov.png" width="70px" height="70px" href="/home">
-
-
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-      <ul class="navbar-nav mr-auto">
-
-        <li class="nav-item active">
-          <a class="nav-link" href="/v1/tornei">Tornei<span class="sr-only">(current)</span> </a>
-        </li>
-
-
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Prenotazioni<span class="sr-only">(current)</span> </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
-        </li>
-        <li>
-          <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
-        </li>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/v1/auth">Login</a>
-        </li>
-
-      </ul>
-    
-      </div>
-    </nav>
-  
+  <%- include('navbar.ejs') %>
     <div class="container">
       <div class="jumbotron">
         <a class="btn btn-primary" href="/v1/tornei/creaTorneo" role="button">Crea nuovo torneo</a>
@@ -68,82 +29,123 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <tbody>
-            <% for (let i = 0; i < tornei.length; i++){%>
-            <tr>
-              <th scope="row"><%=i+1%></th>
-              <td><a href="/v1/torneo/<%=tornei[i]['_id']%>"><%=tornei[i]['nome_torneo']%> </a></td>
-              <td><%=tornei[i]['giocatori'].length%>/<%=tornei[i]['max_partecipanti']%></td>
-              <td><%=tornei[i]['data']%></td>
-              <td><%=tornei[i]['sede']%></td>
-              <td><%=tornei[i]['organizzatore']%></td>
-              
-              <%  var iscritto=false;
-              for(let j=0; j<tornei[i]['giocatori'].length; j++){
-                 if (tornei[i]['giocatori'][j] == (' ' +query['username'])){
-
-
-                  iscritto=true;
-                  break;
-                 }  
-
-          }
-                if((tornei[i]['giocatori'].length == tornei[i]['max_partecipanti']) && (!iscritto)){
-                  %>
-                  
-                  
-                  
-                  
-              <td id="tasto_disiscrivi"><button type="button" class="btn btn-secondary" disabled >Pieno</button>
-                  </td>
-            </tr>
-                  <%
-
-                }else{
-         
-              if(iscritto){
-              %>
-
-
-
-              <td id="tasto_disiscrivi"><button type="button" class="btn btn-danger" onclick="fetch('/v1/disiscrivi/<%=tornei[i]['_id']%>' ,{
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  username: sessionStorage.getItem('utente'),
-
-                })
-              });
-              setTimeout('',10000);
-          window.location.reload();
-              ">Disiscriviti</button></td>
-            </tr>
-            <%}else{%>
-
-              <td id="tasto_iscriviti"><button type="button" class="btn btn-success" onclick="fetch('/v1/iscrivi/<%=tornei[i]['_id']%>' ,{
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  username: sessionStorage.getItem('utente'),
-
-                })
-              });
-              setTimeout('',10000);
-          window.location.reload();
-              ">Iscriviti</button></td>
-            </tr>
-            <%}}}%>
+          <a class="btn btn-danger" href="/tornei/creaTorneo" role="button">Crea torneo</a>
+          <tbody id="t_body">
           </tbody>
         </table>
       </div>
     </div>
-  </div>
+    </div>
+    <script>
+      class Torneo {
+        constructor(data) {
+          data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+          Object.assign(this, data);
+        };
+      }
+      async function req() {
+        var tornei = []
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/v2/tornei", true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              data = JSON.parse(xhr.responseText);
+              for (let i = 0; i < data.length; i++) {
+                console.log(data[i])
+                tornei.push(new Torneo(data[i]))
+              }
+              createTable(tornei)
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      function createTable(tornei) {
+        tbody = document.getElementById('t_body');
+        let cells = ""
+        for (let i = 0; i < tornei.length; i++) {
+          cells += "<tr>\n"
+          cells += "<td>"
+          cells += (i + 1)
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += "<a href='/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['giocatori'].length + "/" + tornei[i]['max_partecipanti']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['data']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['sede']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['organizzatore']
+          cells += "</td>\n"
+          if (tornei[i]['giocatori'].includes('<%=user.displayName%>') == true) {
+            cells += "<td id='tasto_disiscrivi'>"
+            cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\''+tornei[i]['_id']+'\')">Disiscriviti</button>'
+            cells += "</td>\n"
+          } else {
+            cells += "<td id='tasto_iscriviti'>"
+            cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\''+tornei[i]['_id']+'\')">Iscriviti</button>'
+            cells += "</td>\n"
+          }
+          cells += "</tr>\n"
+
+        }
+        tbody.innerHTML = cells
+      }
+      async function iscriviti(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/v2/iscrizione/?id=" + id, true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log(xhr.responseText)
+              location.reload();
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      async function disiscriviti(id) {
+        console.log('DISISCRIZIONE')
+        var xhr = new XMLHttpRequest();
+        console.log(id)
+        xhr.open("DELETE", "/v2/iscrizione/?id=" + id, true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log(xhr.responseText)
+              location.reload();
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      req();
+    </script>
 </body>
 
 </html>

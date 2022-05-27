@@ -1,5 +1,5 @@
-
 module.exports = function (app) {
+    const jwt = require('jsonwebtoken');
     var bodyParser = require('body-parser');
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -12,26 +12,20 @@ module.exports = function (app) {
     //result of logging
     
     app.get('/v1/auth/success', async function (req, res) {
-        req.session.email=String(userProfile.emails[0].value);
+        //req.session.email=String(userProfile.emails[0].value);
         //cerca email nel db
-        let user = await User.findOne({email: req.session.email}).exec();
+        let user = await User.findOne({email: req.user.emails[0].value}).exec();
         if(!user){
             //email non trovata
             console.log(req.session.email + " non trovata");
-            req.session.logged=true;
             //apre pagina registrazione
             let path_name = ('pages/registrazione');
-            res.render(path_name,{user: userProfile, log_status: req.session.logged});
-        }else{
-            //email trovata
             
-            req.session.logged=true;
-            req.session.email= userProfile.emails[0].value;
-            req.session.username=user.username;
-            req.session.user_image=userProfile.photos[0].value;
-            //apre pagina success
-            let path_name = ('pages/success');
-            res.render(path_name,{user:userProfile,log_status:req.session.logged});
+            res.render(path_name,{user: userProfile, session: req.session });
+        }else{
+            req.user.rank = user.rank
+            let path_name = ('pages/profilo');
+            res.render(path_name,{user: req.user});
         }
         
     });
@@ -51,10 +45,17 @@ module.exports = function (app) {
         })
         new_user.save().then(() => console.log('user inserito'));
         res.redirect('/v1/auth/success');
+<<<<<<< HEAD
         /*req.session.logged=true;
         req.session.username=userProfile.displayName;
         let path_name = ('pages/success');
         res.render(path_name,{user:userProfile,log_status:req.session.logged});*/
+=======
+    });
+
+    app.get('/v1/profilo', (req, res) => {
+        res.render('pages/profilo', { user: req.user });
+>>>>>>> 34a631da2a8fba20e0202433fbb2235354a30b65
     });
 
     passport.serializeUser(function (user, cb) {
@@ -84,16 +85,24 @@ module.exports = function (app) {
     app.get('/auth/google/callback',
         passport.authenticate('google', { failureRedirect: '/auth/error' }),
         function (req, res) {
-            // Successful authentication, redirect success.
-            req.session.user = userProfile
-            //console.log(req.session.user)
-            //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
-            res.redirect('/v1/auth/success');
+            //Creazione del token
+            // if user is found and password is right create a token
+            var payload = {
+                user: req.user,
+                // other data encrypted in the token	
+            }
+            var options = {
+                expiresIn: 86400 // expires in 24 hours
+            }
+            var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+            req.token = token
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.SUPER_SECRET,
+              }).status(200).json({ message: token });
         });
     app.get('/v1/auth/logout',function(req, res){
-        req.session.log_status = false;
-        req.session.user='';
-        req.session.rank='';
-        res.render('pages/home.ejs')
+        req.logout();
+        res.render('pages/home.ejs',{ user : req.user})
     })
 }
