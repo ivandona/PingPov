@@ -7,11 +7,12 @@ module.exports = function (app, mongoose) {
         organizzatore: String,
         sede: String,
         max_partecipanti: Number,
-        giocatori: [String]
+        giocatori: [String],
+        risultati: [String]
     }));
 
     //Get della lista dei tornei attivi
-    app.get('/v2/tornei', function (req, res){
+    app.get('/v2/tornei', function (req, res) {
         Torneo.find({}, function (err, Tornei) {
             if (err) {
                 console.log(err);
@@ -28,7 +29,8 @@ module.exports = function (app, mongoose) {
             data: req.body.torneo.data,
             organizzatore: req.user.displayName,
             sede: req.body.torneo.sede,
-            max_partecipanti: req.body.torneo.numero_partecipanti
+            max_partecipanti: req.body.torneo.numero_partecipanti,
+            risultati: []
         })
         if (req.body.torneo.admin_gioca == true) {
             nuovo_Torneo.giocatori.push(req.user.displayName);
@@ -66,9 +68,9 @@ module.exports = function (app, mongoose) {
             console.error(`Error while updating programming language`, err.message);
         }
     });
-    app.get('/v2/tornei/:id',  async function (req, res) {
+    app.get('/v2/tornei/:id', async function (req, res) {
         const id = req.params.id;
-        Torneo.findOne({ _id: req.params.id }).lean().then((torneo,err) => {
+        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
             if (torneo) {
                 res.status(200).json(torneo)
             } else {
@@ -77,60 +79,101 @@ module.exports = function (app, mongoose) {
         })
     });
 
-//Api di delete di un torneo dato il suo id nell'url
-app.delete('/v2/tornei/:id',tokenChecker, async function (req, res) {
-    let id = req.params.id;
-    let name = req.user.displayName; 
-    Torneo.findOne({ _id: req.params.id }).lean().then((torneo,err) => {
-        if (torneo.organizzatore == name) {
-            Torneo.findByIdAndRemove(id, function (err, docs) {
-                if (err) {
-                    res.status(404).send('Torneo non trovato')
-                } else {
-                    res.status(200).send('Torneo correttamente cancellato')
-                }
-            });
-        } else {
-            res.status(401).send("Non sei tu l'organizzatore")
-        }
+    //Api di delete di un torneo dato il suo id nell'url
+    app.delete('/v2/tornei/:id', tokenChecker, async function (req, res) {
+        let id = req.params.id;
+        let name = req.user.displayName;
+        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+            if (torneo.organizzatore == name) {
+                Torneo.findByIdAndRemove(id, function (err, docs) {
+                    if (err) {
+                        res.status(404).send('Torneo non trovato')
+                    } else {
+                        res.status(200).send('Torneo correttamente cancellato')
+                    }
+                });
+            } else {
+                res.status(401).send("Non sei tu l'organizzatore")
+            }
+        })
+
     })
-
-})
-app.put('/v2/tornei/:id', (req, res) => {
-    const id = req.params.id;
-    Torneo.find({ "_id": id }, function (err, docs) {
-        if (docs.organizzatore == req.session.username) {
-            Torneo.findByIdAndUpdate(id, function (err, docs) {
-                if (err) {
-                    res.send('Torneo non trovato')
-                } else {
-                    res.send('Torneo correttamente cancellato')
-                }
-            });
-        } else {
-            res.send("Non sei tu l'organizzatore")
-        }
+    app.put('/v2/tornei/:id', (req, res) => {
+        const id = req.params.id;
+        Torneo.find({ "_id": id }, function (err, docs) {
+            if (docs.organizzatore == req.session.username) {
+                Torneo.findByIdAndUpdate(id, function (err, docs) {
+                    if (err) {
+                        res.send('Torneo non trovato')
+                    } else {
+                        res.send('Torneo correttamente cancellato')
+                    }
+                });
+            } else {
+                res.send("Non sei tu l'organizzatore")
+            }
+        })
     })
-})
+    //API per vedere i risultati dei match di un torneo
+    app.get('/v2/risultati/:id', async function (req, res) {
+        let id = req.params.id;
+        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+            if (torneo) {
+                res.status(200).json(torneo.risultati)
+            } else {
+                res.status(404).send(err)
+            }
+        })
+    })
+    //API per l'invio di risultati di un torneo
+    app.post('/v2/risultati/:id', tokenChecker, async function (req, res) {
+        let id = req.params.id;
+        console.log(id, req.body)
+
+        Torneo.findOne({ _id: req.params.id }).lean().then(async (torneo, err) => {
+            let players_and_score = req.body.score.split(") ", 5);
+            let risultato_gia_presente = false;
+            for (let x = 0; x < torneo.risultati.length; x++) {
+                if (torneo.risultati[x].includes(players_and_score[1])) {
+                    risultato_gia_presente = true;
+                    break;
+                }
+            }
+            if (risultato_gia_presente) {
+                res.status(403).send("Impossibile aggiungere risultati di partite gia giocate")
+            } else {
+                await Torneo.findById(id).updateOne({ $addToSet: { risultati: req.body.score } })
+                res.status(200).send(req.body)
+            }
+
+        })
+
+    })
+    //FRONT END
 
 
-
-
-
-//FRONT END
-
-
-//Get pagina web con lista tornei attivi
-app.get('/tornei', tokenChecker, (req, res) => {
-    console.log(req.token)
-    res.render('pages/lista_tornei', { user: req.user })
-})
-//Get pagina web con il form per la creazione di tornei
-app.get('/tornei/creaTorneo', (req, res) => {
-    res.render("pages/crea_torneo", { user: req.user });
-});
-app.get('/tornei/:id', (req, res) => {
-    res.render("pages/torneo", { user: req.user, id : req.params.id });
-});
-
+    //Get pagina web con lista tornei attivi
+    app.get('/tornei', tokenChecker, (req, res) => {
+        console.log(req.token)
+        res.render('pages/lista_tornei', { user: req.user })
+    })
+    //Get pagina web con il form per la creazione di tornei
+    app.get('/tornei/creaTorneo', (req, res) => {
+        res.render("pages/crea_torneo", { user: req.user });
+    });
+    //Get della pagina del torneo, se sei l'organizzatore accederai ad ulteriori funzionalità
+    app.get('/tornei/:id', tokenChecker, (req, res) => {
+        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+            if (torneo) {
+                if (torneo.organizzatore == req.user.displayName) {
+                    res.render('pages/torneo_admin', { user: req.user, id: req.params.id })
+                } else {
+                    res.render("pages/torneo", { user: req.user, id: req.params.id });
+                }
+            } else {
+                res.status(404).json(err)
+            }
+        })
+    });
 }
+
