@@ -5,8 +5,6 @@ const session = require('express-session');
 const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./pingpov1.json');
-
-
 const swaggerJsdoc = require('swagger-jsdoc');
 /*const options = {
   definition: {
@@ -20,13 +18,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 };
 
 const openapiSpecification = swaggerJsdoc(options);*/
-
-
-
-
-
-
-
+const tokenChecker = require('./api/tokenChecker.js');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
@@ -68,6 +60,7 @@ app.get('/v1/auth', function (req, res) {
 app.get('/v1/home', function (req, res) {
   res.render('pages/home', { user:req.user });
 });
+app.use('/v1/prenotazioni', tokenChecker);
 function requireAutentication(req, res, next) {
   if (req.isAuthenticated() == true || req.originalUrl.includes('/auth')) {
     next();
