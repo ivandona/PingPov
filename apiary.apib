@@ -1,80 +1,357 @@
-FORMAT: 1A
-HOST: https://polls.apiblueprint.org/
-
-# pingpov2
-
-Polls is a simple API allowing consumers to view polls and vote in them.
-
-## Questions Collection [/questions]
-
-### List All Questions [GET]
-
-+ Response 200 (application/json)
-
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: PingPov
+  description: >-
+    Ping Pov serve per dare svariati servizi come la creazione di tornei e
+    l'organizzazione di partite di ping pong a Povo
+  license:
+    name: MIT
+    url: 'https://github.com/apiaryio/polls-api/blob/master/LICENSE'
+servers:
+  - url: 'http://localhost:4000'
+paths:
+  /v1/auth/success:
+    get:
+      summary: /v1/auth/success
+      description: >-
+        Visualizza pagina profilo o, se non si è registrati, la pagina di
+        registrazione
+      responses:
+        '200':
+          description: text/html o registrazione.ejs
+    summary: Gestione login
+  /v1/auth/registrazione:
+    post:
+      summary: /v1/auth/registrazione
+      description: Aggiunge dati registrazione al db
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: user da creare
+      responses:
+        '201':
+          description: User creato
+    summary: Registrazione
+  /v1/auth/error:
+    get:
+      summary: /v1/auth/error
+      responses:
+        '400':
+          description: error loggin in
+    summary: Errore nel login
+  /v1/auth/logout:
+    get:
+      summary: /v1/auth/logout
+      description: Cancella dati sessione e visualizza pagina home
+      responses:
+        '200':
+          description: Logout effettuato.
+    summary: Logout
+  /v1/profilo:
+    get:
+      summary: /v1/profilo
+      description: Visualizza pagina profilo
+      responses:
+        '200':
+          description: Successful response
+    summary: Profilo
+  /v1/prenotazioni:
+    get:
+      summary: /v1/prenotazioni
+      description: Visualizza la pagina in cui si trovano tutte le prenotazioni
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: retrived list of names
+    summary: Prenotazioni Tavolo
+  /v1/aggiungiPrenotazione/:
+    post:
+      summary: /v1/aggiungiPrenotazione/
+      description: >-
+        aggiunge la prenotaizone ad uno slot se esso è disponibile per la
+        prenotazione
+      parameters:
+        - name: id
+          in: query
+          description: id per filtrare utente
+          schema:
+            type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/Prenotazione'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Prenotazione riuscita
+        '400':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Errore nella prenotazione
+    summary: Aggiunta Iscrizione
+  /v1/rimuoviPrenotazione/:
+    delete:
+      summary: /v1/rimuoviPrenotazione/
+      description: rimiuove una prenotazione da uno slot nel momento in cui è presente
+      parameters:
+        - name: id
+          in: query
+          description: id per filtrare utente
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Prenotazione riuscita
+        '400':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Errore nella prenotazione
+    summary: Rimzione Prenotazione
+  /v1/iscrivi/:
+    post:
+      summary: /v1/iscrivi/
+      description: permette ad un utente di iscriversi ad un torneo
+      parameters:
+        - name: id
+          in: query
+          description: id per filtrare torneo
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: iscrizione avvenuta
+        '400':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: iscrizione non riuscita
+      security:
+        - loginAuth: []
+    summary: Iscrizione
+  /v1/disiscrivi/:
+    delete:
+      summary: /v1/disiscrivi/
+      description: >-
+        permette ad un utente di disiscriversi da un torneo dopo essersi
+        iscritto
+      parameters:
+        - name: id
+          in: query
+          description: id per filtrare torneo
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: disiscrizione avvenuta
+        '400':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: disiscrizione non riuscita
+      security:
+        - loginAuth: []
+    summary: Disiscrizione
+  /v2/tornei:
+    get:
+      summary: /v2/tornei
+      description: ritorna la lista dei tornei attualmente attivi e monitorabili
+      responses:
+        '200':
+          description: file json con la lista dei tornei
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lista_Tornei'
+    summary: Tornei disponibili e cancellazione
+  '/v2/tornei/{id_torneo}':
+    get:
+      summary: '/v2/tornei/{id_torneo}'
+      description: ritorna le informazioni sul torneo con id specificato nell'url
+      parameters:
+        - in: path
+          name: id_torneo
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: file json con la lista dei tornei
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Torneo'
+    delete:
+      summary: '/v1/tornei/{id_torneo}'
+      description: elimina torneo specificato nell'url
+      parameters:
+        - in: path
+          name: id_torneo
+          schema:
+            type: string
+          required: true
+      security:
+        - loginAuth: []
+      responses:
+        '200':
+          description: torneo correttamente eliminato
+    summary: Dettagli torneo
+  /v2/tornei/creaTorneo:
+    post:
+      summary: /v1/tornei/creaTorneo
+      description: crea nuovo torneo
+      requestBody:
+        $ref: '#/components/requestBodies/creaTorneo'
+      responses:
+        '200':
+          description: torneo appena creato come file json
+      security:
+        - loginAuth: []
+    summary: Creazione dei tornei
+components:
+  securitySchemes:
+    loginAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  requestBodies:
+    Prenotazione:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Prenotazione'
+      description: nome del prenotatore
+      required: true
+    User:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+      description: nome dell'utente
+      required: true
+    creaTorneo:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/creaTorneo'
+      description: attributi per la creazione del torneo
+      required: true
+  schemas:
+    Prenotazione:
+      type: object
+      properties:
+        prenotatore:
+          type: string
+        giorno:
+          type: string
+          format: date
+        sede:
+          type: string
+    Lista_Tornei:
+      type: array
+      items:
+        $ref: '#/components/schemas/Torneo'
+    Torneo:
+      type: object
+      properties:
+        nome_torneo:
+          type: string
+        data:
+          type: string
+          format: date
+        organizzatore:
+          type: string
+        sede:
+          type: string
+        max_partecipanti:
+          type: number
+        giocatori:
+          type: array
+          items: {}
+        risultati:
+          type: array
+          items: {}
+    User:
+      type: object
+      required:
+        - email
+        - name
+        - username
+        - attacco
+        - difesa
+        - spin
+        - controllo
+        - all_around
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        attacco:
+          type: integer
+        difesa:
+          type: integer
+        spin:
+          type: integer
+        controllo:
+          type: integer
+        all_around:
+          type: integer
+    creaTorneo:
+      required:
+        - nome_torneo
+        - data
+        - numero_partecipanti
+        - sede
+        - admin_gioca
+      properties:
+        nome_torneo:
+          type: string
+        data:
+          type: string
+        max_partecipanti:
+          type: integer
+        sede:
+          type: string
+        admin_gioca:
+          type: boolean
