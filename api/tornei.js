@@ -25,14 +25,14 @@ module.exports = function (app, mongoose) {
     app.post('/v2/tornei/creaTorneo', tokenChecker, (req, res) => {
         console.log(req.body)
         const nuovo_Torneo = new Torneo({
-            nome_torneo: req.body.torneo.nome_torneo,
-            data: req.body.torneo.data,
+            nome_torneo: req.body.nome_torneo,
+            data: req.body.data,
             organizzatore: req.user.displayName,
-            sede: req.body.torneo.sede,
-            max_partecipanti: req.body.torneo.numero_partecipanti,
+            sede: req.body.sede,
+            max_partecipanti: req.body.numero_partecipanti,
             risultati: []
         })
-        if (req.body.torneo.admin_gioca == true) {
+        if (req.body.admin_gioca == true) {
             nuovo_Torneo.giocatori.push(req.user.displayName);
         }
 
@@ -41,7 +41,7 @@ module.exports = function (app, mongoose) {
             return;
         }
         nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
-        res.status(400).json(nuovo_Torneo).send(Torneo.nuovo_Torneo);
+        res.status(200).json(nuovo_Torneo).send(Torneo.nuovo_Torneo);
     });
 
 
@@ -69,7 +69,7 @@ module.exports = function (app, mongoose) {
         }
     });
     app.get('/v2/tornei/:id', async function (req, res) {
-        const id = req.params.id;
+        const id = req.query.id;
         Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
             if (torneo) {
                 res.status(200).json(torneo)

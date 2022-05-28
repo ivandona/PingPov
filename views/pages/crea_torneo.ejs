@@ -19,9 +19,8 @@
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/v2/tornei/creaTorneo", true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-          torneo: value
-        }));
+        xhr.send(JSON.stringify(value));
+        console.log(JSON.stringify(value))
         alert("Torneo creato")
     }
   }
