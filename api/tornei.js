@@ -5,7 +5,7 @@ module.exports = function (app, mongoose) {
         nome_torneo: String,
         data: Date,
         organizzatore: String,
-        sede: String,
+        sede : {type: String, enum : ['Povo1','Povo0']},
         max_partecipanti: Number,
         giocatori: [String],
         risultati: [String]
@@ -17,7 +17,7 @@ module.exports = function (app, mongoose) {
             if (err) {
                 console.log(err);
             } else {
-                res.send(Tornei)
+                res.status(200).send(Tornei)
             }
         })
     })
@@ -128,8 +128,6 @@ module.exports = function (app, mongoose) {
     //API per l'invio di risultati di un torneo
     app.post('/v2/risultati/:id', tokenChecker, async function (req, res) {
         let id = req.params.id;
-        console.log(id, req.body)
-
         Torneo.findOne({ _id: req.params.id }).lean().then(async (torneo, err) => {
             let players_and_score = req.body.score.split(") ", 5);
             let risultato_gia_presente = false;
