@@ -24,7 +24,7 @@ module.exports = function (app, mongoose) {
             res.status(403).send('Modalità specificata diversa tra quelle disponibili (Singolo,Doppio)').end();
             return;
         }
-        if(req.body.sede != 'Povo0' && req.body.sede != 'Povo1') {
+        if (req.body.sede != 'Povo0' && req.body.sede != 'Povo1') {
             res.status(403).send('Sede specificata diversa tra quelle disponibili (Povo0,Povo1)').end();
             return;
         }
@@ -64,7 +64,7 @@ module.exports = function (app, mongoose) {
             }
         })
     })
-    app.post('/v2/match/:id', tokenChecker, async function (req, res) {
+    app.post('/v2/iscrizione-match/:id', tokenChecker, async function (req, res) {
         let id = req.params.id;
         Match.findOne({ _id: id }).lean().then(async (match, err) => {
             if (err) {
@@ -89,12 +89,33 @@ module.exports = function (app, mongoose) {
                     if (match.squadra2.length < max_size) {
                         await Match.findById(id).updateOne({ $push: { squadra2: req.user.displayName } });
                         return res.status(200).send('Iscrizione avvenuta in squadra #2')
-                    }else{
+                    } else {
                         return res.status(403).send('Match già al completo')
                     }
                 }
             }
         })
 
-})
+    })
+    app.delete('/v2/iscrizione-match/:id', tokenChecker, async function (req, res) {
+        let id = req.params.id;
+        Match.findOne({ _id: id }).lean().then(async (match, err) => {
+            if (err) {
+                return res.status(404).send('Match non trovato')
+            }
+            if (match.squadra1.includes(req.user.displayName)){
+                await Match.findById(id).updateOne({ $pull: { squadra1: req.user.displayName } });
+                return res.status(200).send('Disiscrizione match completata');
+            }
+            if (match.squadra2.includes(req.user.displayName)){
+                await Match.findById(id).updateOne({ $pull: { squadra1: req.user.displayName } });
+                return res.status(200).send('Disiscrizione match completata');
+            }
+            return res.status(200).send('Non sei iscritto a questo match');
+        })
+    })
+    //FRONT END
+    app.get('/match', tokenChecker, (req, res) => {
+        res.render('pages/matchlist', { user: req.user })
+    })
 }

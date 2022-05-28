@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Lista Tornei</title>
+  <title>Lista match</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
   <!-- load bulma css -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -20,15 +20,15 @@
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Nome Torneo</th>
               <th scope="col">Giocatori</th>
+              <th scope="col">Modalità</th>
               <th scope="col">Data</th>
               <th scope="col">Sede</th>
               <th scope="col">Organizzatore</th>
               <th scope="col"></th>
             </tr>
           </thead>
-          <a class="btn btn-danger" href="/tornei/creaTorneo" role="button">Crea torneo</a>
+          <a class="btn btn-danger" href="/match/creaMatch" role="button">Crea match</a>
           <tbody id="t_body">
           </tbody>
         </table>
@@ -36,25 +36,25 @@
     </div>
     </div>
     <script>
-      class Torneo {
+      class Match {
         constructor(data) {
           data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
           Object.assign(this, data);
         };
       }
       async function req() {
-        var tornei = []
+        var match = []
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/v2/tornei", true);
+        xhr.open("GET", "/v2/match", true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
               data = JSON.parse(xhr.responseText);
               for (let i = 0; i < data.length; i++) {
                 console.log(data[i])
-                tornei.push(new Torneo(data[i]))
+                match.push(new Match(data[i]))
               }
-              createTable(tornei)
+              createTable(match)
             } else {
               console.error(xhr.statusText);
             }
@@ -66,37 +66,50 @@
 
         xhr.send(null);
       }
-      function createTable(tornei) {
+      function createTable(match) {
         tbody = document.getElementById('t_body');
         let cells = ""
-        for (let i = 0; i < tornei.length; i++) {
+        let max_players, current_players;
+        for (let i = 0; i < match.length; i++) {
+          current_players = match[i]['squadra1'].length + match[i]['squadra2'].length;
+          if (match[i]['modalità'] == 'Singolo') {
+            max_players = 2
+          } else {
+            max_players = 4
+          }
           cells += "<tr>\n"
           cells += "<td>"
           cells += (i + 1)
           cells += "</td>\n"
           cells += "<td>"
-          cells += "<a href='/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
+          cells += current_players + "/" + max_players
+          cells += "</td>\n"
+          cells += "<td>\n"
+          cells += match[i]['modalità']
           cells += "</td>\n"
           cells += "<td>"
-          cells += tornei[i]['giocatori'].length + "/" + tornei[i]['max_partecipanti']
+          cells += match[i]['data']
           cells += "</td>\n"
           cells += "<td>"
-          cells += tornei[i]['data']
+          cells += match[i]['sede']
           cells += "</td>\n"
           cells += "<td>"
-          cells += tornei[i]['sede']
+          cells += match[i]['organizzatore']
           cells += "</td>\n"
-          cells += "<td>"
-          cells += tornei[i]['organizzatore']
-          cells += "</td>\n"
-          if (tornei[i]['giocatori'].includes('<%=user.displayName%>') == true) {
+          if (match[i]['squadra1'].includes('<%=user.displayName%>') || match[i]['squadra1'].includes('<%=user.displayName%>')) {
             cells += "<td id='tasto_disiscrivi'>"
-            cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\''+tornei[i]['_id']+'\')">Disiscriviti</button>'
+            cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\'' + match[i]['_id'] + '\')">Disiscriviti</button>'
             cells += "</td>\n"
           } else {
-            cells += "<td id='tasto_iscriviti'>"
-            cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\''+tornei[i]['_id']+'\')">Iscriviti</button>'
-            cells += "</td>\n"
+            if (current_players >= max_players) {
+              cells += "<td id='tasto_iscriviti'>"
+              cells += '<button type="button" class="btn btn-primary">Pieno</button>'
+              cells += "</td>\n"
+            } else {
+              cells += "<td id='tasto_iscriviti'>"
+              cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\'' + match[i]['_id'] + '\')">Iscriviti</button>'
+              cells += "</td>\n"
+            }
           }
           cells += "</tr>\n"
 
@@ -105,7 +118,7 @@
       }
       async function iscriviti(id) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v2/iscrizione/?id=" + id, true);
+        xhr.open("POST", "/v2/iscrizione-match/" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -126,7 +139,7 @@
         console.log('DISISCRIZIONE')
         var xhr = new XMLHttpRequest();
         console.log(id)
-        xhr.open("DELETE", "/v2/iscrizione/?id=" + id, true);
+        xhr.open("DELETE", "/v2/iscrizione-match/" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
