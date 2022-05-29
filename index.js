@@ -19,7 +19,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
   apis: ['./api/*'], // files containing annotations as above
 };
 
-const openapiSpecification = swaggerJsdoc(options);
+const openapiSpecification = swaggerJsdoc(options);*/
 
 const mongoose = require('mongoose');
 //requiring passport for login states
@@ -44,7 +44,7 @@ app.set('view engine', 'ejs');
 app.use(require('body-parser').json());
 app.use(cookieParser())
 //declaring session
-app.use(session({
+/*app.use(session({
   resave: false,
   saveUninitialized: true,
   user_id: '',
@@ -57,7 +57,7 @@ app.use(session({
     mongoUrl: process.env.DB_URL,
   })
 }));
-app.use(passport.session());
+app.use(passport.session());*/
 //get method for login
 app.get('/v1/auth', function (req, res) {
   res.render('pages/auth', { user:req.user });
