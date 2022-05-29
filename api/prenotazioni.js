@@ -13,6 +13,7 @@ module.exports = function (app, mongoose) {
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
             if (err) {
+                res.status(404);
                 console.log(err);
             } else {
                 risultato=[];
@@ -42,10 +43,11 @@ module.exports = function (app, mongoose) {
             prenotatore: req.body.prenotatore,
         };
         try {
-            res.json(await Prenotazione.findByIdAndUpdate(id,body));
+            res.status(200).json(await Prenotazione.findByIdAndUpdate(id,body));
             console.log("prenotazione riuscita");
         } catch (err) {
             console.error(`Errore nella prenotazione`, err.message);
+            res.status(404);
             next(err);
         }
 
@@ -56,7 +58,6 @@ module.exports = function (app, mongoose) {
 
     //DELETE
     app.delete('/v1/prenota/', async function (req, res) {
-        console.log("chiamata delete")
         const id = req.body.pre_id;
         res.user=req.user
         const query = { 'id': id };
@@ -64,10 +65,11 @@ module.exports = function (app, mongoose) {
             prenotatore: req.body.prenotatore,
         };
         try {
-            res.json(await Prenotazione.findByIdAndUpdate(id,body));
+            res.status(200).json(await Prenotazione.findByIdAndUpdate(id,body));
             
             console.log("rimozione prenotazione riuscita");
         } catch (err) {
+            res.status(404)
             console.error(`Errore nella rimozione della prenotazione`, err.message);
             next(err);
         }
