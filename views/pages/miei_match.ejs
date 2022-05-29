@@ -25,11 +25,13 @@
               <th scope="col">Data</th>
               <th scope="col">Sede</th>
               <th scope="col">Organizzatore</th>
+              <th scope="col">Risultato</th>
               <th scope="col"></th>
+
+
             </tr>
           </thead>
-          <a class="btn btn-danger" href="/match/creaMatch" role="button">Crea match</a>
-          <a class="btn btn-warning" href="/match/i-miei-match" role="button">Le tue partite</a>
+          <a class="btn btn-danger" href="/match" role="button">Torna alla lista partite</a>
           <tbody id="t_body">
           </tbody>
         </table>
@@ -46,7 +48,7 @@
       async function req() {
         var match = []
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/v2/match", true);
+        xhr.open("GET", "/v2/match/i-miei-match", true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -79,9 +81,9 @@
             max_players = 4
           }
           cells += "<tr>\n"
-          cells += "<td>"
+          cells += "<td><b>"
           cells += (i + 1)
-          cells += "</td>\n"
+          cells += "</b></td>\n"
           cells += "<td>"
           cells += current_players + "/" + max_players
           cells += "</td>\n"
@@ -97,23 +99,30 @@
           cells += "<td>"
           cells += match[i]['organizzatore']
           cells += "</td>\n"
-          if (match[i]['squadra1'].includes('<%=user.displayName%>') || match[i]['squadra2'].includes('<%=user.displayName%>')) {
-            if (match[i]['organizzatore'] == '<%=user.displayName%>') {
-              cells += '<td><a class="btn btn-warning" href="/match/i-miei-match" role="button">Vai a le tue partite</a></td>\n'
-            } else {
-              cells += "<td id='tasto_disiscrivi'>"
-              cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\'' + match[i]['_id'] + '\')">Disiscriviti</button>'
-              cells += "</td>\n"
-            }
+          cells += '<td><b>'
+          if (match[i]['risultato']['score_sq1'] != -1 && match[i]['risultato']['score_sq2'] != -1) {
+            cells += match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2']
+          }
+          cells += "</b></td>\n"
+          let current_date_ms = Date.now();
+          let req_data_ms = Date.parse(match[i]['data']);
+          if (current_players == max_players && req_data_ms < current_date_ms && match[i]['risultato']['score_sq1'] < 0) {
+            cells += "<td id='risultato'>"
+            cells += '<button type="button" class="btn btn-success" onclick="postaRisultato(\'' + match[i]['_id'] + '\')">Inserisci risultato</button>'
+            cells += "</td>\n"
           } else {
-            if (current_players >= max_players) {
-              cells += "<td id='tasto_iscriviti'>"
-              cells += '<button type="button" class="btn btn-primary">Pieno</button>'
+            if (current_players != max_players && req_data_ms < current_date_ms && match[i]['risultato']['score_sq1'] < 0) {
+              cells += "<td>"
+              cells += '<button type="button" class="btn btn-primary">Partita non disputata</button>'
               cells += "</td>\n"
             } else {
-              cells += "<td id='tasto_iscriviti'>"
-              cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\'' + match[i]['_id'] + '\')">Iscriviti</button>'
-              cells += "</td>\n"
+              if (match[i]['risultato']['score_sq1'] < 0 && match[i]['risultato']['score_sq2'] < 0) {
+                cells += "<td id='tasto_elimina'>"
+                cells += '<button type="button" class="btn btn-danger" onclick="elimina(\'' + match[i]['_id'] + '\')">Elimina partita</button>'
+                cells += "</td>\n"
+              } else {
+                cells += "<td></td>\n"
+              }
             }
           }
           cells += "</tr>\n"
@@ -121,36 +130,35 @@
         }
         tbody.innerHTML = cells
       }
-      async function iscriviti(id) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v2/iscrizione-match/" + id, true);
-        xhr.onload = function (e) {
-          if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-              console.log(xhr.responseText)
-              location.reload();
-            } else {
-              console.error(xhr.statusText);
-            }
-          }
-        };
-        xhr.onerror = function (e) {
-          console.error(xhr.statusText);
-        };
 
-        xhr.send(null);
+      async function postaRisultato(id) {
+        let first_score = Number(prompt("Inserisci risultato squadra #1", ''))
+        let second_score = Number(prompt("Inserisci risultato squadra #2", ''))
+        if (first_score < 0 || second_score < 0 || first_score == 'undefined' || second_score == 'undefined') {
+          return
+        } fetch('/v2/risultati-match/' + id, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            score_sq1: first_score,
+            score_sq2: second_score,
+          })
+        }).then(location.reload());
       }
-      async function disiscriviti(id) {
-        console.log('DISISCRIZIONE')
+      async function elimina(id) {
         var xhr = new XMLHttpRequest();
-        console.log(id)
-        xhr.open("DELETE", "/v2/iscrizione-match/" + id, true);
+        console.log("here")
+        xhr.open("DELETE", "/v2/match/" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-              console.log(xhr.responseText)
+              alert('Match correttamente cancellato')
               location.reload();
             } else {
+              alert('Erorre cancellazione match')
               console.error(xhr.statusText);
             }
           }
@@ -159,7 +167,7 @@
           console.error(xhr.statusText);
         };
 
-        xhr.send(null);
+        xhr.send(JSON.stringify({ "email": "hello@user.com", "response": { "name": "Tester" } }));
       }
       req();
     </script>

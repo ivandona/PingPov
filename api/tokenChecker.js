@@ -6,19 +6,15 @@ const tokenChecker = function(req, res,next) {
   
 	// if there is no token
 	if (!token) {
-	  return res.status(401).send({ 
-		success: false,
-		message: 'No token provided.'
-	  });
+		req.user=""
+	  	return res.status(401).render('pages/auth',{user:""})
 	}
   
 	// decode token, verifies secret and checks exp
 	jwt.verify(token, process.env.SUPER_SECRET, function(err, decoded) {			
 	  if (err) {
-		return res.status(403).send({
-		  success: false,
-		  message: 'Failed to authenticate token.'
-		});		
+		req.user=""
+		return res.status(401).render('pages/auth',{user:""})
 	  } else {
 		// if everything is good, save to request for use in other routes
 		req.user = decoded.user;
