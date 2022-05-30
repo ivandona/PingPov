@@ -11,28 +11,9 @@
 
 
 </head>
-<script> function(getData) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/bar/foo.txt", true);
-    xhr.onload = function (e) {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          console.log(xhr.responseText);
-        } else {
-          console.error(xhr.statusText);
-        }
-      }
-    };
-    xhr.onerror = function (e) {
-      console.error(xhr.statusText);
-    };
-    xhr.send(null);
-  }
-</script>
 
-<body onload="getData()">
+<body>
   <%- include('navbar.ejs') %>
-
     <div class="container">
       <div class="jumbotron">
         <table class="table table-striped">
@@ -47,76 +28,123 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <a class="btn btn-danger" href="/v1/tornei/creaTorneo" role="button">Crea torneo</a>
-          <tbody>
-            <% for (let i=0; i < tornei.length; i++){%>
-              <tr>
-                <th scope="row">
-                  <%=i+1%>
-                </th>
-                <td><a href="/v1/tornei/<%=tornei[i]['_id']%>">
-                    <%=tornei[i]['nome_torneo']%>
-                  </a></td>
-                <td>
-                  <%=tornei[i]['giocatori'].length%>/<%=tornei[i]['max_partecipanti']%>
-                </td>
-                <td>
-                  <%=tornei[i]['data']%>
-                </td>
-                <td>
-                  <%=tornei[i]['sede']%>
-                </td>
-                <td>
-                  <%=tornei[i]['organizzatore']%>
-                </td>
-
-                <% var iscritto=false; for(let j=0; j<tornei[i]['giocatori'].length; j++){
-                  console.log(tornei[i]['giocatori'][j]) if (tornei[i]['giocatori'][j]==(user.displayName )){
-                  iscritto=true; break; } } if((tornei[i]['giocatori'].length==tornei[i]['max_partecipanti']) &&
-                  (!iscritto)){ %>
-
-                  <td id="tasto_disiscrivi"><button type="button" class="btn btn-secondary" disabled>Pieno</button>
-                  </td>
-              </tr>
-              <% }else{ if(iscritto){ %>
-                <td id="tasto_disiscrivi"><button type="button" class="btn btn-danger" onclick="fetch('/v1/disiscrivi/<%=tornei[i]['_id']%>' ,{
-                method: 'DELETE',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  username: sessionStorage.getItem('utente'),
-
-                })
-              });
-              setTimeout('',4000);
-          window.location.reload();
-              ">Disiscriviti</button></td>
-                </tr>
-                <%}else{%>
-
-                  <td id="tasto_iscriviti"><button type="button" class="btn btn-success" onclick="fetch('/v1/iscrivi/<%=tornei[i]['_id']%>' ,{
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  username: sessionStorage.getItem('utente'),
-
-                })
-              });
-              setTimeout('',4000);
-          window.location.reload();
-              ">Iscriviti</button></td>
-                  </tr>
-                  <%}}}%>
+          <a class="btn btn-danger" href="/tornei/creaTorneo" role="button">Crea torneo</a>
+          <tbody id="t_body">
           </tbody>
         </table>
       </div>
     </div>
     </div>
+    <script>
+      class Torneo {
+        constructor(data) {
+          data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+          Object.assign(this, data);
+        };
+      }
+      async function req() {
+        var tornei = []
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/v2/tornei", true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              data = JSON.parse(xhr.responseText);
+              for (let i = 0; i < data.length; i++) {
+                console.log(data[i])
+                tornei.push(new Torneo(data[i]))
+              }
+              createTable(tornei)
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      function createTable(tornei) {
+        tbody = document.getElementById('t_body');
+        let cells = ""
+        for (let i = 0; i < tornei.length; i++) {
+          cells += "<tr>\n"
+          cells += "<td>"
+          cells += (i + 1)
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += "<a href='/tornei/" + tornei[i]['_id'] + "'>" + tornei[i]['nome_torneo'] + "</a>"
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['giocatori'].length + "/" + tornei[i]['max_partecipanti']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['data']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['sede']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += tornei[i]['organizzatore']
+          cells += "</td>\n"
+          if (tornei[i]['giocatori'].includes('<%=user.displayName%>') == true) {
+            cells += "<td id='tasto_disiscrivi'>"
+            cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\''+tornei[i]['_id']+'\')">Disiscriviti</button>'
+            cells += "</td>\n"
+          } else {
+            cells += "<td id='tasto_iscriviti'>"
+            cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\''+tornei[i]['_id']+'\')">Iscriviti</button>'
+            cells += "</td>\n"
+          }
+          cells += "</tr>\n"
+
+        }
+        tbody.innerHTML = cells
+      }
+      async function iscriviti(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/v2/iscrizione/?id=" + id, true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log(xhr.responseText)
+              location.reload();
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      async function disiscriviti(id) {
+        console.log('DISISCRIZIONE')
+        var xhr = new XMLHttpRequest();
+        console.log(id)
+        xhr.open("DELETE", "/v2/iscrizione/?id=" + id, true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log(xhr.responseText)
+              location.reload();
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      req();
+    </script>
 </body>
 
 </html>

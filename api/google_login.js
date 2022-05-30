@@ -1,5 +1,5 @@
-
 module.exports = function (app) {
+    const jwt = require('jsonwebtoken');
     var bodyParser = require('body-parser');
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -78,11 +78,21 @@ module.exports = function (app) {
     app.get('/auth/google/callback',
         passport.authenticate('google', { failureRedirect: '/auth/error' }),
         function (req, res) {
-            // Successful authentication, redirect success.
-            req.session.user = userProfile
-            //console.log(req.session.user)
-            //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
-            res.redirect('/v1/auth/success');
+            //Creazione del token
+            // if user is found and password is right create a token
+            var payload = {
+                user: req.user,
+                // other data encrypted in the token	
+            }
+            var options = {
+                expiresIn: 86400 // expires in 24 hours
+            }
+            var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+            req.token = token
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.SUPER_SECRET,
+              }).status(200).json({ message: token });
         });
     app.get('/v1/auth/logout',function(req, res){
         req.logout();
