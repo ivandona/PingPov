@@ -4,7 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./pingpov1.json');
+const swaggerDocument = require('./pingpov2.json');
 const cookieParser = require('cookie-parser');
 
 const swaggerJsdoc = require('swagger-jsdoc');
