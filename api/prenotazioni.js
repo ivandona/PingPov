@@ -77,7 +77,7 @@ module.exports = function (app, mongoose) {
 
 
     app.get('/prenotazioni', tokenChecker, (req, res) => {
-        res.render('pages/ricerca_prenotazioni', { user: req.user });
+        res.render('pages/prenotazioni/ricerca_prenotazioni', { user: req.user });
     }
     )
 }

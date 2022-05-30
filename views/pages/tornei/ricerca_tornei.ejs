@@ -9,10 +9,10 @@
       </style>
   </head>
   <script>
-    document.getElementById("lista").innerHTML = JSON.stringify(<%= tornei%>, null, 4);
+    document.getElementById("lista").innerHTML = JSON.stringify('<%= tornei%>', null, 4);
   </script>
   <body>
-    <%- include('navbar.ejs') %>
+    <%- include('../navbar.ejs') %>
     <div class="container">
       <div class="jumbotron">
           <h1 class="text-primary  text-center"><span class="fa fa-user"></span> Profile Information</h1>

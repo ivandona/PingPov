@@ -13,7 +13,7 @@
 </head>
 
 <body>
-  <%- include('navbar.ejs') %>
+  <%- include('../navbar.ejs') %>
     <div class="container">
       <div class="jumbotron">
         <table class="table table-striped">
@@ -30,6 +30,7 @@
           </thead>
           <a class="btn btn-danger" href="/match/creaMatch" role="button">Crea match</a>
           <a class="btn btn-warning" href="/match/i-miei-match" role="button">Le tue partite</a>
+          <a class="btn btn-info" href="/match/cronologia-match">Cronologia match</a>
           <tbody id="t_body">
           </tbody>
         </table>
@@ -108,7 +109,7 @@
           } else {
             if (current_players >= max_players) {
               cells += "<td id='tasto_iscriviti'>"
-              cells += '<button type="button" class="btn btn-primary">Pieno</button>'
+              cells += '<button type="button" class="btn btn-primary" disabled>Pieno</button>'
               cells += "</td>\n"
             } else {
               cells += "<td id='tasto_iscriviti'>"
@@ -127,7 +128,8 @@
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-              console.log(xhr.responseText)
+              console.log(xhr.responseText);
+              alert(xhr.responseText);
               location.reload();
             } else {
               console.error(xhr.statusText);
@@ -148,7 +150,7 @@
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-              console.log(xhr.responseText)
+              alert(xhr.responseText)
               location.reload();
             } else {
               console.error(xhr.statusText);

@@ -153,20 +153,20 @@ module.exports = function (app, mongoose) {
     //Get pagina web con lista tornei attivi
     app.get('/tornei', tokenChecker, (req, res) => {
         console.log(req.token)
-        res.render('pages/lista_tornei', { user: req.user })
+        res.render('pages/tornei/lista_tornei', { user: req.user })
     })
     //Get pagina web con il form per la creazione di tornei
     app.get('/tornei/creaTorneo', (req, res) => {
-        res.render("pages/crea_torneo", { user: req.user });
+        res.render("pages/tornei/crea_torneo", { user: req.user });
     });
     //Get della pagina del torneo, se sei l'organizzatore accederai ad ulteriori funzionalità
     app.get('/tornei/:id', tokenChecker, (req, res) => {
         Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
             if (torneo) {
                 if (torneo.organizzatore == req.user.displayName) {
-                    res.render('pages/torneo_admin', { user: req.user, id: req.params.id })
+                    res.render('pages/tornei/torneo_admin', { user: req.user, id: req.params.id })
                 } else {
-                    res.render("pages/torneo", { user: req.user, id: req.params.id });
+                    res.render("pages/tornei/torneo2", { user: req.user, id: req.params.id });
                 }
             } else {
                 res.status(404).json(err)
