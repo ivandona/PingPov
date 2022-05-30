@@ -44,25 +44,12 @@ app.set('view engine', 'ejs');
 app.use(require('body-parser').json());
 app.use(cookieParser())
 //declaring session
-app.use(session({
-  resave: false,
-  saveUninitialized: true,
-  user_id: '',
-  username: '',
-  email: '',
-  user_image: '',
-  rank: '',
-  secret: 'thisismysecret',
-  store: MongoStore.create({
-    mongoUrl: process.env.DB_URL,
-  })
-}));
-app.use(passport.session());
+
 //get method for login
 app.get('/v1/auth', function (req, res) {
   res.render('pages/auth', { user:req.user });
 });
-app.get('/v1/home', function (req, res) {
+app.get('/v2/home', function (req, res) {
   res.render('pages/home', { user:req.user });
 });
 function requireAutentication(req, res, next) {
@@ -72,6 +59,9 @@ function requireAutentication(req, res, next) {
     res.render('pages/auth', { user:req.user });
   }
 }
+app.get('/', function (req, res) {
+  res.redirect('/v2/home');
+});
 //app.all('*', requireAutentication)
 
 // Starting app after calling every api
