@@ -50,6 +50,9 @@ module.exports = function (app) {
     app.get('/v1/profilo', (req, res) => {
         res.render('pages/profilo', { user: req.user });
     });
+    app.get('/v1/profilo/ricerca', (req, res) => {
+        res.render('pages/profilo', { user: req.query.user });
+    });
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);

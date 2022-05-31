@@ -1,7 +1,7 @@
 module.exports = function(app) {
-    const User = require('/models/user');
+    const User = require('./models/user');
     
-    app.get('/me', async (req, res) => {
+    /*app.get('/v2/users/me', async (req, res) => {
         if(!req.loggedUser) {
             return;
         }
@@ -9,27 +9,35 @@ module.exports = function(app) {
         let user = await User.findOne({email: req.loggedUser.email});
         
         res.status(200).json({
-            self: 'v1/students/' + user.id,
+            self: '/v2/users/' + user.id,
             email: user.email
         });
-    });
+    });*/
 
-    app.get('', async (req, res) => {
-        let users;
-        
-        if (req.query.email)
-            users = await User.find({ email: req.query.email }).exec();
+    app.get('/v2/users', async (req, res) => {
+        if (req.query.username){
+            console.log('entrato1')
+            User.find( { username: { "$regex": req.query.username, "$options": "i" } },(err,user)=>{
+                if(user){
+                    console.log('entrato2')
+                    return res.status(200).json(user);
+                }else{
+                   return  res.status(404).send('Ricerca fallita')
+                }
+                
+            })
+        }/*
         else
             users = await User.find().exec();
 
         users = users.map( (entry) => {
             return {
-                self: 'v1/users' + entry.id,
-                email: entry.email
+                self: '/v2/users/' + entry.id,
+                username: entry.username
             }
-        })
+        })*/
 
-        res.status(200).json(users);
+        //return res.status(200).json(users);
     })
     
     app.post('', async (req, res) => {
@@ -50,7 +58,7 @@ module.exports = function(app) {
         let userId = user.id;
 
         //Link to the newly created resource is returned in the Location header
-        res.location("/v1/users/" + userId).status(201).send();
+        res.location("/v2/users/" + userId).status(201).send();
     });
 
 }

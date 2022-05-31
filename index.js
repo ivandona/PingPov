@@ -20,7 +20,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 };
 
 const openapiSpecification = swaggerJsdoc(options);*/
-
+const tokenChecker = require('./api/tokenChecker');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
