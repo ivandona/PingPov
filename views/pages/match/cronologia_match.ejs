@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Lista match</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <!-- load bulma css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- load fontawesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
+
+
+</head>
+
+<body>
+    <%- include('../navbar.ejs') %>
+        <div class="container">
+            <div class="jumbotron">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Giocatori</th>
+                            <th scope="col">Modalità</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Sede</th>
+                            <th scope="col">Organizzatore</th>
+                            <th scope="col">Risultato</th>
+                            <th scope="col">Punteggio Rank</th>
+
+
+                        </tr>
+                    </thead>
+                    <a class="btn btn-danger" href="/match" role="button">Torna alla lista partite</a>
+                    <tbody id="t_body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+        <script>
+            class Match {
+                constructor(data) {
+                    data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+                    Object.assign(this, data);
+                };
+            }
+            async function req() {
+                var match = []
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/v2/match/cronologia-match", true);
+                xhr.onload = function (e) {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            data = JSON.parse(xhr.responseText);
+                            for (let i = 0; i < data.length; i++) {
+                                console.log(data[i])
+                                match.push(new Match(data[i]))
+                            }
+                            createTable(match)
+                        } else {
+                            console.error(xhr.statusText);
+                        }
+                    }
+                };
+                xhr.onerror = function (e) {
+                    console.error(xhr.statusText);
+                };
+
+                xhr.send(null);
+            }
+            function createTable(match) {
+                tbody = document.getElementById('t_body');
+                let cells = ""
+                let max_players, current_players;
+                for (let i = 0; i < match.length; i++) {
+                    current_players = match[i]['squadra1'].length + match[i]['squadra2'].length;
+                    if (match[i]['modalità'] == 'Singolo') {
+                        max_players = 2
+                    } else {
+                        max_players = 4
+                    }
+                    cells += "<tr>\n"
+                    cells += "<td><b>"
+                    cells += (i + 1)
+                    cells += "</b></td>\n"
+                    cells += "<td>"
+                    cells += current_players + "/" + max_players
+                    cells += "</td>\n"
+                    cells += "<td>\n"
+                    cells += match[i]['modalità']
+                    cells += "</td>\n"
+                    cells += "<td>"
+                    cells += match[i]['data']
+                    cells += "</td>\n"
+                    cells += "<td>"
+                    cells += match[i]['sede']
+                    cells += "</td>\n"
+                    cells += "<td>"
+                    cells += match[i]['organizzatore']
+                    cells += "</td>\n"
+                    cells += '<td><b>'
+                    if (match[i]['squadra1'].includes('<%=user.displayname%>')) {
+                        if (match[i]['risultato']['score_sq1'] > match[i]['risultato']['score_sq2']) {
+                            cells += '<p style="color:green">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2']
+                        } else {
+                            cells += '<p style="color:red">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2'] + '</p>'
+                        }
+                    } else {
+                        if (match[i]['risultato']['score_sq2'] > match[i]['risultato']['score_sq1']) {
+                            cells += '<p style="color:green">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2']
+                        } else {
+                            cells += '<p style="color:red">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2'] + '</p>'
+                        }
+                    }
+                cells += '</b></td>'
+                cells += "</tr>\n"
+                }
+
+                tbody.innerHTML = cells
+            }
+            req();
+        </script>
+</body>
+
+</html>

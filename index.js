@@ -4,7 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./pingpov1.json');
+const swaggerDocument = require('./pingpov2.json');
 const cookieParser = require('cookie-parser');
 
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -44,6 +44,7 @@ app.set('view engine', 'ejs');
 app.use(require('body-parser').json());
 app.use(cookieParser())
 //declaring session
+<<<<<<< HEAD
 /*app.use(session({
   resave: false,
   saveUninitialized: true,
@@ -58,11 +59,14 @@ app.use(cookieParser())
   })
 }));
 app.use(passport.session());*/
+=======
+
+>>>>>>> origin/modalita_di_gioco
 //get method for login
 app.get('/v1/auth', function (req, res) {
   res.render('pages/auth', { user:req.user });
 });
-app.get('/v1/home', function (req, res) {
+app.get('/v2/home', function (req, res) {
   res.render('pages/home', { user:req.user });
 });
 app.use('/v1/prenotazioni', tokenChecker);
@@ -73,11 +77,14 @@ function requireAutentication(req, res, next) {
     res.render('pages/auth', { user:req.user });
   }
 }
+app.get('/', function (req, res) {
+  res.redirect('/v2/home');
+});
 //app.all('*', requireAutentication)
 
 // Starting app after calling every api
 require('./api/api_index')(app, mongoose);
-app.listen(4000, () => {
+app.listen(process.env.PORT || 4000, () => {
   console.log('server started!');
 });
 

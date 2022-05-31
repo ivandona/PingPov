@@ -67,7 +67,7 @@ module.exports = function (app) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:4000/auth/google/callback"
+        callbackURL: "http://localhost:4000/auth/google/callback"//"https://pingpov.herokuapp.com/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
             userProfile = profile;
@@ -91,14 +91,16 @@ module.exports = function (app) {
                 expiresIn: 86400 // expires in 24 hours
             }
             var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
-            req.token = token
+            console.log('token: '+token)
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: process.env.SUPER_SECRET,
-              }).status(200).json({ message: token });
+              }).status(200).redirect('/v2/home');
         });
-    app.get('/v1/auth/logout',function(req, res){
-        req.logout();
-        res.render('pages/home.ejs',{ user : req.user})
+    app.get('/v2/auth/logout',function(req, res){
+        req.user=""
+        res.user=""
+        //req.logout();
+        res.clearCookie("token").status(200).render('pages/home',{user:""});
     })
 }
