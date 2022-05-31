@@ -43,7 +43,7 @@ module.exports = function(app) {
             token: token,
             email: user.email,
             id: user._id,
-            self: "api/v1/" + user._id
+            self: "api/v2/" + user._id
         });
 
     });

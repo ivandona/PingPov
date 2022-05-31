@@ -11,7 +11,7 @@ module.exports = function (app) {
     var userProfile;
     //result of logging
     
-    app.get('/v1/auth/success', async function (req, res) {
+    app.get('/v2/auth/success', async function (req, res) {
         //req.session.email=String(userProfile.emails[0].value);
         //cerca email nel db
         let user = await User.findOne({email: req.user.emails[0].value}).exec();
@@ -29,10 +29,10 @@ module.exports = function (app) {
         }
         
     });
-    app.get('/v1/auth/error', (req, res) => res.send("error logging in"));
+    app.get('/v2/auth/error', (req, res) => res.send("error logging in"));
 
     //POST per salvare dati nel db
-    app.post('/v1/auth/registrazione', (req, res) => {
+    app.post('/v2/auth/registrazione', (req, res) => {
         const new_user = new User({
             email: userProfile.emails[0].value,
             name: userProfile.displayName,
@@ -44,13 +44,13 @@ module.exports = function (app) {
             all_around: req.body.all_around
         })
         new_user.save().then(() => console.log('user inserito'));
-        res.redirect('/v1/auth/success');
+        res.redirect('/v2/auth/success');
     });
 
-    app.get('/v1/profilo', (req, res) => {
+    app.get('/v2/profilo', (req, res) => {
         res.render('pages/profilo', { user: req.user });
     });
-    app.get('/v1/profilo/ricerca', (req, res) => {
+    app.get('/v2/profilo/ricerca', (req, res) => {
         res.render('pages/profilo', { user: req.query.user });
     });
 
@@ -75,7 +75,7 @@ module.exports = function (app) {
         }
     ));
 
-    app.get('/v1/auth/google',
+    app.get('/v2/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));
 
     app.get('/auth/google/callback',
