@@ -47,7 +47,7 @@ app.use(cookieParser())
 
 //get method for login
 app.get('/v1/auth', function (req, res) {
-  res.render('pages/auth', { user:req.user });
+  res.render('pages/auth', { user: req.user });
 });
 app.get('/v2/home', function (req, res) {
   res.render('pages/home', { user:req.user });
@@ -56,7 +56,7 @@ function requireAutentication(req, res, next) {
   if (req.isAuthenticated() == true || req.originalUrl.includes('/auth')) {
     next();
   } else {
-    res.render('pages/auth', { user:req.user });
+    res.render('pages/auth', { user: req.user });
   }
 }
 app.get('/', function (req, res) {
