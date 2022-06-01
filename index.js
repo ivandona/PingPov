@@ -56,7 +56,7 @@ function requireAutentication(req, res, next) {
   if (req.isAuthenticated() == true || req.originalUrl.includes('/auth')) {
     next();
   } else {
-    res.render('pages/auth', { user:req.user });
+    res.render('pages/auth', { user: req.user });
   }
 }
 app.get('/', function (req, res) {

@@ -41,7 +41,8 @@ module.exports = function (app) {
             difesa: req.body.difesa,
             spin: req.body.spin,
             controllo: req.body.controllo,
-            all_around: req.body.all_around
+            all_around: req.body.all_around,
+            rank : 100
         })
         new_user.save().then(() => console.log('user inserito'));
         res.redirect('/v2/auth/success');
@@ -103,4 +104,17 @@ module.exports = function (app) {
         //req.logout();
         res.clearCookie("token").status(200).render('pages/home',{user:""});
     })
+    app.get('/v2/users', async (req, res) => {
+        if (req.query.username) {
+          console.log('entrato1')
+          User.find({ username: { "$regex": req.query.username, "$options": "i" } }, (err, user) => {
+            if (user) {
+              console.log('entrato2')
+              return res.status(200).json(user);
+            } else {
+              return res.status(404).send('Ricerca fallita')
+            }
+          })
+        }
+      })
 }
