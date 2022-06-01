@@ -30,7 +30,9 @@
 <body>
 
   <%- include('../navbar.ejs') %>
+  <div class="container" style="padding:2">
   <form id="form" action="/v2/tornei/creaTorneo" method="post">
+    <h2>Crea nuovo torneo</h2>
     <div class="form-group">
       <label for="nome_torneo">Nome Torneo</label>
       <input type="text" class="form-control" id="nome_torneo" name="nome_torneo" required>
@@ -59,6 +61,7 @@
     <input type="submit" value="Crea Torneo" class="btn btn-danger"></button>
 
   </form>
+</div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>

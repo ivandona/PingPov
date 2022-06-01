@@ -115,7 +115,7 @@ module.exports = function (app, mongoose) {
         })
     })
     //API per vedere i risultati dei match di un torneo
-    app.get('/v2/risultati/:id', async function (req, res) {
+    app.get('/v2/risultati-torneo/:id', async function (req, res) {
         let id = req.params.id;
         Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
             if (torneo) {
@@ -126,13 +126,14 @@ module.exports = function (app, mongoose) {
         })
     })
     //API per l'invio di risultati di un torneo
-    app.post('/v2/risultati/:id', tokenChecker, async function (req, res) {
+    app.post('/v2/risultati-torneo/:id', tokenChecker, async function (req, res) {
         let id = req.params.id;
         Torneo.findOne({ _id: req.params.id }).lean().then(async (torneo, err) => {
             let players_and_score = req.body.score.split(") ", 5);
+            let players = players_and_score[1].split(' vs ');
             let risultato_gia_presente = false;
             for (let x = 0; x < torneo.risultati.length; x++) {
-                if (torneo.risultati[x].includes(players_and_score[1])) {
+                if (torneo.risultati[x].includes(players[0])&& torneo.risultati[x].includes(players[1])) {
                     risultato_gia_presente = true;
                     break;
                 }
@@ -166,7 +167,7 @@ module.exports = function (app, mongoose) {
                 if (torneo.organizzatore == req.user.displayName) {
                     res.render('pages/tornei/torneo_admin', { user: req.user, id: req.params.id })
                 } else {
-                    res.render("pages/tornei/torneo2", { user: req.user, id: req.params.id });
+                    res.render("pages/tornei/torneo_user", { user: req.user, id: req.params.id });
                 }
             } else {
                 res.status(404).json(err)
