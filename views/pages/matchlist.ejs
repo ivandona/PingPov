@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Lista match</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- load bulma css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- load fontawesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
+
+
+</head>
+
+<body>
+  <%- include('navbar.ejs') %>
+    <div class="container">
+      <div class="jumbotron">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Giocatori</th>
+              <th scope="col">Modalità</th>
+              <th scope="col">Data</th>
+              <th scope="col">Sede</th>
+              <th scope="col">Organizzatore</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <a class="btn btn-danger" href="/match/creaMatch" role="button">Crea match</a>
+          <a class="btn btn-warning" href="/match/i-miei-match" role="button">Le tue partite</a>
+          <tbody id="t_body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+    <script>
+      class Match {
+        constructor(data) {
+          data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+          Object.assign(this, data);
+        };
+      }
+      async function req() {
+        var match = []
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/v2/match", true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              data = JSON.parse(xhr.responseText);
+              for (let i = 0; i < data.length; i++) {
+                console.log(data[i])
+                match.push(new Match(data[i]))
+              }
+              createTable(match)
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      function createTable(match) {
+        tbody = document.getElementById('t_body');
+        let cells = ""
+        let max_players, current_players;
+        for (let i = 0; i < match.length; i++) {
+          current_players = match[i]['squadra1'].length + match[i]['squadra2'].length;
+          if (match[i]['modalità'] == 'Singolo') {
+            max_players = 2
+          } else {
+            max_players = 4
+          }
+          cells += "<tr>\n"
+          cells += "<td>"
+          cells += (i + 1)
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += current_players + "/" + max_players
+          cells += "</td>\n"
+          cells += "<td>\n"
+          cells += match[i]['modalità']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += match[i]['data']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += match[i]['sede']
+          cells += "</td>\n"
+          cells += "<td>"
+          cells += match[i]['organizzatore']
+          cells += "</td>\n"
+          if (match[i]['squadra1'].includes('<%=user.displayName%>') || match[i]['squadra2'].includes('<%=user.displayName%>')) {
+            if (match[i]['organizzatore'] == '<%=user.displayName%>') {
+              cells += '<td><a class="btn btn-warning" href="/match/i-miei-match" role="button">Vai a le tue partite</a></td>\n'
+            } else {
+              cells += "<td id='tasto_disiscrivi'>"
+              cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\'' + match[i]['_id'] + '\')">Disiscriviti</button>'
+              cells += "</td>\n"
+            }
+          } else {
+            if (current_players >= max_players) {
+              cells += "<td id='tasto_iscriviti'>"
+              cells += '<button type="button" class="btn btn-primary">Pieno</button>'
+              cells += "</td>\n"
+            } else {
+              cells += "<td id='tasto_iscriviti'>"
+              cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\'' + match[i]['_id'] + '\')">Iscriviti</button>'
+              cells += "</td>\n"
+            }
+          }
+          cells += "</tr>\n"
+
+        }
+        tbody.innerHTML = cells
+      }
+      async function iscriviti(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/v2/iscrizione-match/" + id, true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log(xhr.responseText)
+              location.reload();
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      async function disiscriviti(id) {
+        console.log('DISISCRIZIONE')
+        var xhr = new XMLHttpRequest();
+        console.log(id)
+        xhr.open("DELETE", "/v2/iscrizione-match/" + id, true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log(xhr.responseText)
+              location.reload();
+            } else {
+              console.error(xhr.statusText);
+            }
+          }
+        };
+        xhr.onerror = function (e) {
+          console.error(xhr.statusText);
+        };
+
+        xhr.send(null);
+      }
+      req();
+    </script>
+</body>
+
+</html>

@@ -11,5 +11,6 @@ module.exports = mongoose.model('User', new Schema({
     difesa: Number, 
     spin: Number, 
     controllo: Number, 
-    all_around: Number
+    all_around: Number,
+    rank : Number,
 }));

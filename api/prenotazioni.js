@@ -10,21 +10,21 @@ module.exports = function (app, mongoose) {
     app.get('/v2/prenotazioni', (req, res) => {
         console.log(req.user)
         req.query.username = req.session.user;
-        res.user=req.session.user
+        res.user = req.session.user
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
             if (err) {
                 res.status(404);
                 console.log(err);
             } else {
-                risultato=[];
-                for(i=0; i<Prenotazioni.length;i++){
-                if(Prenotazioni[i]['sede']==req.query['sede']){
-                    day=new Date(Date.parse(req.query['data'] + 'T' +req.query['ora'] +':00'))
-                    if(day< Prenotazioni[i]['giorno']){
-                        risultato.push(Prenotazioni[i]);
+                risultato = [];
+                for (i = 0; i < Prenotazioni.length; i++) {
+                    if (Prenotazioni[i]['sede'] == req.query['sede']) {
+                        day = new Date(Date.parse(req.query['data'] + 'T' + req.query['ora'] + ':00'))
+                        if (day < Prenotazioni[i]['giorno']) {
+                            risultato.push(Prenotazioni[i]);
+                        }
                     }
-                }
 
                 }
                 res.status(200).json(risultato)
@@ -37,7 +37,7 @@ module.exports = function (app, mongoose) {
         //const ObjectID = require('mongoose').ObjectID;
         const id = req.body.pre_id;
         const query = { 'prenotatore': req.body.prenotatore };
-        res.user=req.user
+        res.user = req.user
         console.log(id);
         console.log(req.body.prenotatore)
         const body = {
@@ -79,12 +79,8 @@ module.exports = function (app, mongoose) {
     })
 
 
-app.get('/prenotazioni',(req, res)=>{
-    res.render('pages/ricerca_prenotazioni',{user : req.user});
-
-
-
-
-}
-)
+    app.get('/prenotazioni', tokenChecker, (req, res) => {
+        res.render('pages/ricerca_prenotazioni', { user: req.user });
+    }
+    )
 }
