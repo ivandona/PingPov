@@ -238,7 +238,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
       },
       "summary": "Iscrizione"
     },
@@ -282,7 +287,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
       },
       "summary": "Disiscrizione"
     },
@@ -300,10 +310,50 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Errore di accesso al database",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Problema di accesso al database"
+                  }
+                }
+              }
+            }
           }
         }
       },
-      "summary": "Tornei disponibili e cancellazione"
+      "post": {
+        "summary": "/v2/tornei",
+        "description": "crea nuovo torneo",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/creaTorneo"
+        },
+        "responses": {
+          "200": {
+            "description": "torneo appena creato come file json"
+          },
+          "400": {
+            "description": "Id fornito non valido",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Non tutti i campi sono stati definiti correttamente"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
     },
     "/v2/tornei/{id_torneo}": {
       "get": {
@@ -321,11 +371,35 @@
         ],
         "responses": {
           "200": {
-            "description": "file json con la lista dei tornei",
+            "description": "file json il torneo richiesto",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Torneo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Id fornito non valido",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Id non valido"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Errore di accesso al database",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Problema di accesso al database"
+                  }
                 }
               }
             }
@@ -357,26 +431,6 @@
         }
       },
       "summary": "Dettagli torneo"
-    },
-    "/v2/tornei/creaTorneo": {
-      "post": {
-        "summary": "/v1/tornei/creaTorneo",
-        "description": "crea nuovo torneo",
-        "requestBody": {
-          "$ref": "#/components/requestBodies/creaTorneo"
-        },
-        "responses": {
-          "200": {
-            "description": "torneo appena creato come file json"
-          }
-        },
-        "security": [
-          {
-            "loginAuth": []
-          }
-        ]
-      },
-      "summary": "Creazione dei tornei"
     }
   },
   "components": {

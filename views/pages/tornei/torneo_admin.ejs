@@ -162,17 +162,17 @@
         async function inviaRisultato(score) {
             score = '{ "score" : "' + score + '"}'
             console.log(score)
-            fetch('/v2/risultati/<%=id%>', {
+            fetch('/v2/risultati-torneo/<%=id%>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: score,
             }).then((response) => response.json()).then((score) => {
-                console.log('Success:', score);
+                //console.log('Success:', score);
             }).catch((error) => {
-                console.error('Error:', error);
-                alert('Partita già giocata')
+                //console.error('Error:', error);
+                alert('Partita già giocata e risultato già inserito')
             });
         }
 
@@ -186,7 +186,6 @@
         <b>
             <p id="winner"></p>
         </b>
-        <div id="add" class="btn btn-outline-success my-2 my-sm-0" type="submit">Inizia Torneo</div>
         <!--<div id="clear" class="metroBtn">Clear</div>-->
         <div class="tournament"></div>
         <div class="brackets" id="brackets"></div>

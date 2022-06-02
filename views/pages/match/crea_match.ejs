@@ -29,7 +29,9 @@
 <body>
 
     <%- include('../navbar.ejs') %>
-        <form id="form" action="/v2/match" method="post">>
+    <div class="container" style="padding:2">
+        <form id="form" action="/v2/match" method="post">
+            <h2>Crea nuova partita</h2>
             <select class="custom-select" id="modalità" name="modalità" required>
                 <option selected>Scegli modalità di gioco</option>
                 <option value="Singolo">Singolo</option>
@@ -49,6 +51,7 @@
             <input type="submit" value="Crea Partita" class="btn btn-danger"></button>
 
         </form>
+    </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
             crossorigin="anonymous"></script>
