@@ -1,3 +1,5 @@
+const { max } = require('underscore');
+
 // api/tornei.js
 module.exports = function (app, mongoose) {
     const tokenChecker = require('./tokenChecker')
@@ -5,7 +7,7 @@ module.exports = function (app, mongoose) {
         nome_torneo: String,
         data: Date,
         organizzatore: String,
-        sede : {type: String, enum : ['Povo1','Povo0']},
+        sede: { type: String, enum: ['Povo1', 'Povo0'] },
         max_partecipanti: Number,
         giocatori: [String],
         risultati: [String]
@@ -15,23 +17,36 @@ module.exports = function (app, mongoose) {
     app.get('/v2/tornei', function (req, res) {
         Torneo.find({}, function (err, Tornei) {
             if (err) {
-                console.log(err);
+                res.status(503).send("Problema di accesso al database");
             } else {
                 res.status(200).send(Tornei)
             }
         })
     })
     //Api di post per la creazione di tornei
-    app.post('/v2/tornei/creaTorneo', tokenChecker, (req, res) => {
+    app.post('/v2/tornei', tokenChecker, (req, res) => {
         console.log(req.body)
         const nuovo_Torneo = new Torneo({
             nome_torneo: req.body.nome_torneo,
             data: req.body.data,
             organizzatore: req.user.displayName,
             sede: req.body.sede,
-            max_partecipanti: req.body.numero_partecipanti,
+            max_partecipanti: req.body.max_partecipanti,
             risultati: []
         })
+        if(typeof(req.body.nome_torneo)=='undefined' || typeof(req.body.data)=='undefined' || typeof(req.body.sede)=='undefined' 
+            || typeof(req.body.max_partecipanti)=='undefined' || typeof(req.body.admin_gioca)=='undefined'){
+            return res.status(400).send('Non tutti i campi sono stati definiti')
+        }
+        if(req.body.nome_torneo='' || req.body.data=='' || !(Date.parse(req.body.data)>0) || 
+        (req.body.sede!='Povo0' && req.body.sede !='Povo1') || req.body.max_partecipanti>64 || req.body.max_partecipanti<2 ||
+        (req.body.admin_gioca!==true && req.body.admin_gioca!==false)){
+            return res.status(400).send('Dati non validi')
+        }
+        if(Data.parse(req.body.data)<Date.now()){
+            res.status(400).send('Data non valida')
+        }
+
         if (req.body.admin_gioca == true) {
             nuovo_Torneo.giocatori.push(req.user.displayName);
         }
@@ -46,7 +61,7 @@ module.exports = function (app, mongoose) {
 
 
     //Api di post per l'iscrizione ad un torneo dato l'id (nell'url)
-    app.post('/v2/iscrizione/', tokenChecker, async function (req, res) {
+    app.post('/v2/iscrizione-torneo/', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
         const id = req.query.id;
         console.log('iscrizione')
@@ -58,7 +73,7 @@ module.exports = function (app, mongoose) {
         }
     });
     //Api di post per la disiscrizione ad un torneo dato l'id nell'url
-    app.delete('/v2/iscrizione/', tokenChecker, async function (req, res) {
+    app.delete('/v2/iscrizione-torneo/', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
         let id = req.query.id;
         console.log('disiscrizione')
@@ -69,12 +84,15 @@ module.exports = function (app, mongoose) {
         }
     });
     app.get('/v2/tornei/:id', async function (req, res) {
-        const id = req.query.id;
-        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+        let id = req.params.id;
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).send('Id non valido')
+        }
+        Torneo.findById(id).lean().then((torneo, err) => {
             if (torneo) {
-                res.status(200).json(torneo)
+                return res.status(200).json(torneo)
             } else {
-                res.status(404).json(err)
+                return res.status(40).send('Errore accesso db')
             }
         })
     });
@@ -98,22 +116,6 @@ module.exports = function (app, mongoose) {
         })
 
     })
-    app.put('/v2/tornei/:id', (req, res) => {
-        const id = req.params.id;
-        Torneo.find({ "_id": id }, function (err, docs) {
-            if (docs.organizzatore == req.session.username) {
-                Torneo.findByIdAndUpdate(id, function (err, docs) {
-                    if (err) {
-                        res.send('Torneo non trovato')
-                    } else {
-                        res.send('Torneo correttamente cancellato')
-                    }
-                });
-            } else {
-                res.send("Non sei tu l'organizzatore")
-            }
-        })
-    })
     //API per vedere i risultati dei match di un torneo
     app.get('/v2/risultati-torneo/:id', async function (req, res) {
         let id = req.params.id;
@@ -133,7 +135,7 @@ module.exports = function (app, mongoose) {
             let players = players_and_score[1].split(' vs ');
             let risultato_gia_presente = false;
             for (let x = 0; x < torneo.risultati.length; x++) {
-                if (torneo.risultati[x].includes(players[0])&& torneo.risultati[x].includes(players[1])) {
+                if (torneo.risultati[x].includes(players[0]) && torneo.risultati[x].includes(players[1])) {
                     risultato_gia_presente = true;
                     break;
                 }
