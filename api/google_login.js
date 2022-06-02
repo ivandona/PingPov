@@ -41,7 +41,8 @@ module.exports = function (app) {
             difesa: req.body.difesa,
             spin: req.body.spin,
             controllo: req.body.controllo,
-            all_around: req.body.all_around
+            all_around: req.body.all_around,
+            rank: 100
         })
         new_user.save().then(() => console.log('user inserito'));
         res.redirect('/v1/auth/success');
@@ -92,7 +93,7 @@ module.exports = function (app) {
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: process.env.SUPER_SECRET,
-              }).status(200).render('pages/home',{user:""});
+              }).status(200).render('pages/registrazione',{user:""});
         });
     app.get('/v1/auth/logout',function(req, res){
         req.user=""

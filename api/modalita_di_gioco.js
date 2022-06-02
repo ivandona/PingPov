@@ -15,9 +15,9 @@ module.exports = function (app, mongoose) {
         },
         modalità: { type: String, enum: ['Singolo', 'Doppio'] }
     }));
-  
 
- 
+
+
     app.post('/v2/match', tokenChecker, (req, res) => {
         //let day=new Date(Date.parse(req.body.data + 'T' +req.query['ora'] +':00'))
         let current_date_ms = Date.now();
@@ -139,6 +139,54 @@ module.exports = function (app, mongoose) {
                 if (match.organizzatore != req.user.displayName) {
                     return res.status(401).send('Non sei tu l\'organizzatore').end()
                 }
+
+                //inizio ranking
+
+                let p1 = req.body.score_sq1;
+                let p2 = req.body.score_sq2;
+                console.log(match.squadra1[0])
+                console.log(match.squadra2[0])
+                let r1, r2;
+                User.find({ "name": match.squadra1[0] }, async function (err, utente) {
+                    console.log("utente: ")
+                    console.log(utente)
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log("rank: ")
+                        r1 = utente[0].rank;
+                        console.log(r1)
+                        if (!r1) {
+                            r1 = 100;
+                        }
+                    }
+                    User.find({ "name": match.squadra2[0] }, async function (err, utente) {
+                        console.log("utente: ")
+                        console.log(utente)
+                        if (err) {
+                            console.log(err)
+                        } else {
+                            console.log("rank: ")
+                            r2 = utente[0].rank;
+                            console.log(r2)
+                            if (!r2) {
+                                r2 = 100;
+                            }
+                            r1,r2=cambia_risultati(r1,r2,p1,p2)
+                            console.log(r1)
+                            console.log(r2)
+                           
+                            
+                           await User.find({ name: match.squadra1[0] }).updateOne({$set:{ "rank" : r1 }});
+                           await User.find({ name: match.squadra2[0] }).updateOne({$set :{ "rank" : r2 }});
+                        }
+                    })
+               
+               
+               
+                })
+               
+              
                 Match.findByIdAndUpdate(req.params.id, {
                     $set: {
                         'risultato.score_sq1': req.body.score_sq1,
@@ -151,102 +199,6 @@ module.exports = function (app, mongoose) {
                         return res.status(400).send('Risultato correttamente aggiornato').end()
                     }
                 });
-                //inizio ranking
-
-                    let r1=0;
-                    let r2=0;
-                    console.log(match.squadra1[0])
-                    User.find({ name : match.squadra1[0]}, function(err, utente){
-                        
-                            r1=utente.rank;
-                            console.log(r1)
-                            if(!r1){
-                                r1=100;
-                            }
-
-                    })
-                    User.find({ name :match.squadra2[0]}, function(err, utente){
-                        
-                            r2=utente.rank;
-                            console.log(r2)
-                            if(!r2){
-                                r2=100;
-                            }
-                           
-
-                    })
-                    console.log(r1);
-                    console.log(r2);
-                    //console.log(r1)
-                    
-                    media = Math.floor((r1+r2)/2);
-                    p1= req.body.score_sq1;
-                    p2=req.body.score_sq2;
-                    add= (Math.pow(Math.abs(p1-p2),2))/(10*(Math.pow((p1+p2),2))) * media;
-                    if(r1!=0 && r2 != 0 ){
-                    //se entrambi i giocatori hanno rank maggiore di zero
-                        if(p1>p2){
-                        r1=r1+add;
-                        r2=r2-add;
-                    } else{
-                        r1=r1-add;
-                        r2=r2+add;
-                    }
-                }else{
-                    //se r1 è zero
-                    if(r1==0){
-                        //se r2 è zero
-                        if(r2==0){
-                            //vince g1
-                            if(p1>p2){
-                                r1=r1+50;
-                                
-                            } 
-                            //vince g2
-                            else{
-                                r2=r2+50;
-                            }
-                        }
-                        //se r2 non è zero
-                        else{
-                            //vince g1
-                            if(p1>p2){
-                                r1=r2;
-                                r2=r2-add;
-                            } 
-                            //vince g2
-                            else{
-                                r2=r2+add;
-                            }
-                        }
-                    }
-                    // r1 non è zero
-                    else{
-                        if(r2==0){
-                            //vince g1
-                            if(p1>p2){
-                                r1=r2;
-                                r2=r2-add;
-                            } 
-                            //vince g2
-                            else{
-                                r2=r2+add;
-                            }
-                        }
-                    }
-
-
-                }
-                 
-                console.log(r1);
-                console.log(r2);
-
-                
-                User.findOneAndUpdate({ name :match.squadra1[0]},{rank:r1});
-                User.findOneAndUpdate({ name :match.squadra2[0]},{rank:r2});
-                
-
-                //fine ranking
 
             }
         })
@@ -277,4 +229,69 @@ module.exports = function (app, mongoose) {
     app.get('/match/i-miei-match', tokenChecker, (req, res) => {
         res.render('pages/miei_match', { user: req.user })
     })
-}
+
+
+
+const  cambia_risultati= function(r1,r2,p1,p2){ 
+                media = Math.floor((r1 + r2) / 2);
+               
+                add = (Math.pow(Math.abs(p1 - p2), 2)) / (10 * (Math.pow((p1 + p2), 2))) * media;
+                add=Math.floor(add);
+                if (r1 != 0 && r2 != 0) {
+                    //se entrambi i giocatori hanno rank maggiore di zero
+                    if (p1 > p2) {
+                        r1 = r1 + add;
+                        r2 = r2 - add;
+                    } else {
+                        r1 = r1 - add;
+                        r2 = r2 + add;
+                    }
+                } else {
+                    //se r1 è zero
+                    if (r1 == 0) {
+                        //se r2 è zero
+                        if (r2 == 0) {
+                            //vince g1
+                            if (p1 > p2) {
+                                r1 = r1 + 50;
+
+                            }
+                            //vince g2
+                            else {
+                                r2 = r2 + 50;
+                            }
+                        }
+                        //se r2 non è zero
+                        else {
+                            //vince g1
+                            if (p1 > p2) {
+                                r1 = r2;
+                                r2 = r2 - add;
+                            }
+                            //vince g2
+                            else {
+                                r2 = r2 + add;
+                            }
+                        }
+                    }
+                    // r1 non è zero
+                    else {
+                        if (r2 == 0) {
+                            //vince g1
+                            if (p1 > p2) {
+                                r1 = r2;
+                                r2 = r2 - add;
+                            }
+                            //vince g2
+                            else {
+                                r2 = r2 + add;
+                            }
+                        }
+                    }
+
+
+                }
+                return r1,r2;
+            }
+          
+        }

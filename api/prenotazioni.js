@@ -80,7 +80,7 @@ module.exports = function (app, mongoose) {
 
 
     app.get('/prenotazioni', tokenChecker, (req, res) => {
-        res.render('pages/ricerca_prenotazioni', { user: req.user });
+        res.status(200).render('pages/ricerca_prenotazioni', { user: req.user });
     }
     )
 }
