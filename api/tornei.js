@@ -22,7 +22,7 @@ module.exports = function (app, mongoose) {
         })
     })
     //Api di post per la creazione di tornei
-    app.post('/v2/tornei/creaTorneo', tokenChecker, (req, res) => {
+    app.post('/v2/tornei', tokenChecker, (req, res) => {
         console.log(req.body)
         const nuovo_Torneo = new Torneo({
             nome_torneo: req.body.nome_torneo,
