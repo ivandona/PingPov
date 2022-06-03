@@ -130,10 +130,10 @@
                     return
                 }
                 let score = ""
-                if (first_score > second_score) {
-                    score = '(' + first_score + '/' + second_score + ')';
-                } else {
-                    score = '(' + second_score + '/' + first_score + ')';
+                if (first_score < second_score) {
+                    let temp = first_score;
+                    first_score = second_score;
+                    second_score = temp;
                 }
 
                 if ($(this).hasClass('winner')) {
@@ -141,26 +141,26 @@
                 }
 
                 $ul.append($('<li class="winner">' + $(this).text() + '</li>'));
-
-                // replace all buttons on clicked tier with text
                 let i = 0;
-                let msg = score
+                let player1, player2
+                // replace all buttons on clicked tier with text
                 $ul.find('button').each(function () {
-                    msg += ' ' + $(this).text()
-                    if(i==0){
-                        msg+=' vs'
+                    if (i == 0) {
+                        player1 = $(this).text();
+                    } else {
+                        player2 = $(this).text();
                     }
-                    $(this).replaceWith($(this).text() + score);
-                    i++
+                    $(this).replaceWith($(this).text() + '(' + first_score + '/' + second_score + ')');
+                    i++;
                 });
-                inviaRisultato(msg)
+                inviaRisultato(player1, player2, first_score, second_score)
 
                 changeToButtons();
             });
         }
         //POST request with body equal on data in JSON format
-        async function inviaRisultato(score) {
-            score = '{ "score" : "' + score + '"}'
+        async function inviaRisultato(player1, player2, score1, score2) {
+            score = '{ "player1" : "' + player1 + '", "player2" : "' + player2 + '", "score1": "' + score1 + '","score2": "' + score2 + '"}'
             console.log(score)
             fetch('/v2/risultati-torneo/<%=id%>', {
                 method: 'POST',
@@ -168,11 +168,8 @@
                     'Content-Type': 'application/json',
                 },
                 body: score,
-            }).then((response) => response.json()).then((score) => {
-                //console.log('Success:', score);
-            }).catch((error) => {
-                //console.error('Error:', error);
-                alert('Partita già giocata e risultato già inserito')
+            }).then((response) => {
+                alert('Risultato aggiunto');
             });
         }
 
@@ -184,7 +181,7 @@
         <p hidden id="torneo">
         </p>
         <b>
-            <p id="winner"></p>
+            <p>Clicca sopra il vincitore di ogni partita per selezionare il vincitore</p>
         </b>
         <!--<div id="clear" class="metroBtn">Clear</div>-->
         <div class="tournament"></div>

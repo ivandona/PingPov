@@ -20,8 +20,7 @@
         xhr.open("POST", "/v2/tornei", true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(value));
-        console.log(JSON.stringify(value))
-        alert("Torneo creato")
+        alert("Richiesta di creazione inviata")
     }
   }
   </script>
@@ -29,6 +28,7 @@
 
 <body>
   <%- include('../navbar.ejs') %>
+  <div class="container"style="padding:3">
   <form id="form" action="/v2/tornei" method="post">
     <div class="form-group">
       <label for="nome_torneo">Nome Torneo</label>
@@ -58,6 +58,7 @@
     <input type="submit" value="Crea Torneo" class="btn btn-danger"></button>
 
   </form>
+</div>
 </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

@@ -147,9 +147,13 @@
               }
             }
           }
-        }
-      },
-      "summary": "Aggiunta Iscrizione"
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
     },
     "/v1/rimuoviPrenotazione/": {
       "delete": {
@@ -191,110 +195,14 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
       },
       "summary": "Rimzione Prenotazione"
-    },
-    "/v1/iscrivi/": {
-      "post": {
-        "summary": "/v1/iscrivi/",
-        "description": "permette ad un utente di iscriversi ad un torneo",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "id per filtrare torneo",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "$ref": "#/components/requestBodies/User"
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "plain/text": {
-                "examples": {
-                  "response": {
-                    "value": "iscrizione avvenuta"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error in Response",
-            "content": {
-              "plain/text": {
-                "examples": {
-                  "response": {
-                    "value": "iscrizione non riuscita"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "loginAuth": []
-          }
-        ]
-      },
-      "summary": "Iscrizione"
-    },
-    "/v1/disiscrivi/": {
-      "delete": {
-        "summary": "/v1/disiscrivi/",
-        "description": "permette ad un utente di disiscriversi da un torneo dopo essersi iscritto",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "description": "id per filtrare torneo",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "plain/text": {
-                "examples": {
-                  "response": {
-                    "value": "disiscrizione avvenuta"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error in Response",
-            "content": {
-              "plain/text": {
-                "examples": {
-                  "response": {
-                    "value": "disiscrizione non riuscita"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "loginAuth": []
-          }
-        ]
-      },
-      "summary": "Disiscrizione"
     },
     "/v2/tornei": {
       "get": {
@@ -311,13 +219,13 @@
               }
             }
           },
-          "503": {
-            "description": "Errore di accesso al database",
+          "500": {
+            "description": "Server error",
             "content": {
-              "plain/text": {
+              "application/json": {
                 "examples": {
                   "response": {
-                    "value": "Problema di accesso al database"
+                    "value": "mongoose json error"
                   }
                 }
               }
@@ -392,17 +300,8 @@
               }
             }
           },
-          "503": {
-            "description": "Errore di accesso al database",
-            "content": {
-              "plain/text": {
-                "examples": {
-                  "response": {
-                    "value": "Problema di accesso al database"
-                  }
-                }
-              }
-            }
+          "500": {
+            "description": "Server error"
           }
         }
       },
@@ -419,18 +318,222 @@
             "required": true
           }
         ],
+        "responses": {
+          "200": {
+            "description": "torneo correttamente eliminato"
+          },
+          "401": {
+            "description": "non loggato"
+          },
+          "404": {
+            "description": "torneo non trovato"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
         "security": [
           {
             "loginAuth": []
           }
+        ]
+      }
+    },
+    "/v2/iscrizione-torneo/": {
+      "post": {
+        "summary": "/v2/iscrizione-torneo/",
+        "description": "permette ad un utente di iscriversi ad un torneo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id del torneo al quale ci si vuole iscrivere",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "iscrizione creata"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "non loggato"
+          },
+          "403": {
+            "description": "iscrizione non riuscita con errore specificato nel testo",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Sei già iscritto , Posti finiti"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Errore di accesso al database"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "/v2/iscrizione-torneo/",
+        "description": "permette ad un utente di disiscriversi da un torneo dopo essersi iscritto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id del torneo al quale ci si vuole disiscrivere",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
-            "description": "torneo correttamente eliminato"
+            "description": "disiscrizione avvenuta",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Disiscrizione avvenuta"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "non loggato"
+          },
+          "403": {
+            "description": "Error in Response",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Non sei iscritto al torneo"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "plain/text": {
+                "examples": {
+                  "response": {
+                    "value": "Errore di accesso al database"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/risultati-torneo/": {
+      "get": {
+        "summary": "/v2/risultati-torneo/",
+        "description": "accedi ai risultati delle partite di un torneo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id del torneo cercato",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       },
-      "summary": "Dettagli torneo"
+      "post": {
+        "summary": "/v2/risultati-torneo/",
+        "description": "inserisci nuovo risultato di una partita del torneo (solo admin)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id del torneo per cui si vuole aggiungere un esito",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/risultato_torneo"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "parametri nel body non validi"
+          },
+          "401": {
+            "description": "non loggato"
+          },
+          "403": {
+            "description": "richiesta non valida"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -473,6 +576,17 @@
           }
         },
         "description": "attributi per la creazione del torneo",
+        "required": true
+      },
+      "risultato_torneo": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/risultato_torneo"
+            }
+          }
+        },
+        "description": "body della richiesta di aggiunta di un risultato",
         "required": true
       }
     },
@@ -589,6 +703,28 @@
           },
           "admin_gioca": {
             "type": "boolean"
+          }
+        }
+      },
+      "risultato_torneo": {
+        "required": [
+          "player1",
+          "player2",
+          "score1",
+          "score2"
+        ],
+        "properties": {
+          "player1": {
+            "type": "string"
+          },
+          "player2": {
+            "type": "string"
+          },
+          "score1": {
+            "type": "integer"
+          },
+          "score2": {
+            "type": "integer"
           }
         }
       }
