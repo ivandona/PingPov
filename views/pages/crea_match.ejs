@@ -29,11 +29,12 @@
 <body>
 
     <%- include('navbar.ejs') %>
-        <form id="form" action="/v2/match" method="post">>
+        <form id="form" action="/v2/match" method="post">
             <select class="custom-select" id="modalità" name="modalità" required>
                 <option selected>Scegli modalità di gioco</option>
                 <option value="Singolo">Singolo</option>
                 <option value="Doppio">Doppio</option>
+                <option value="Ranked">Ranked</option>
               </select>
             <br>
             <div>

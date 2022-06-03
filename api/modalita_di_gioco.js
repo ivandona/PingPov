@@ -13,7 +13,7 @@ module.exports = function (app, mongoose) {
             score_sq1: { type: Number, default: -1 },
             score_sq2: { type: Number, default: -1 }
         },
-        modalità: { type: String, enum: ['Singolo', 'Doppio'] }
+        modalità: { type: String, enum: ['Singolo', 'Doppio','Ranked'] }
     }));
 
 
@@ -26,7 +26,7 @@ module.exports = function (app, mongoose) {
             console.log(current_date_ms - req_data_ms);
             return res.status(403).send('Data non valida in quanto già passata').end();
         }
-        if (req.body.modalità != 'Singolo' && req.body.modalità != 'Doppio') {
+        if (req.body.modalità != 'Singolo' && req.body.modalità != 'Doppio' && req.body.modalità!= 'Ranked') {
             res.status(403).send('Modalità specificata diversa tra quelle disponibili (Singolo,Doppio)').end();
             return;
         }
@@ -91,7 +91,7 @@ module.exports = function (app, mongoose) {
             }
             else {
                 let max_size;
-                if (match.modalità == 'Singolo') {
+                if (match.modalità == 'Singolo' || match.modalità=='Ranked') {
                     max_size = 1
                 } else {
                     max_size = 2;
@@ -139,8 +139,9 @@ module.exports = function (app, mongoose) {
                 if (match.organizzatore != req.user.displayName) {
                     return res.status(401).send('Non sei tu l\'organizzatore').end()
                 }
-
+                console.log(match.modalità)
                 //inizio ranking
+                if(match.modalità=='Ranked'){
 
                 let p1 = req.body.score_sq1;
                 let p2 = req.body.score_sq2;
@@ -186,7 +187,7 @@ module.exports = function (app, mongoose) {
                
                 })
                
-              
+            }
                 Match.findByIdAndUpdate(req.params.id, {
                     $set: {
                         'risultato.score_sq1': req.body.score_sq1,

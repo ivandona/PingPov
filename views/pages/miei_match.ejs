@@ -75,7 +75,7 @@
         let max_players, current_players;
         for (let i = 0; i < match.length; i++) {
           current_players = match[i]['squadra1'].length + match[i]['squadra2'].length;
-          if (match[i]['modalità'] == 'Singolo') {
+          if (match[i]['modalità'] == 'Singolo' || match[i]['modalità'] == 'Ranked') {
             max_players = 2
           } else {
             max_players = 4
