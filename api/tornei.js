@@ -56,9 +56,9 @@ module.exports = function (app, mongoose) {
 
 
     //Api di post per l'iscrizione ad un torneo dato l'id (nell'url)
-    app.post('/v2/iscrizione-torneo/', tokenChecker, async function (req, res) {
+    app.post('/v2/iscrizione-torneo/:id', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
-        const id = req.query.id;
+        const id = req.params.id;
         if (!mongoose.isValidObjectId(id)) {
             return res.status(400).send('Id non valido')
         }
@@ -76,14 +76,14 @@ module.exports = function (app, mongoose) {
             }
 
         } catch (err) {
-            res.status(500).send('Errore di accesso al database', err.message);
+            res.status(400).send('Errore di accesso al database');
 
         }
     });
     //Api di post per la disiscrizione ad un torneo dato l'id nell'url
-    app.delete('/v2/iscrizione-torneo/', tokenChecker, async function (req, res) {
+    app.delete('/v2/iscrizione-torneo/:id', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
-        let id = req.query.id;
+        const id = req.params.id
         if (!mongoose.isValidObjectId(id)) {
             return res.status(400).send('Id non valido')
         }
@@ -119,6 +119,9 @@ module.exports = function (app, mongoose) {
     //Api di delete di un torneo dato il suo id nell'url
     app.delete('/v2/tornei/:id', tokenChecker, async function (req, res) {
         let id = req.params.id;
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).send('Id non valido')
+        }
         let name = req.user.displayName;
         let torneo = await Torneo.findById(id)
         if (torneo == null) {
@@ -135,7 +138,10 @@ module.exports = function (app, mongoose) {
 //API per vedere i risultati dei match di un torneo
 app.get('/v2/risultati-torneo/:id', async function (req, res) {
     let id = req.params.id;
-    Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).send('Id non valido')
+    }
+    Torneo.findOne({ _id: id }).lean().then((torneo, err) => {
         if (torneo) {
             res.status(200).json(torneo.risultati)
         } else {
@@ -146,9 +152,11 @@ app.get('/v2/risultati-torneo/:id', async function (req, res) {
 //API per l'invio di risultati di un torneo
 app.post('/v2/risultati-torneo/:id', tokenChecker, async function (req, res) {
     let id = req.params.id;
-    console.log(req.body)
-    Torneo.findOne({ _id: req.params.id }).lean().then(async (torneo, err) => {
-        if(!req.body.player1 || !req.body.player2 || !req.body.score1 || !req.body.score2){
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).send('Id non valido')
+    }
+    Torneo.findOne({ _id: id }).lean().then(async (torneo, err) => {
+        if(!req.body.player1 || !req.body.player2 || req.body.score1 =='undefined'|| req.body.score2=='undefined'){
             return res.status(400).send('Body della richiesta non completo');
         }
         let risultato_gia_presente = false;

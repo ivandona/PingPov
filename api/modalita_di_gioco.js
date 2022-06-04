@@ -65,7 +65,7 @@ module.exports = function (app, mongoose) {
         let current_date_ms = Date.now();
         Match.find({}, function (err, match) {
             if (err) {
-                res.status(404).send(err)
+                res.status(500).send(err)
             } else {
                 let matches = [];
                 for (let i = 0; i < match.length; i++) {

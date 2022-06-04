@@ -339,19 +339,18 @@
         ]
       }
     },
-    "/v2/iscrizione-torneo/": {
+    "/v2/iscrizione-torneo/{id_torneo}": {
       "post": {
-        "summary": "/v2/iscrizione-torneo/",
+        "summary": "/v2/iscrizione-torneo/{id_torneo}",
         "description": "permette ad un utente di iscriversi ad un torneo",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
-            "description": "id del torneo al quale ci si vuole iscrivere",
-            "required": true,
+            "in": "path",
+            "name": "id_torneo",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -402,17 +401,16 @@
         ]
       },
       "delete": {
-        "summary": "/v2/iscrizione-torneo/",
+        "summary": "/v2/iscrizione-torneo/{id_torneo}",
         "description": "permette ad un utente di disiscriversi da un torneo dopo essersi iscritto",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
-            "description": "id del torneo al quale ci si vuole disiscrivere",
-            "required": true,
+            "in": "path",
+            "name": "id_torneo",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -463,14 +461,14 @@
         ]
       }
     },
-    "/v2/risultati-torneo/": {
+    "/v2/risultati-torneo/{id_torneo}": {
       "get": {
         "summary": "/v2/risultati-torneo/",
         "description": "accedi ai risultati delle partite di un torneo",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
+            "name": "id_torneo",
+            "in": "path",
             "description": "id del torneo cercato",
             "required": true,
             "schema": {
@@ -502,8 +500,8 @@
         "description": "inserisci nuovo risultato di una partita del torneo (solo admin)",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
+            "name": "id_torneo",
+            "in": "path",
             "description": "id del torneo per cui si vuole aggiungere un esito",
             "required": true,
             "schema": {
@@ -533,6 +531,58 @@
             "loginAuth": []
           }
         ]
+      }
+    },
+    "/v2/match": {
+      "get": {
+        "summary": "/v2/match",
+        "description": "ritorna la lista delle partite",
+        "responses": {
+          "200": {
+            "description": "file json con la lista delle partite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lista_Match"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/v2/match/{id_partita}": {
+      "get": {
+        "summary": "/v2/match/{id_partita}",
+        "description": "mostra i dettagli di un match",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_partita",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "file json con le informazioni sul match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     }
   },
@@ -726,6 +776,78 @@
           "score2": {
             "type": "integer"
           }
+        }
+      },
+      "risultato": {
+        "type": "object",
+        "required": [
+          "score_sq1",
+          "score_sq2"
+        ],
+        "properties": {
+          "score_sq1": {
+            "type": "integer"
+          },
+          "score_sq2": {
+            "type": "integer"
+          }
+        }
+      },
+      "Match": {
+        "type": "object",
+        "required": [
+          "squadra1",
+          "squadra2",
+          "organizzatore",
+          "data",
+          "sede",
+          "modalità",
+          "risultato"
+        ],
+        "properties": {
+          "squadra1": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "squadra2": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "organizzatore": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          },
+          "sede": {
+            "enum": [
+              "Singolo",
+              "Doppio"
+            ]
+          },
+          "modalità": {
+            "enum": [
+              "Singolo",
+              "Doppio"
+            ]
+          },
+          "risultato": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/risultato"
+              }
+            ]
+          }
+        }
+      },
+      "Lista_Match": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Match"
         }
       }
     }

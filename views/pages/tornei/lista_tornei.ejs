@@ -105,7 +105,7 @@
       }
       async function iscriviti(id) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v2/iscrizione-torneo/?id=" + id, true);
+        xhr.open("POST", "/v2/iscrizione-torneo/" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -127,7 +127,7 @@
         console.log('DISISCRIZIONE')
         var xhr = new XMLHttpRequest();
         console.log(id)
-        xhr.open("DELETE", "/v2/iscrizione-torneo/?id=" + id, true);
+        xhr.open("DELETE", "/v2/iscrizione-torneo/" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
