@@ -47,13 +47,14 @@ module.exports = function (app) {
         new_user.save().then(() => console.log('user inserito'));
         res.redirect('/v2/auth/success');
     });
-
+    app.get('/v2/ricerca_profilo', async (req, res) => {
+        let searchedUser = await User.findOne({ _id: req.query.id });
+        res.render('pages/profilo', { user: searchedUser });
+    });
     app.get('/v2/profilo', (req, res) => {
         res.render('pages/profilo', { user: req.user });
     });
-    app.get('/v2/profilo/ricerca', (req, res) => {
-        res.render('pages/profilo', { user: req.query.user });
-    });
+    
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);
@@ -96,7 +97,7 @@ module.exports = function (app) {
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: process.env.SUPER_SECRET,
-              }).status(200).redirect('/v2/home');
+            }).status(200).redirect('/v2/home');
         });
     app.get('/v2/auth/logout',function(req, res){
         req.user=""
@@ -104,17 +105,4 @@ module.exports = function (app) {
         //req.logout();
         res.clearCookie("token").status(200).render('pages/home',{user:""});
     })
-    app.get('/v2/users', async (req, res) => {
-        if (req.query.username) {
-          console.log('entrato1')
-          User.find({ username: { "$regex": req.query.username, "$options": "i" } }, (err, user) => {
-            if (user) {
-              console.log('entrato2')
-              return res.status(200).json(user);
-            } else {
-              return res.status(404).send('Ricerca fallita')
-            }
-          })
-        }
-      })
 }

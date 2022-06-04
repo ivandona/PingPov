@@ -31,21 +31,19 @@
     
     <% if(user !='undefined' && user !="" && user != null) { %>
       <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
-        <li> <a href="/v2/profilo"><img src="<%=user.photos[0].value%>" alt="profile pic" width="50px" height="50px"
-              style="border-radius: 50%;"></a>
-        </li>
+        
         <li class="nav-item px-3">
           <a class="nav-text">
-              <p style="color:white"><%=user.displayName%><br><%=user.rank%>rank#53<br>
-              <a class="btn btn-outline-danger btn-sm" href="/v2/auth/logout" role="button">Logout</a></p>
+            <a class="btn btn-outline-danger btn-sm" href="/v2/auth/logout" role="button">Logout</a></p>
+        </li>      
         <li class="nav-item">
           <img src="/images/rank_imgs/bronze.png" alt="profile_rank" width="20px" height="20px">
         </li>
         <% } else{ %>
           <li class="nav-item active">
-            <a class="nav-link" href="/v2/auth"><b>Login</b></a>
+            <a class="nav-link" href="/v1/auth"><b>Login</b></a>
           </li>
-          <%}%>
+        <%}%>
       </ul>
   </div>
 </nav>
@@ -56,14 +54,14 @@
     ul.textContent = '';
     console.log("entrato in searchUser");
     console.log(String(e.value));
-    fetch('/v2/users/?username=' + e.value)
+    fetch('/v2/search/?username=' + e.value)
       .then((resp) => resp.json())
       .then(function (data) {
         return data.map(function (user) {
           let li = document.createElement('li');
           let span = document.createElement('span');
           let a = document.createElement('a');
-          a.href = '/v2/profilo/?user=' + user;
+          a.href = '/v2/ricerca_profilo/?id=' + user._id;
           a.textContent = user.username;
 
           // Append all our elements
@@ -74,19 +72,5 @@
         })
       })
       .catch(error => console.error(error));
-    /*const searchResults = document.getElementBeyId('searchResults');
-    fetch('../v2/users', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payload: e.value })
-    }).then(res => res.json()).then(data => {
-      let payload = data.payload;
-      searchResults.innerHTML = '';
-      payload.forEach((item, index) => {
-        if(index > 0) searchResults.innerHTML += '<hr>';
-        searchResults.innerHTML += '<p>${item.username}</p>';
-      });
-    });
-    return;*/
   }
 </script>

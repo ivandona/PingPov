@@ -28,8 +28,7 @@ module.exports = function(app) {
         
         // if user is found and password is right create a token
         var payload = {
-            email: user.email,
-            id: user._id
+            user: req.user
             // other data encrypted in the token	
         }
         var options = {
@@ -37,14 +36,9 @@ module.exports = function(app) {
         }
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
-        res.json({
-            success: true,
-            message: 'Enjoy your token!',
-            token: token,
-            email: user.email,
-            id: user._id,
-            self: "api/v2/" + user._id
-        });
-
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.SUPER_SECRET,
+        }).status(200).redirect('/v2/home');
     });
 }

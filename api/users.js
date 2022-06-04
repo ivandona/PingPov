@@ -13,16 +13,27 @@ module.exports = function(app) {
             email: user.email
         });
     });*/
-
+    
     app.get('/v2/users', async (req, res) => {
+        if(!req.loggedUser) {
+            return;
+        }
+
+        let user = await User.findOne({email: req.loggedUser.email});
+        
+        res.status(200).json({
+            self: '/v2/users/' + user.id,
+            email: user.email
+        });
+    });
+
+    app.get('/v2/search', async (req, res) => {
         if (req.query.username){
-            console.log('entrato1')
             User.find( { username: { "$regex": req.query.username, "$options": "i" } },(err,user)=>{
                 if(user){
-                    console.log('entrato2')
                     return res.status(200).json(user);
                 }else{
-                   return  res.status(404).send('Ricerca fallita')
+                    return  res.status(404).send('Ricerca fallita')
                 }
                 
             })
@@ -40,7 +51,7 @@ module.exports = function(app) {
         //return res.status(200).json(users);
     })
     
-    app.post('', async (req, res) => {
+    app.post('/v2/users', async (req, res) => {
         
         let user = new User({
             email: req.body.email,
