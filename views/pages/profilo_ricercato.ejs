@@ -19,9 +19,9 @@
 <body style="background-color:rgb(66,63,63);">
   <%- include('navbar.ejs') %>
     <p style="color: rgb(255, 255, 255); font-family: 'Courier New', Courier, monospace; font-size: 20px;">
-      <strong>Username</strong>: <%= user.username %> <br>
-        <strong>Email</strong>: <%= user.email %> <br>
-          <strong>Name</strong>: <%= user.displayName %> </a>
+      <strong>Username</strong>: <%= searched_user.username %> <br>
+        <strong>Email</strong>: <%= searched_user.email %> <br>
+          <strong>Name</strong>: <%= searched_user.displayName %> </a>
     </p>
     </div>
     </div>
@@ -37,7 +37,7 @@
         <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
         <script>
           var xValues = ["Attacco", "Difesa", "Allaround", "Spin", "Controllo"];
-          var yValues = [<%= user.attacco %>, <%= user.difesa %>, <%= user.all_around %>, <%= user.spin %>, <%= user.controllo %>];
+          var yValues = [<%= searched_user.attacco %>, <%= searched_user.difesa %>, <%= searched_user.all_around %>, <%= searched_user.spin %>, <%= searched_user.controllo %>];
           
           var barColors = ["red", "green", "blue", "orange", "brown"];
           Chart.defaults.global.defaultFontColor = "#FFFFFF";
