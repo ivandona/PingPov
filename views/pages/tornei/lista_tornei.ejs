@@ -16,7 +16,7 @@
   <%- include('../navbar.ejs') %>
     <div class="container">
       <div class="jumbotron">
-        <a class="btn btn-primary" href="/v2/tornei/creaTorneo" role="button">Crea nuovo torneo</a>
+        <a class="btn btn-primary" href="/tornei/creaTorneo" role="button">Crea nuovo torneo</a>
         <table class="table table-striped">
           <thead>
             <tr>
@@ -29,7 +29,6 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <a class="btn btn-danger" href="/tornei/creaTorneo" role="button">Crea torneo</a>
           <tbody id="t_body">
           </tbody>
         </table>
@@ -106,7 +105,7 @@
       }
       async function iscriviti(id) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/v2/iscrizione/?id=" + id, true);
+        xhr.open("POST", "/v2/iscrizione-torneo/?id=" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -114,6 +113,7 @@
               location.reload();
             } else {
               console.error(xhr.statusText);
+              location.reload();
             }
           }
         };
@@ -127,7 +127,7 @@
         console.log('DISISCRIZIONE')
         var xhr = new XMLHttpRequest();
         console.log(id)
-        xhr.open("DELETE", "/v2/iscrizione/?id=" + id, true);
+        xhr.open("DELETE", "/v2/iscrizione-torneo/?id=" + id, true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {

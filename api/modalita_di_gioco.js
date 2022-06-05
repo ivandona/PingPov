@@ -147,7 +147,6 @@ module.exports = function (app, mongoose) {
                 }
             }
         })
-
     })
     app.delete('/v2/iscrizione-match/:id', tokenChecker, async function (req, res) {
         let id = req.params.id;
@@ -204,8 +203,7 @@ module.exports = function (app, mongoose) {
                 }else{
                     return res.status(404).send('Nessun match trovato')
                 }
-            })
-
+            });
     })
     
 

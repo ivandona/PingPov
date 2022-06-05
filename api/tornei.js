@@ -1,3 +1,5 @@
+const { max } = require('underscore');
+
 // api/tornei.js
 module.exports = function (app, mongoose) {
     const tokenChecker = require('./tokenChecker')
@@ -5,7 +7,7 @@ module.exports = function (app, mongoose) {
         nome_torneo: String,
         data: Date,
         organizzatore: String,
-        sede : {type: String, enum : ['Povo1','Povo0']},
+        sede: { type: String, enum: ['Povo1', 'Povo0'] },
         max_partecipanti: Number,
         giocatori: [String],
         risultati: [String]
@@ -15,14 +17,14 @@ module.exports = function (app, mongoose) {
     app.get('/v2/tornei', function (req, res) {
         Torneo.find({}, function (err, Tornei) {
             if (err) {
-                console.log(err);
+                res.status(503).send("Problema di accesso al database");
             } else {
                 res.status(200).send(Tornei)
             }
         })
     })
     //Api di post per la creazione di tornei
-    app.post('/v2/tornei/creaTorneo', tokenChecker, (req, res) => {
+    app.post('/v2/tornei', tokenChecker, (req, res) => {
         console.log(req.body)
         const nuovo_Torneo = new Torneo({
             nome_torneo: req.body.nome_torneo,
@@ -32,49 +34,84 @@ module.exports = function (app, mongoose) {
             max_partecipanti: req.body.numero_partecipanti,
             risultati: []
         })
-        if (req.body.admin_gioca == true) {
-            nuovo_Torneo.giocatori.push(req.user.displayName);
+        if (typeof (req.body.nome_torneo) == 'undefined' || typeof (req.body.data) == 'undefined' || typeof (req.body.sede) == 'undefined'
+            || typeof (req.body.numero_partecipanti) == 'undefined' || typeof (req.body.admin_gioca) == 'undefined') {
+            return res.status(400).send('Non tutti i campi sono stati definiti')
+        }
+        if (req.body.nome_torneo == '' || req.body.data == '' || !(Date.parse(req.body.data) > 0) ||
+            (req.body.sede != 'Povo0' && req.body.sede != 'Povo1') || req.body.numero_partecipanti > 64 || req.body.numero_partecipanti < 2 ||
+            (req.body.admin_gioca !== true && req.body.admin_gioca !== false)) {
+            return res.status(400).send('Dati non validi')
+        }
+        if (Date.parse(req.body.data) < Date.now()) {
+            res.status(400).send('Data non valida')
         }
 
-        if (nuovo_Torneo.organizzatore == "" || nuovo_Torneo.organizzatore == undefined) {
-            res.send("Errore, login non eseguito");
-            return;
-        }
+        if (req.body.admin_gioca == true) {
+            nuovo_Torneo.giocatori.push(req.user.displayName);
+        };
         nuovo_Torneo.save().then(() => console.log('Torneo salvato'));
         res.status(200).json(nuovo_Torneo).send(Torneo.nuovo_Torneo);
     });
 
 
     //Api di post per l'iscrizione ad un torneo dato l'id (nell'url)
-    app.post('/v2/iscrizione/', tokenChecker, async function (req, res) {
+    app.post('/v2/iscrizione-torneo/', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
         const id = req.query.id;
-        console.log('iscrizione')
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).send('Id non valido')
+        }
         try {
-            res.status(200).json(await Torneo.findById(id).updateOne({ $addToSet: { giocatori: nome_utente } }));
+            let torneo = await Torneo.findById(id);
+            if (torneo.giocatori.includes(nome_utente)) {
+                return res.status(403).send('Sei già iscritto');
+            }
+            if (torneo.giocatori.length < torneo.max_partecipanti) {
+                torneo.giocatori.push(nome_utente);
+                torneo.save();
+                return res.status(201).send('Iscrizione effettuata');
+            } else {
+                return res.status(403).send('Posti finiti');
+            }
+
         } catch (err) {
-            console.error('Error while updating programming language', err.message);
+            res.status(500).send('Errore di accesso al database', err.message);
 
         }
     });
     //Api di post per la disiscrizione ad un torneo dato l'id nell'url
-    app.delete('/v2/iscrizione/', tokenChecker, async function (req, res) {
+    app.delete('/v2/iscrizione-torneo/', tokenChecker, async function (req, res) {
         const nome_utente = req.user.displayName;
         let id = req.query.id;
-        console.log('disiscrizione')
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).send('Id non valido')
+        }
         try {
-            res.status(200).json(await Torneo.findById(id).updateOne({ $pull: { giocatori: nome_utente } }))
+            let torneo = await Torneo.findById(id);
+            if (torneo.giocatori.includes(nome_utente)) {
+                let index = torneo.giocatori.indexOf(nome_utente)
+                torneo.giocatori.splice(index, 1)
+                console.log(nome_utente, ' ', torneo.giocatori, index)
+                torneo.save();
+                return res.status(200).send('Disiscrizione avvenuta')
+            } else {
+                return res.status(403).send('Non sei iscritto al torneo')
+            }
         } catch (err) {
-            console.error(`Error while updating programming language`, err.message);
+            return res.status(500).send('Errore di accesso al database');
         }
     });
     app.get('/v2/tornei/:id', async function (req, res) {
-        const id = req.query.id;
-        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+        let id = req.params.id;
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).send('Id non valido')
+        }
+        Torneo.findById(id).lean().then((torneo, err) => {
             if (torneo) {
-                res.status(200).json(torneo)
+                return res.status(200).json(torneo)
             } else {
-                res.status(404).json(err)
+                return res.status(500).send('Errore accesso db')
             }
         })
     });
@@ -83,95 +120,85 @@ module.exports = function (app, mongoose) {
     app.delete('/v2/tornei/:id', tokenChecker, async function (req, res) {
         let id = req.params.id;
         let name = req.user.displayName;
-        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
-            if (torneo.organizzatore == name) {
-                Torneo.findByIdAndRemove(id, function (err, docs) {
-                    if (err) {
-                        res.status(404).send('Torneo non trovato')
-                    } else {
-                        res.status(200).send('Torneo correttamente cancellato')
-                    }
-                });
-            } else {
-                res.status(401).send("Non sei tu l'organizzatore")
+        let torneo = await Torneo.findById(id)
+        if (torneo == null) {
+            return res.status(404).send('Torneo non trovato')
+        }
+        if (torneo.organizzatore == name) {
+            await torneo.remove({_id:id}, function (err, docs) {
+                return res.status(200).send('Torneo correttamente cancellato')
+            })
+        } else {
+            res.status(401).send("Non sei tu l'organizzatore")
+        };
+    })
+//API per vedere i risultati dei match di un torneo
+app.get('/v2/risultati-torneo/:id', async function (req, res) {
+    let id = req.params.id;
+    Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+        if (torneo) {
+            res.status(200).json(torneo.risultati)
+        } else {
+            res.status(500).send(err)
+        }
+    })
+})
+//API per l'invio di risultati di un torneo
+app.post('/v2/risultati-torneo/:id', tokenChecker, async function (req, res) {
+    let id = req.params.id;
+    console.log(req.body)
+    Torneo.findOne({ _id: req.params.id }).lean().then(async (torneo, err) => {
+        if(!req.body.player1 || !req.body.player2 || !req.body.score1 || !req.body.score2){
+            return res.status(400).send('Body della richiesta non completo');
+        }
+        let risultato_gia_presente = false;
+        if(!torneo.giocatori.includes(req.body.player1)|| !torneo.giocatori.includes(req.body.player2)){
+            return res.status(403).send("Impossibile aggiungere risultati che comprendano giocatori" +
+            "che non partecipano al torneo")            
+        }
+        for (let x = 0; x < torneo.risultati.length; x++) {
+            if (torneo.risultati[x].includes(' '+req.body.player1+' ') && torneo.risultati[x].includes(' '+req.body.player2+' ')) {
+                risultato_gia_presente = true;
+                console.log(torneo.risultati[x])
+                break;
             }
-        })
+        }
+        if (risultato_gia_presente) {
+            return res.status(403).send("Impossibile aggiungere risultati di partite gia giocate")
+        } else {
+            let ris ='('+req.body.score1+'/'+req.body.score2+') '+req.body.player1+' vs ' + req.body.player2+ ' '
+            await Torneo.findById(id).updateOne({ $addToSet: { risultati: ris } })
+            return res.status(200).send('Risultato correttamente aggiunto')
+        }
 
     })
-    app.put('/v2/tornei/:id', (req, res) => {
-        const id = req.params.id;
-        Torneo.find({ "_id": id }, function (err, docs) {
-            if (docs.organizzatore == req.session.username) {
-                Torneo.findByIdAndUpdate(id, function (err, docs) {
-                    if (err) {
-                        res.send('Torneo non trovato')
-                    } else {
-                        res.send('Torneo correttamente cancellato')
-                    }
-                });
-            } else {
-                res.send("Non sei tu l'organizzatore")
-            }
-        })
-    })
-    //API per vedere i risultati dei match di un torneo
-    app.get('/v2/risultati/:id', async function (req, res) {
-        let id = req.params.id;
-        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
-            if (torneo) {
-                res.status(200).json(torneo.risultati)
-            } else {
-                res.status(404).send(err)
-            }
-        })
-    })
-    //API per l'invio di risultati di un torneo
-    app.post('/v2/risultati/:id', tokenChecker, async function (req, res) {
-        let id = req.params.id;
-        Torneo.findOne({ _id: req.params.id }).lean().then(async (torneo, err) => {
-            let players_and_score = req.body.score.split(") ", 5);
-            let risultato_gia_presente = false;
-            for (let x = 0; x < torneo.risultati.length; x++) {
-                if (torneo.risultati[x].includes(players_and_score[1])) {
-                    risultato_gia_presente = true;
-                    break;
-                }
-            }
-            if (risultato_gia_presente) {
-                res.status(403).send("Impossibile aggiungere risultati di partite gia giocate")
-            } else {
-                await Torneo.findById(id).updateOne({ $addToSet: { risultati: req.body.score } })
-                res.status(200).send(req.body)
-            }
 
-        })
-
-    })
-    //FRONT END
+})
+//FRONT END
 
 
-    //Get pagina web con lista tornei attivi
-    app.get('/tornei', tokenChecker, (req, res) => {
-        console.log(req.token)
-        res.render('pages/tornei/lista_tornei', { user: req.user })
-    })
-    //Get pagina web con il form per la creazione di tornei
-    app.get('/tornei/creaTorneo', (req, res) => {
-        res.render("pages/tornei/crea_torneo", { user: req.user });
-    });
-    //Get della pagina del torneo, se sei l'organizzatore accederai ad ulteriori funzionalità
-    app.get('/tornei/:id', tokenChecker, (req, res) => {
-        Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
-            if (torneo) {
-                if (torneo.organizzatore == req.user.displayName) {
-                    res.render('pages/tornei/torneo_admin', { user: req.user, id: req.params.id })
-                } else {
-                    res.render("pages/tornei/torneo2", { user: req.user, id: req.params.id });
-                }
+//Get pagina web con lista tornei attivi
+app.get('/tornei', tokenChecker, (req, res) => {
+    console.log(req.token)
+    res.render('pages/tornei/lista_tornei', { user: req.user })
+})
+//Get pagina web con il form per la creazione di tornei
+app.get('/tornei/creaTorneo', (req, res) => {
+    res.render("pages/tornei/crea_torneo", { user: req.user });
+});
+//Get della pagina del torneo, se sei l'organizzatore accederai ad ulteriori funzionalità
+app.get('/tornei/:id', tokenChecker, (req, res) => {
+    Torneo.findOne({ _id: req.params.id }).lean().then((torneo, err) => {
+        if (torneo) {
+            if (torneo.organizzatore == req.user.displayName) {
+                res.render('pages/tornei/torneo_admin', { user: req.user, id: req.params.id })
             } else {
-                res.status(404).json(err)
+                res.render("pages/tornei/torneo_user", { user: req.user, id: req.params.id });
             }
-        })
-    });
+        } else {
+            res.status(404).json(err)
+        }
+    })
+});
 }
 
