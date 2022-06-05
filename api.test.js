@@ -1,20 +1,27 @@
-const fetch = require("node-fetch")
-const url = "http://localhost:4000"
-it('works with get', async () => {
-    expect.assertions(1)
-    expect((await fetch(url)).status).toEqual(200)
-})
+const request = require('supertest');
+const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+const app = require('./index')
 
-it('works with get /v2/tornei', async () => {
-    const response = await fetch(url+'/v2/tornei');
-    const tornei = await response.json();
-    console.log(tornei);
-})
-it('works with post /v2/tornei/creaTorneo', async () => {
-    const response = await fetch(url+'/v2/tornei/creaTorneo');
-    const tornei = await response.json();
-    console.log(tornei);
-})
-
-
-
+test('app module should be defined', () => {
+    expect(app).toBeDefined();
+});
+test('GET /MATCH', () => {
+    return request(app)
+    .get('/v2/match')
+    .expect(200);
+});
+test('GET /TORNEO', () => {
+    return request(app)
+    .get('/v2/tornei')
+    .expect(200);
+});
+test('GET /TORNEO', () => {
+    return request(app)
+    .get('/v2/tornei/62960ffc29381cb2ac14c252')
+    .expect(200);
+});
+test('GET /MATCH-ID', () => {
+    return request(app)
+    .get('/v2/match/62950074bef232a22ed583b4')
+    .expect(200);
+});

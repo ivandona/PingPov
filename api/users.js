@@ -12,20 +12,18 @@ module.exports = function(app) {
             self: '/v2/users/' + user.id,
             email: user.email
         });
-    });*/
+    });
     
     app.get('/v2/users', async (req, res) => {
-        if(!req.loggedUser) {
+        if(!req.user) {
             return;
         }
-
         let user = await User.findOne({email: req.loggedUser.email});
-        
         res.status(200).json({
             self: '/v2/users/' + user.id,
             email: user.email
         });
-    });
+    });*/
 
     app.get('/v2/search', async (req, res) => {
         if (req.query.displayName){

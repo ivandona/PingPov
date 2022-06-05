@@ -65,6 +65,7 @@ app.get('/', function (req, res) {
 //app.all('*', requireAutentication)
 
 // Starting app after calling every api
+module.exports = app;
 require('./api/api_index')(app, mongoose);
 app.listen(process.env.PORT || 4000, () => {
   console.log('server started!');
