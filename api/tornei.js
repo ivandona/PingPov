@@ -16,9 +16,9 @@ module.exports = function (app, mongoose) {
     app.get('/v2/tornei', function (req, res) {
         Torneo.find({}, function (err, Tornei) {
             if (err) {
-                res.status(503).send("Problema di accesso al database");
+                return res.status(503).send("Problema di accesso al database");
             } else {
-                res.status(200).send(Tornei)
+                return res.status(200).send(Tornei)
             }
         })
     })

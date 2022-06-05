@@ -34,7 +34,7 @@ module.exports = function (app, mongoose) {
 
     }
     //Ottieni lista dei match v
-    app.get('/v2/match', async function (req, res) {
+    app.get('/v2/match',  function (req, res) {
         let current_date_ms = Date.now();
         Match.find({}, function (err, match) {
             if (err) {
@@ -46,7 +46,7 @@ module.exports = function (app, mongoose) {
                         matches.push(match[i]);
                     }
                 }
-                res.status(200).send(matches)
+                return res.status(200).send(matches)
             }
         })
     })
@@ -91,7 +91,7 @@ module.exports = function (app, mongoose) {
         })
     });
     //Scarica informazioni di un singolo match v
-    app.get('/v2/match/:id', async function (req, res) {
+    app.get('/v2/match/:id', function (req, res) {
         let id = req.params.id;
         if (!mongoose.isValidObjectId(id)) {
             return res.status(400).send('Id non valido')
