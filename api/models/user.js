@@ -6,7 +6,7 @@ var Schema = mongoose.Schema;
 module.exports = mongoose.model('User', new Schema({ 
     email: String,
     password: String,
-    name: String,
+    displayName: String,
     username: String,
     attacco: Number, 
     difesa: Number, 

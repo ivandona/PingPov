@@ -35,7 +35,7 @@ module.exports = function (app) {
     app.post('/v2/auth/registrazione', (req, res) => {
         const new_user = new User({
             email: userProfile.emails[0].value,
-            name: userProfile.displayName,
+            displayName: userProfile.displayName,
             username: req.body.username,
             attacco: req.body.attacco,
             difesa: req.body.difesa,

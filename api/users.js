@@ -55,7 +55,7 @@ module.exports = function(app) {
         
         let user = new User({
             email: req.body.email,
-            name: req.body.name,
+            displayName: req.body.displayName,
             username: req.body.username,
             attacco: req.body.attacco,
             difesa: req.body.difesa,

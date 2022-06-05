@@ -36,9 +36,9 @@ module.exports = function(app) {
         }
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
-        res.cookie("token", token, {
-            httpOnly: true,
+        res.status(200).json({
+            success: true,
             secure: process.env.SUPER_SECRET,
-        }).status(200).redirect('/v2/home');
+        });
     });
 }
