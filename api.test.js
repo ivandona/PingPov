@@ -6,7 +6,7 @@ const app = require('./index')
 beforeAll( async () => {
   })
 
-
+  
 test('app module should be defined', () => {
     expect(app).toBeDefined();
 });
