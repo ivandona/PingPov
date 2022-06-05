@@ -48,13 +48,12 @@
             async function req() {
                 var match = []
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", "/v2/match/cronologia-match", true);
+                xhr.open("GET", "/v2/cronologia-match", true);
                 xhr.onload = function (e) {
                     if (xhr.readyState === 4) {
                         if (xhr.status === 200) {
                             data = JSON.parse(xhr.responseText);
                             for (let i = 0; i < data.length; i++) {
-                                console.log(data[i])
                                 match.push(new Match(data[i]))
                             }
                             createTable(match)
