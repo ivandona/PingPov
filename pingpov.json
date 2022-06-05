@@ -289,16 +289,10 @@
             }
           },
           "400": {
-            "description": "Id fornito non valido",
-            "content": {
-              "plain/text": {
-                "examples": {
-                  "response": {
-                    "value": "Id non valido"
-                  }
-                }
-              }
-            }
+            "description": "Id fornito non valido"
+          },
+          "404": {
+            "description": "torneo non trovato"
           },
           "500": {
             "description": "Server error"
@@ -306,7 +300,7 @@
         }
       },
       "delete": {
-        "summary": "/v1/tornei/{id_torneo}",
+        "summary": "/v2/tornei/{id_torneo}",
         "description": "elimina torneo specificato nell'url",
         "parameters": [
           {
@@ -322,9 +316,6 @@
           "200": {
             "description": "torneo correttamente eliminato"
           },
-          "401": {
-            "description": "non loggato"
-          },
           "404": {
             "description": "torneo non trovato"
           },
@@ -339,19 +330,18 @@
         ]
       }
     },
-    "/v2/iscrizione-torneo/": {
+    "/v2/iscrizione-torneo/{id_torneo}": {
       "post": {
-        "summary": "/v2/iscrizione-torneo/",
+        "summary": "/v2/iscrizione-torneo/{id_torneo}",
         "description": "permette ad un utente di iscriversi ad un torneo",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
-            "description": "id del torneo al quale ci si vuole iscrivere",
-            "required": true,
+            "in": "path",
+            "name": "id_torneo",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -367,9 +357,6 @@
               }
             }
           },
-          "401": {
-            "description": "non loggato"
-          },
           "403": {
             "description": "iscrizione non riuscita con errore specificato nel testo",
             "content": {
@@ -381,6 +368,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "torneo non trovato"
           },
           "500": {
             "description": "Server error",
@@ -402,17 +392,16 @@
         ]
       },
       "delete": {
-        "summary": "/v2/iscrizione-torneo/",
+        "summary": "/v2/iscrizione-torneo/{id_torneo}",
         "description": "permette ad un utente di disiscriversi da un torneo dopo essersi iscritto",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
-            "description": "id del torneo al quale ci si vuole disiscrivere",
-            "required": true,
+            "in": "path",
+            "name": "id_torneo",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -428,9 +417,6 @@
               }
             }
           },
-          "401": {
-            "description": "non loggato"
-          },
           "403": {
             "description": "Error in Response",
             "content": {
@@ -442,6 +428,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "torneo non trovato"
           },
           "500": {
             "description": "Server error",
@@ -463,14 +452,14 @@
         ]
       }
     },
-    "/v2/risultati-torneo/": {
+    "/v2/risultati-torneo/{id_torneo}": {
       "get": {
-        "summary": "/v2/risultati-torneo/",
+        "summary": "/v2/risultati-torneo/{id_torneo}",
         "description": "accedi ai risultati delle partite di un torneo",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
+            "name": "id_torneo",
+            "in": "path",
             "description": "id del torneo cercato",
             "required": true,
             "schema": {
@@ -492,18 +481,21 @@
               }
             }
           },
+          "404": {
+            "description": "torneo non trovato"
+          },
           "500": {
             "description": "Server error"
           }
         }
       },
       "post": {
-        "summary": "/v2/risultati-torneo/",
+        "summary": "/v2/risultati-torneo/{id_torneo}",
         "description": "inserisci nuovo risultato di una partita del torneo (solo admin)",
         "parameters": [
           {
-            "name": "id",
-            "in": "query",
+            "name": "id_torneo",
+            "in": "path",
             "description": "id del torneo per cui si vuole aggiungere un esito",
             "required": true,
             "schema": {
@@ -521,11 +513,303 @@
           "400": {
             "description": "parametri nel body non validi"
           },
-          "401": {
-            "description": "non loggato"
-          },
           "403": {
             "description": "richiesta non valida"
+          },
+          "404": {
+            "description": "torneo non trovato"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/match": {
+      "get": {
+        "summary": "/v2/match",
+        "description": "ritorna la lista delle partite",
+        "responses": {
+          "200": {
+            "description": "file json con la lista delle partite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lista_Match"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "/v2/match",
+        "description": "crea nuova partita",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/creaMatch"
+        },
+        "responses": {
+          "201": {
+            "description": "file json della partita appena creata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/match/{id_partita}": {
+      "get": {
+        "summary": "/v2/match/{id_partita}",
+        "description": "mostra i dettagli di un match",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_partita",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "file json con le informazioni sul match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "match non trovato"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "/v2/match/{id_partita}",
+        "description": "elimina un match non giocato con id=id_partita se sei l'organizzatore",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_partita",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Match correttamente cancellato"
+          },
+          "400": {
+            "description": "id non valido"
+          },
+          "401": {
+            "description": "match già giocato oppure non sei tu l'organizzatore"
+          },
+          "404": {
+            "description": "match non trovato"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/iscrizione-match/{id_partita}": {
+      "post": {
+        "summary": "/v2/iscrizione-match/{id_partita}",
+        "description": "iscriviti a partite organizzate da altri utenti",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_partita",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Iscrizione avvenuta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Id non valido"
+          },
+          "403": {
+            "description": "Sei già iscritto oppure il match è già al completo"
+          },
+          "404": {
+            "description": "match non trovato"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "/v2/iscrizione-match/{id_partita}",
+        "description": "disiscriviti da partite organizzate da altri utenti",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_partita",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "disiscrizione avvenuta"
+          },
+          "400": {
+            "description": "Id non valido"
+          },
+          "401": {
+            "description": "Sei l'organizzatore (non puoi disiscriverti da partite che hai creato, però puoi eliminarle se non sono già state giocate)"
+          },
+          "403": {
+            "description": "Partita già terminata"
+          },
+          "404": {
+            "description": "match non trovato"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/risultati-match/{id_partita}": {
+      "post": {
+        "description": "Inserisci il risultato della partita se ne sei l'organizzatore, il risultato influirà sul rank dei giocatori. IMPORTANTE-> puoi inserire solo risultati di partite delle quali sei l'organizzatore che abbiano data passata e che abbiano raggiunto il numero di giocatori richiesto",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id_partita",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/risultati_match"
+        },
+        "responses": {
+          "200": {
+            "description": "Risultato correttamente inserito"
+          },
+          "400": {
+            "description": "id non valido"
+          },
+          "401": {
+            "description": "non sei tu l'organizzatore, partita scaduta, partita non giocata"
+          },
+          "404": {
+            "description": "partita non trovata"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/cronologia-match": {
+      "get": {
+        "description": "Scarica la cronologia dei match ai quali hai partecipato",
+        "responses": {
+          "200": {
+            "description": "file json con la lista dei match ai quali hai partecipato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "loginAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/i-miei-match": {
+      "get": {
+        "description": "Scarica i match dei quali sei l'organizzatore",
+        "responses": {
+          "200": {
+            "description": "file json con la lista dei match dei quali sei l'organizzatore",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
           }
         },
         "security": [
@@ -575,7 +859,7 @@
             }
           }
         },
-        "description": "attributi per la creazione del torneo",
+        "description": "body della richiesta per la creazione del torneo",
         "required": true
       },
       "risultato_torneo": {
@@ -587,6 +871,28 @@
           }
         },
         "description": "body della richiesta di aggiunta di un risultato",
+        "required": true
+      },
+      "creaMatch": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/creaMatch"
+            }
+          }
+        },
+        "description": "body della richiesta di creazione di un torneo",
+        "required": true
+      },
+      "risultati_match": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/risultato"
+            }
+          }
+        },
+        "description": "body della richiesta di inserimento del risultato di una partite",
         "required": true
       }
     },
@@ -620,7 +926,7 @@
           },
           "data": {
             "type": "string",
-            "format": "date"
+            "format": "date-time"
           },
           "organizzatore": {
             "type": "string"
@@ -693,9 +999,10 @@
             "type": "string"
           },
           "data": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
-          "max_partecipanti": {
+          "numero_partecipanti": {
             "type": "integer"
           },
           "sede": {
@@ -725,6 +1032,105 @@
           },
           "score2": {
             "type": "integer"
+          }
+        }
+      },
+      "risultato": {
+        "type": "object",
+        "required": [
+          "score_sq1",
+          "score_sq2"
+        ],
+        "properties": {
+          "score_sq1": {
+            "type": "integer"
+          },
+          "score_sq2": {
+            "type": "integer"
+          }
+        }
+      },
+      "Match": {
+        "type": "object",
+        "required": [
+          "squadra1",
+          "squadra2",
+          "organizzatore",
+          "data",
+          "sede",
+          "modalità",
+          "risultato"
+        ],
+        "properties": {
+          "squadra1": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "squadra2": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "organizzatore": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sede": {
+            "enum": [
+              "Singolo",
+              "Doppio"
+            ]
+          },
+          "modalità": {
+            "enum": [
+              "Singolo",
+              "Doppio"
+            ]
+          },
+          "risultato": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/risultato"
+              }
+            ]
+          }
+        }
+      },
+      "Lista_Match": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Match"
+        }
+      },
+      "creaMatch": {
+        "type": "object",
+        "required": [
+          "data",
+          "sede",
+          "modalità"
+        ],
+        "properties": {
+          "data": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sede": {
+            "enum": [
+              "Povo0",
+              "Povo1"
+            ]
+          },
+          "modalità": {
+            "enum": [
+              "Singolo",
+              "Doppio"
+            ]
           }
         }
       }
