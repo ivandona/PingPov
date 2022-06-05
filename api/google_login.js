@@ -3,15 +3,16 @@ module.exports = function (app) {
     var bodyParser = require('body-parser');
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
+    const tokenChecker = require('./tokenChecker');
     //importa variabili nel file .env
     require('dotenv').config();
     //importa schema di User
-    const User = require('./user');
+    const User = require('./models/user');
     //var used for storing profile information
     var userProfile;
     //result of logging
     
-    app.get('/v1/auth/success', async function (req, res) {
+    app.get('/v2/auth/success', async function (req, res) {
         //req.session.email=String(userProfile.emails[0].value);
         //cerca email nel db
         let user = await User.findOne({email: req.user.emails[0].value}).exec();
@@ -29,14 +30,13 @@ module.exports = function (app) {
         }
         
     });
-    app.get('/v1/auth/error', (req, res) => res.send("error logging in"));
+    app.get('/v2/auth/error', (req, res) => res.send("error logging in"));
 
     //POST per salvare dati nel db
-    app.post('/v1/auth/registrazione', (req, res) => {
+    app.post('/v2/auth/registrazione', (req, res) => {
         const new_user = new User({
             email: userProfile.emails[0].value,
-            name: userProfile.displayName,
-            username: req.body.username,
+            displayName: userProfile.displayName,
             attacco: req.body.attacco,
             difesa: req.body.difesa,
             spin: req.body.spin,
@@ -45,12 +45,18 @@ module.exports = function (app) {
             rank : 100
         })
         new_user.save().then(() => console.log('user inserito'));
-        res.redirect('/v1/auth/success');
+        res.redirect('/v2/auth/success');
     });
-
-    app.get('/v1/profilo', (req, res) => {
-        res.render('pages/profilo', { user: req.user });
+    app.get('/v2/ricerca_profilo', async (req, res) => {
+        let searchedUser = await User.findOne({ _id: req.query.id });
+        res.render('pages/profilo_ricercato', { searched_user: searchedUser, user: req.user });
     });
+    app.get('/v2/profilo', tokenChecker, async function (req, res) {
+        let searchedUser = await User.findOne({displayName: req.user.displayName });
+        
+        return res.render('pages/profilo', { searched_user: searchedUser, user:req.user });
+    });
+    
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);
@@ -73,7 +79,7 @@ module.exports = function (app) {
         }
     ));
 
-    app.get('/v1/auth/google',
+    app.get('/v2/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));
 
     app.get('/auth/google/callback',
@@ -93,7 +99,7 @@ module.exports = function (app) {
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: process.env.SUPER_SECRET,
-              }).status(200).redirect('/v2/home');
+            }).status(200).redirect('/v2/profilo');
         });
     app.get('/v2/auth/logout',function(req, res){
         req.user=""
@@ -101,17 +107,4 @@ module.exports = function (app) {
         //req.logout();
         res.clearCookie("token").status(200).render('pages/home',{user:""});
     })
-    app.get('/v2/users', async (req, res) => {
-        if (req.query.username) {
-          console.log('entrato1')
-          User.find({ username: { "$regex": req.query.username, "$options": "i" } }, (err, user) => {
-            if (user) {
-              console.log('entrato2')
-              return res.status(200).json(user);
-            } else {
-              return res.status(404).send('Ricerca fallita')
-            }
-          })
-        }
-      })
 }

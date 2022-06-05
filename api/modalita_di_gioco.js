@@ -1,4 +1,4 @@
-const user = require('./user');
+const user = require('./models/user');
 
 // api/tornei.js
 module.exports = function (app, mongoose) {

@@ -8,7 +8,7 @@ const swaggerDocument = require('./pingpov.json');
 const cookieParser = require('cookie-parser');
 
 const swaggerJsdoc = require('swagger-jsdoc');
-const options = {
+/*const options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -19,8 +19,8 @@ const options = {
   apis: ['./api/*'], // files containing annotations as above
 };
 
-const openapiSpecification = swaggerJsdoc(options);
-
+const openapiSpecification = swaggerJsdoc(options);*/
+const tokenChecker = require('./api/tokenChecker');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
@@ -43,15 +43,15 @@ app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
 app.use(require('body-parser').json());
 app.use(cookieParser())
-//declaring session
 
 //get method for login
-app.get('/v1/auth', function (req, res) {
-  res.render('pages/auth', { user: req.user });
+app.get('/v2/auth', function (req, res) {
+  res.render('pages/auth', { user:req.user });
 });
 app.get('/v2/home', function (req, res) {
   res.render('pages/home', { user:req.user });
 });
+app.use('/v2/prenotazioni', tokenChecker);
 function requireAutentication(req, res, next) {
   if (req.isAuthenticated() == true || req.originalUrl.includes('/auth')) {
     next();
