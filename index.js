@@ -1,14 +1,12 @@
 //requiring express
 const express = require('express');
-//use session
-const session = require('express-session');
 const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./pingpov.json');
 const cookieParser = require('cookie-parser');
 
 const swaggerJsdoc = require('swagger-jsdoc');
-/*const options = {
+const options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -19,7 +17,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
   apis: ['./api/*'], // files containing annotations as above
 };
 
-const openapiSpecification = swaggerJsdoc(options);*/
+const openapiSpecification = swaggerJsdoc(options);
 const tokenChecker = require('./api/tokenChecker');
 const mongoose = require('mongoose');
 //requiring passport for login states
