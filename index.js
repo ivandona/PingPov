@@ -69,9 +69,9 @@ module.exports = app;
 
 
 require('./api/api_index')(app, mongoose);
-/*app.listen(process.env.PORT || 4000, () => {
+app.listen(process.env.PORT || 4000, () => {
   console.log('server started!');
-});*/
+});
 
 
 

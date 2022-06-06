@@ -13,19 +13,19 @@ module.exports = function (app, mongoose) {
             score_sq1: { type: Number, default: -1 },
             score_sq2: { type: Number, default: -1 }
         },
-        modalità: { type: String, enum: ['Singolo', 'Doppio'] },
+        modalità: { type: String, enum: ['Singolo', 'Doppio', 'Ranked'] },
     }));
     const checkStatoMatch = function (match) {
         let current_date_ms = Date.now();
         let match_date_ms = Date.parse(match.data);
-        console.log(current_date_ms- match_date_ms)
+        console.log(current_date_ms - match_date_ms)
         if (current_date_ms < match_date_ms) {
             return 1; //match non ancora giocato
         } else {
             if (match.modalità == 'Doppio' && (match.squadra1.length + match.squadra2.length) == 4) {
                 return 2 //doppio giocato   
             }
-            if (match.modalità == 'Singolo' && (match.squadra1.length + match.squadra2.length) == 2) {
+            if ((match.modalità == 'Singolo'|| match.modalità == 'Ranked') && (match.squadra1.length + match.squadra2.length) == 2) {
                 return 2 //singolo giocato
             } else {
                 return 0 //partita scaduta => non disputata
@@ -34,7 +34,7 @@ module.exports = function (app, mongoose) {
 
     }
     //Ottieni lista dei match v
-    app.get('/v2/match',  function (req, res) {
+    app.get('/v2/match', function (req, res) {
         let current_date_ms = Date.now();
         Match.find({}, function (err, match) {
             if (err) {
@@ -57,14 +57,14 @@ module.exports = function (app, mongoose) {
         if (!req.body.sede || !req.body.modalità || !req.body.data) {
             return res.status(400).send('Body della richiesta incompleto');
         }
-        if(!(Date.parse(req.body.data) > 0)){
+        if (!(Date.parse(req.body.data) > 0)) {
             return res.status(403).send('Data non valida')
         }
         if (req_data_ms < current_date_ms) {
             return res.status(403).send('Data non valida in quanto già passata').end();
         }
-        if (req.body.modalità != 'Singolo' && req.body.modalità != 'Doppio') {
-            res.status(403).send('Modalità specificata diversa tra quelle disponibili (Singolo,Doppio)').end();
+        if (req.body.modalità != 'Ranked' && req.body.modalità != 'Singolo' && req.body.modalità != 'Doppio') {
+            res.status(403).send('Modalità specificata diversa tra quelle disponibili (Singolo,Doppio,Ranked)').end();
             return;
         }
         if (req.body.sede != 'Povo0' && req.body.sede != 'Povo1') {
@@ -100,7 +100,7 @@ module.exports = function (app, mongoose) {
             if (err) {
                 return res.status(404).send('Match non trovato')
             } else {
-                if(match==null){
+                if (match == null) {
                     return res.status(404).send('Match non trovato')
                 }
                 return res.status(200).json(match)
@@ -117,7 +117,7 @@ module.exports = function (app, mongoose) {
             if (err) {
                 return res.status(500).send('Errore accesso al db')
             }
-            if(match==null){
+            if (match == null) {
                 return res.status(404).send('Match non trovato')
             }
             if (match.organizzatore == req.user.displayName && checkStatoMatch(match) < 2) {
@@ -145,7 +145,7 @@ module.exports = function (app, mongoose) {
             if (err) {
                 return res.status(500).send('Errore accesso al db')
             }
-            if(match==null){
+            if (match == null) {
                 return res.status(404).send('Match non trovato')
             }
             if (match.squadra1.includes(req.user.displayName) || match.squadra2.includes(req.user.displayName)) {
@@ -158,7 +158,7 @@ module.exports = function (app, mongoose) {
                     return res.status(403).send('Match terminato')
                 }
                 let max_size;
-                if (match.modalità == 'Singolo') {
+                if (match.modalità == 'Singolo' ||match.modalità == 'Ranked' ) {
                     max_size = 1
                 } else {
                     max_size = 2;
@@ -189,7 +189,7 @@ module.exports = function (app, mongoose) {
             if (err) {
                 return res.status(500).send('Errore accesso al db')
             }
-            if(match==null){
+            if (match == null) {
                 return res.status(404).send('Match non trovato')
             }
             let current_date_ms = Date.now();
@@ -213,29 +213,77 @@ module.exports = function (app, mongoose) {
             if (err) {
                 return res.status(500).send('Errore accesso al db').end();
             } else {
-                if(match==null){
+                if (match == null) {
                     return res.status(404).send('Match non trovato')
                 }
                 if (match.organizzatore != req.user.displayName) {
                     return res.status(401).send('Non sei tu l\'organizzatore').end()
                 }
-                if(checkStatoMatch(match)==1){
+                if (checkStatoMatch(match) == 1) {
                     return res.status(401).send('Match non ancora giocato')
                 }
-                if(checkStatoMatch(match)==0 ){
+                if (checkStatoMatch(match) == 0) {
                     return res.status(401).send('Partita scaduta')
                 }
-                if(typeof(req.body.score_sq1)!='number' || typeof(req.body.score_sq2)!='number'){
+                if (typeof (req.body.score_sq1) != 'number' || typeof (req.body.score_sq2) != 'number') {
                     return res.status(403).send('Score non numerico')
                 }
-                if(match.risultato.score_sq1 != -1 && match.risultato.score_sq2 != -1){
+                if (match.risultato.score_sq1 != -1 && match.risultato.score_sq2 != -1) {
                     return res.status(401).send('Risultato già aggiunto')
                 }
+                //ranking
+
+                if (match.modalità == 'Ranked') {
+
+                    let p1 = req.body.score_sq1;
+                    let p2 = req.body.score_sq2;
+                    console.log(match.squadra1[0])
+                    console.log(match.squadra2[0])
+                    let r1, r2;
+                    User.find({ "name": match.squadra1[0] }, async function (err, utente) {
+                        console.log("utente: ")
+                        console.log(utente)
+                        if (err) {
+                            console.log(err)
+                        } else {
+                            console.log("rank: ")
+                            r1 = utente[0].rank;
+                            console.log(r1)
+                            if (!r1) {
+                                r1 = 100;
+                            }
+                        }
+                        User.find({ "name": match.squadra2[0] }, async function (err, utente) {
+                            console.log("utente: ")
+                            console.log(utente)
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                console.log("rank: ")
+                                r2 = utente[0].rank;
+                                console.log(r2)
+                                if (!r2) {
+                                    r2 = 100;
+                                }
+                                r1, r2 = cambia_risultati(r1, r2, p1, p2)
+                                console.log(r1)
+                                console.log(r2)
+
+
+                                await User.find({ name: match.squadra1[0] }).updateOne({ $set: { "rank": r1 } });
+                                await User.find({ name: match.squadra2[0] }).updateOne({ $set: { "rank": r2 } });
+                            }
+                        })
+                    })
+                }
+
+                //
                 Match.findByIdAndUpdate(req.params.id, {
                     $set: {
                         'risultato.score_sq1': req.body.score_sq1,
                         'risultato.score_sq2': req.body.score_sq2
                     }
+
                 }, function (err, docs) {
                     if (err) {
                         return res.status(500).send("Errore nell'update del risultato").end()
@@ -247,31 +295,97 @@ module.exports = function (app, mongoose) {
             }
         })
     })
-    app.get('/v2/cronologia-match', tokenChecker, async function (req, res) {
-        Match.find({
-            $or: [{ squadra1: req.user.displayName, 'risultato.score_sq1': { $gt: -1 } },
-            { squadra2: req.user.displayName, 'risultato.score_sq2': { $gt: -1 } }]
-        }, function (err, match) {
-            if (match) {
-                return res.status(200).send(match)
-            } else {
-                return res.status(500).send('Errore accesso al db')
-            }
-        });
+
+app.get('/v2/cronologia-match', tokenChecker, async function (req, res) {
+    Match.find({
+        $or: [{ squadra1: req.user.displayName, 'risultato.score_sq1': { $gt: -1 } },
+        { squadra2: req.user.displayName, 'risultato.score_sq2': { $gt: -1 } }]
+    }, function (err, match) {
+        if (match) {
+            return res.status(200).send(match)
+        } else {
+            return res.status(500).send('Errore accesso al db')
+        }
     });
+});
 
 
-    //FRONT END
-    app.get('/match', tokenChecker, (req, res) => {
-        res.render('pages/match/lista_match', { user: req.user })
-    })
-    app.get('/match/creaMatch', tokenChecker, (req, res) => {
-        res.render('pages/match/crea_match', { user: req.user })
-    })
-    app.get('/match/i-miei-match', tokenChecker, (req, res) => {
-        res.render('pages/match/miei_match', { user: req.user })
-    })
-    app.get('/match/cronologia-match', tokenChecker, (req, res) => {
-        res.render('pages/match/cronologia_match', { user: req.user })
-    })
+//FRONT END
+app.get('/match', tokenChecker, (req, res) => {
+    res.render('pages/match/lista_match', { user: req.user })
+})
+app.get('/match/creaMatch', tokenChecker, (req, res) => {
+    res.render('pages/match/crea_match', { user: req.user })
+})
+app.get('/match/i-miei-match', tokenChecker, (req, res) => {
+    res.render('pages/match/miei_match', { user: req.user })
+})
+app.get('/match/cronologia-match', tokenChecker, (req, res) => {
+    res.render('pages/match/cronologia_match', { user: req.user })
+})
+
+const cambia_risultati = function (r1, r2, p1, p2) {
+    media = Math.floor((r1 + r2) / 2);
+
+    add = (Math.pow(Math.abs(p1 - p2), 2)) / (10 * (Math.pow((p1 + p2), 2))) * media;
+    add = Math.floor(add);
+    if (r1 != 0 && r2 != 0) {
+        //se entrambi i giocatori hanno rank maggiore di zero
+        if (p1 > p2) {
+            r1 = r1 + add;
+            r2 = r2 - add;
+        } else {
+            r1 = r1 - add;
+            r2 = r2 + add;
+        }
+    } else {
+        //se r1 è zero
+        if (r1 == 0) {
+            //se r2 è zero
+            if (r2 == 0) {
+                //vince g1
+                if (p1 > p2) {
+                    r1 = r1 + 50;
+
+                }
+                //vince g2
+                else {
+                    r2 = r2 + 50;
+                }
+            }
+            //se r2 non è zero
+            else {
+                //vince g1
+                if (p1 > p2) {
+                    r1 = r2;
+                    r2 = r2 - add;
+                }
+                //vince g2
+                else {
+                    r2 = r2 + add;
+                }
+            }
+        }
+        // r1 non è zero
+        else {
+            if (r2 == 0) {
+                //vince g1
+                if (p1 > p2) {
+                    r1 = r2;
+                    r2 = r2 - add;
+                }
+                //vince g2
+                else {
+                    r2 = r2 + add;
+                }
+            }
+        }
+
+
+    }
+    return r1, r2;
 }
+
+
+}
+
