@@ -99,17 +99,17 @@
                     cells += match[i]['organizzatore']
                     cells += "</td>\n"
                     cells += '<td><b>'
-                    if (match[i]['squadra1'].includes('<%=user.displayname%>')) {
+                    if (match[i]['squadra1'].includes('<%=user.displayName%>')) {
                         if (match[i]['risultato']['score_sq1'] > match[i]['risultato']['score_sq2']) {
                             cells += '<p style="color:green">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2']
                         } else {
                             cells += '<p style="color:red">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2'] + '</p>'
                         }
                     } else {
-                        if (match[i]['risultato']['score_sq2'] > match[i]['risultato']['score_sq1']) {
-                            cells += '<p style="color:green">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2']
+                        if (match[i]['risultato']['score_sq1'] > match[i]['risultato']['score_sq2']) {
+                            cells += '<p style="color:red">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2']
                         } else {
-                            cells += '<p style="color:red">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2'] + '</p>'
+                            cells += '<p style="color:green">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2'] + '</p>'
                         }
                     }
                 cells += '</b></td>'

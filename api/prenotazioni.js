@@ -9,8 +9,8 @@ module.exports = function (app, mongoose) {
 
     app.get('/v2/prenotazioni', (req, res) => {
         console.log(req.user)
-        req.query.username = req.session.user;
-        res.user = req.session.user
+        req.query.username = req.user.displayName;
+        res.user = req.user
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
             if (err) {

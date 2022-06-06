@@ -1,4 +1,4 @@
-const user = require('./models/user');
+const User = require('./models/user');
 
 // api/tornei.js
 module.exports = function (app, mongoose) {
@@ -18,14 +18,14 @@ module.exports = function (app, mongoose) {
     const checkStatoMatch = function (match) {
         let current_date_ms = Date.now();
         let match_date_ms = Date.parse(match.data);
-        console.log(current_date_ms - match_date_ms)
+        //console.log(current_date_ms - match_date_ms)
         if (current_date_ms < match_date_ms) {
             return 1; //match non ancora giocato
         } else {
             if (match.modalità == 'Doppio' && (match.squadra1.length + match.squadra2.length) == 4) {
                 return 2 //doppio giocato   
             }
-            if ((match.modalità == 'Singolo'|| match.modalità == 'Ranked') && (match.squadra1.length + match.squadra2.length) == 2) {
+            if ((match.modalità == 'Singolo' || match.modalità == 'Ranked') && (match.squadra1.length + match.squadra2.length) == 2) {
                 return 2 //singolo giocato
             } else {
                 return 0 //partita scaduta => non disputata
@@ -88,7 +88,7 @@ module.exports = function (app, mongoose) {
             } else {
                 res.status(200).send(match)
             }
-        })
+        }).sort('-data')
     });
     //Scarica informazioni di un singolo match v
     app.get('/v2/match/:id', function (req, res) {
@@ -158,7 +158,7 @@ module.exports = function (app, mongoose) {
                     return res.status(403).send('Match terminato')
                 }
                 let max_size;
-                if (match.modalità == 'Singolo' ||match.modalità == 'Ranked' ) {
+                if (match.modalità == 'Singolo' || match.modalità == 'Ranked') {
                     max_size = 1
                 } else {
                     max_size = 2;
@@ -237,46 +237,37 @@ module.exports = function (app, mongoose) {
 
                     let p1 = req.body.score_sq1;
                     let p2 = req.body.score_sq2;
-                    console.log(match.squadra1[0])
-                    console.log(match.squadra2[0])
+                    //console.log(match.squadra1[0])
+                    //console.log(match.squadra2[0])
                     let r1, r2;
-                    User.find({ "name": match.squadra1[0] }, async function (err, utente) {
-                        console.log("utente: ")
-                        console.log(utente)
+                    User.find({ "displayName": match.squadra1[0] }, async function (err, utente) {
+                        // console.log("utente: ")
+                        //console.log(utente)
                         if (err) {
                             console.log(err)
                         } else {
-                            console.log("rank: ")
+                            //   console.log("rank: ")
                             r1 = utente[0].rank;
-                            console.log(r1)
-                            if (!r1) {
-                                r1 = 100;
-                            }
+                            // console.log(r1)
+
                         }
-                        User.find({ "name": match.squadra2[0] }, async function (err, utente) {
-                            console.log("utente: ")
-                            console.log(utente)
+                        User.find({ "displayName": match.squadra2[0] }, async function (err, utente) {
+                            //console.log("utente: ")
+                            //console.log(utente)
                             if (err) {
                                 console.log(err)
                             } else {
-                                console.log("rank: ")
+                                //  console.log("rank: ")
                                 r2 = utente[0].rank;
-                                console.log(r2)
-                                if (!r2) {
-                                    r2 = 100;
-                                }
-                                r1, r2 = cambia_risultati(r1, r2, p1, p2)
-                                console.log(r1)
-                                console.log(r2)
+                                //console.log(r2)
+                                let ranks = cambia_risultati(r1, r2, p1, p2)
+                                await User.find({ displayName: match.squadra1[0] }).updateOne({ $set: { "rank": ranks[0] } });
+                                await User.find({ displayName: match.squadra2[0] }).updateOne({ $set: { "rank": ranks[1] } });
 
-
-                                await User.find({ name: match.squadra1[0] }).updateOne({ $set: { "rank": r1 } });
-                                await User.find({ name: match.squadra2[0] }).updateOne({ $set: { "rank": r2 } });
                             }
                         })
                     })
-                }
-
+                };
                 //
                 Match.findByIdAndUpdate(req.params.id, {
                     $set: {
@@ -296,95 +287,78 @@ module.exports = function (app, mongoose) {
         })
     })
 
-app.get('/v2/cronologia-match', tokenChecker, async function (req, res) {
-    Match.find({
-        $or: [{ squadra1: req.user.displayName, 'risultato.score_sq1': { $gt: -1 } },
-        { squadra2: req.user.displayName, 'risultato.score_sq2': { $gt: -1 } }]
-    }, function (err, match) {
-        if (match) {
-            return res.status(200).send(match)
-        } else {
-            return res.status(500).send('Errore accesso al db')
-        }
+    app.get('/v2/cronologia-match', tokenChecker, async function (req, res) {
+        Match.find({
+            $or: [{ squadra1: req.user.displayName, 'risultato.score_sq1': { $gt: -1 } },
+            { squadra2: req.user.displayName, 'risultato.score_sq2': { $gt: -1 } }]
+        }, function (err, match) {
+            if (match) {
+                return res.status(200).send(match)
+            } else {
+                return res.status(500).send('Errore accesso al db')
+            }
+        }).sort('-data');
     });
-});
 
 
-//FRONT END
-app.get('/match', tokenChecker, (req, res) => {
-    res.render('pages/match/lista_match', { user: req.user })
-})
-app.get('/match/creaMatch', tokenChecker, (req, res) => {
-    res.render('pages/match/crea_match', { user: req.user })
-})
-app.get('/match/i-miei-match', tokenChecker, (req, res) => {
-    res.render('pages/match/miei_match', { user: req.user })
-})
-app.get('/match/cronologia-match', tokenChecker, (req, res) => {
-    res.render('pages/match/cronologia_match', { user: req.user })
-})
+    //FRONT END
+    app.get('/match', tokenChecker, (req, res) => {
+        res.render('pages/match/lista_match', { user: req.user })
+    })
+    app.get('/match/creaMatch', tokenChecker, (req, res) => {
+        res.render('pages/match/crea_match', { user: req.user })
+    })
+    app.get('/match/i-miei-match', tokenChecker, (req, res) => {
+        res.render('pages/match/miei_match', { user: req.user })
+    })
+    app.get('/match/cronologia-match', tokenChecker, (req, res) => {
+        res.render('pages/match/cronologia_match', { user: req.user })
+    })
 
-const cambia_risultati = function (r1, r2, p1, p2) {
-    media = Math.floor((r1 + r2) / 2);
+    const cambia_risultati = function (r1, r2, p1, p2) {
+        let toret = []
+        media = Math.floor((r1 + r2) / 2);
 
-    add = (Math.pow(Math.abs(p1 - p2), 2)) / (10 * (Math.pow((p1 + p2), 2))) * media;
-    add = Math.floor(add);
-    if (r1 != 0 && r2 != 0) {
-        //se entrambi i giocatori hanno rank maggiore di zero
-        if (p1 > p2) {
-            r1 = r1 + add;
-            r2 = r2 - add;
+        add = (Math.pow(Math.abs(p1 - p2), 2)) / (10 * (Math.pow((p1 + p2), 2))) * media;
+        add = Math.floor(add);
+        if (r1 > 0 && r2 > 0) {
+            //se entrambi i giocatori hanno rank maggiore di zero
+            if (p1 > p2) {
+                r1 = r1 + add;
+                r2 = r2 - add;
+            } else {
+                r1 = r1 - add;
+                r2 = r2 + add;
+            }
         } else {
-            r1 = r1 - add;
-            r2 = r2 + add;
-        }
-    } else {
-        //se r1 è zero
-        if (r1 == 0) {
-            //se r2 è zero
-            if (r2 == 0) {
-                //vince g1
+            if (p1 == 0) {
                 if (p1 > p2) {
-                    r1 = r1 + 50;
-
-                }
-                //vince g2
-                else {
-                    r2 = r2 + 50;
-                }
-            }
-            //se r2 non è zero
-            else {
-                //vince g1
-                if (p1 > p2) {
-                    r1 = r2;
+                    r1 = r1 + add;
                     r2 = r2 - add;
-                }
-                //vince g2
-                else {
+                } else {
                     r2 = r2 + add;
                 }
             }
-        }
-        // r1 non è zero
-        else {
-            if (r2 == 0) {
-                //vince g1
-                if (p1 > p2) {
-                    r1 = r2;
-                    r2 = r2 - add;
-                }
-                //vince g2
-                else {
+            if (p2 == 0) {
+                if (p1 < p2) {
+                    r1 = r1 - add;
                     r2 = r2 + add;
+                } else {
+                    r1 = r1 + add;
                 }
             }
+
         }
-
-
+        if (r1 < 0) {
+            r1 = 0;
+        }
+        if (r2 < 0) {
+            r2 = 0;
+        }
+        toret.push(r1);
+        toret.push(r2);
+        return toret;
     }
-    return r1, r2;
-}
 
 
 }

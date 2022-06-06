@@ -15,25 +15,30 @@ module.exports = function (app) {
     app.get('/v2/auth/success', async function (req, res) {
         //req.session.email=String(userProfile.emails[0].value);
         //cerca email nel db
-        let user = await User.findOne({email: req.user.emails[0].value}).exec();
+        let user = await User.find({email: req.user.emails[0].value}).exec();
         if(!user){
             //email non trovata
             console.log(req.session.email + " non trovata");
             //apre pagina registrazione
             let path_name = ('pages/registrazione');
-            
             res.render(path_name,{user: userProfile, session: req.session });
         }else{
             req.user.rank = user.rank
             let path_name = ('pages/profilo');
             res.render(path_name,{user: req.user});
         }
-        
     });
     app.get('/v2/auth/error', (req, res) => res.send("error logging in"));
 
     //POST per salvare dati nel db
-    app.post('/v2/auth/registrazione', (req, res) => {
+    app.post('/v2/auth/registrazione',async (req, res) => {
+        if (!userProfile.displayName){
+            return res.redirect('/v2/profilo');
+        }
+        let searchedUser = await User.findOne({displayName: userProfile.displayName});
+        if(searchedUser !=null){
+            return res.redirect('/v2/profilo');
+        }
         const new_user = new User({
             email: userProfile.emails[0].value,
             displayName: userProfile.displayName,
@@ -44,19 +49,19 @@ module.exports = function (app) {
             all_around: req.body.all_around,
             rank : 100
         })
-        new_user.save().then(() => console.log('user inserito'));
-        res.redirect('/v2/auth/success');
+        new_user.save().then(() => {return res.redirect('/v2/profilo');})
     });
     app.get('/v2/ricerca_profilo', async (req, res) => {
         let searchedUser = await User.findOne({ _id: req.query.id });
-        res.render('pages/profilo_ricercato', { searched_user: searchedUser, user: req.user });
+        res.render('pages/profilo', { searched_user: searchedUser, user: req.user });
     });
     app.get('/v2/profilo', tokenChecker, async function (req, res) {
-        let searchedUser = await User.findOne({displayName: req.user.displayName });
-        
+        let searchedUser = await User.findOne({email: req.user.emails[0].value });
+        if(searchedUser==null){
+            return res.render('pages/registrazione');
+        }
         return res.render('pages/profilo', { searched_user: searchedUser, user:req.user });
     });
-    
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);
@@ -71,7 +76,7 @@ module.exports = function (app) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "https://pingpov.herokuapp.com/auth/google/callback"
+        callbackURL: "http://localhost:4000/auth/google/callback"//"https://pingpov.herokuapp.com/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
             userProfile = profile;

@@ -48,7 +48,7 @@
       async function req() {
         var match = []
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/v2/match/i-miei-match", true);
+        xhr.open("GET", "/v2/i-miei-match", true);
         xhr.onload = function (e) {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -70,6 +70,7 @@
         xhr.send(null);
       }
       function createTable(match) {
+        console.log(match)
         tbody = document.getElementById('t_body');
         let cells = ""
         let max_players, current_players;

@@ -79,7 +79,7 @@
 
           } else {
             if (prenotazioni[i]['prenotatore'] != '<%=user.displayName%>' && prenotazioni[i]['prenotatore'] != '') {
-              cells += '<button type="button" class="btn btn-danger" disabled">Prenotato</button>'
+              cells += '<button type="button" class="btn btn-danger disabled"  aria-disabled=\'true\'">Prenotato</button>'
 
             }
             else {
@@ -152,14 +152,12 @@
       </select>
       <input type="submit" value="Ricerca" class="btn-primary">
     </form>
-
-    <table name="slot_prenotazioni" id="slot_prenotazioni" class="table">
-
-
-    </table>
-
-
-
+    <div class="container">
+      <div class="jumbotron">
+        <table name="slot_prenotazioni" id="slot_prenotazioni" class="table">
+        </table>
+      </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
       integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
       crossorigin="anonymous"></script>

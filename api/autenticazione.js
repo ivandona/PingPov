@@ -10,7 +10,6 @@ module.exports = function(app) {
     // route to authenticate and get a new token
     // ---------------------------------------------------------
     app.post('/v2/autenticazione', async function(req, res) {
-        
         // find the user
         let user = await User.findOne({
             email: req.body.email
@@ -18,17 +17,24 @@ module.exports = function(app) {
         
         // user not found
         if (!user) {
-            res.json({ success: false, message: 'Authentication failed. User not found.' });
+            return res.status(404).json({ success: false, message: 'Authentication failed. User not found.' });
         }
-        
+        // password non fornita
+        if (!req.body.password) {
+            return res.status(400).json({ success: false, message: 'Authtentication failed. No password provided' });
+        }
+        // password non presente nel db
+        if (user.password == null || user.password == '') {
+            return res.status(400).json({ success: false, message: 'Authtentication failed. Login con questa email consentito solo tramite google' })
+        }
         // check if password matches
         if (user.password != req.body.password) {
-            res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+            return res.status(406).json({ success: false, message: 'Authentication failed. Wrong password.' });
         }
         
         // if user is found and password is right create a token
         var payload = {
-            user: req.user
+            user: user
             // other data encrypted in the token	
         }
         var options = {
@@ -36,9 +42,10 @@ module.exports = function(app) {
         }
         var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             secure: process.env.SUPER_SECRET,
+            token: token
         });
     });
 }
