@@ -1,2 +1,2 @@
-web: node listener.js
+web: node index.js
 test: jest
