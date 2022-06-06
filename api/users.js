@@ -13,7 +13,7 @@ module.exports = function(app) {
             email: user.email
         });
     });*/
-
+    //ricerca utenti tramite displayName
     app.get('/v2/search', async (req, res) => {
         if (req.query.displayName){
             User.find( { displayName: { "$regex": req.query.displayName, "$options": "i" } },(err,user)=>{

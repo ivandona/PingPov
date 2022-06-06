@@ -49,7 +49,7 @@ module.exports = function (app) {
     });
     app.get('/v2/ricerca_profilo', async (req, res) => {
         let searchedUser = await User.findOne({ _id: req.query.id });
-        res.render('pages/profilo_ricercato', { searched_user: searchedUser, user: req.user });
+        res.render('pages/profilo', { searched_user: searchedUser, user: req.user });
     });
     app.get('/v2/profilo', tokenChecker, async function (req, res) {
         let searchedUser = await User.findOne({displayName: req.user.displayName });
