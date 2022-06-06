@@ -4,7 +4,7 @@ const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./pingpov.json');
 const cookieParser = require('cookie-parser');
-
+/*
 const swaggerJsdoc = require('swagger-jsdoc');
 const options = {
   definition: {
@@ -17,7 +17,7 @@ const options = {
   apis: ['./api/*'], // files containing annotations as above
 };
 
-const openapiSpecification = swaggerJsdoc(options);
+const openapiSpecification = swaggerJsdoc(options);*/
 const tokenChecker = require('./api/tokenChecker');
 const mongoose = require('mongoose');
 //requiring passport for login states
