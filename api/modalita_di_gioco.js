@@ -293,7 +293,7 @@ module.exports = function (app, mongoose) {
             { squadra2: req.user.displayName, 'risultato.score_sq2': { $gt: -1 } }]
         }, function (err, match) {
             if (match) {
-                return res.status(200).send(match)
+                return res.status(200).json(match)
             } else {
                 return res.status(500).send('Errore accesso al db')
             }

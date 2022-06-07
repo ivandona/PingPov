@@ -4,9 +4,8 @@ const { MongoTailableCursorError } = require('mongodb');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./pingpov.json');
 const cookieParser = require('cookie-parser');
-/*
 const swaggerJsdoc = require('swagger-jsdoc');
-const options = {
+/*const options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -32,7 +31,6 @@ const app = express();
 //const tokenChecker = require('./api/tokenChecker.js')
 
 //connection to db
-mongoose.connect(process.env.DB_URL);
 const MongoStore = require('connect-mongo');
 global.path = require('path');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -60,16 +58,7 @@ function requireAutentication(req, res, next) {
 app.get('/', function (req, res) {
   res.redirect('/v2/home');
 });
-//app.all('*', requireAutentication)
-
-// Starting app after calling every api
-module.exports = app;
-
 
 require('./api/api_index')(app, mongoose);
-app.listen(process.env.PORT || 4000, () => {
-  console.log('server started!');
-});
 
-
-
+module.exports = app;
