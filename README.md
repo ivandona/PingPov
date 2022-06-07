@@ -15,7 +15,6 @@ PingPov
 ├── api  
 
 │   ├── api_index.js  
-
 │   ├── autenticazione.js  
 
 │   ├── google_login.js  
