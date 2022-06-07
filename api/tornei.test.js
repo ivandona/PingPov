@@ -28,8 +28,7 @@ test('Autenticazione', async()=>{
 })
 
 test('GET /v2/tornei should return 200', async () => {
-    return await request(app).get('/v2/tornei')
-                 
+    return await request(app).get('/v2/tornei')    
         .expect(200)
 });
 
