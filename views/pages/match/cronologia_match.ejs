@@ -90,7 +90,12 @@
                     cells += match[i]['modalità']
                     cells += "</td>\n"
                     cells += "<td>"
-                    cells += match[i]['data']
+                    let date = new Date(Date.parse(match[i]['data']))
+                    let usaTime =
+                        date.toLocaleString("en-US", {
+                            timeZone: "Europe/Rome"
+                        });
+                    cells += usaTime
                     cells += "</td>\n"
                     cells += "<td>"
                     cells += match[i]['sede']
@@ -112,8 +117,8 @@
                             cells += '<p style="color:green">' + match[i]['risultato']['score_sq1'] + '/' + match[i]['risultato']['score_sq2'] + '</p>'
                         }
                     }
-                cells += '</b></td>'
-                cells += "</tr>\n"
+                    cells += '</b></td>'
+                    cells += "</tr>\n"
                 }
 
                 tbody.innerHTML = cells
