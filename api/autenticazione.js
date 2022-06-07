@@ -14,7 +14,6 @@ module.exports = function(app) {
         let user = await User.findOne({
             email: req.body.email
         }).exec();
-        
         // user not found
         if (!user) {
             return res.status(404).json({ success: false, message: 'Authentication failed. User not found.' });

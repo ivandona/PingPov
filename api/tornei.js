@@ -32,6 +32,7 @@ module.exports = function (app, mongoose) {
             max_partecipanti: req.body.numero_partecipanti,
             risultati: []
         })
+        console.log(req.body)
         if (typeof (req.body.nome_torneo) == 'undefined' || typeof (req.body.data) == 'undefined' || typeof (req.body.sede) == 'undefined'
             || typeof (req.body.numero_partecipanti) == 'undefined' || typeof (req.body.admin_gioca) == 'undefined') {
             return res.status(400).send('Non tutti i campi sono stati definiti')
@@ -169,7 +170,7 @@ app.post('/v2/risultati-torneo/:id', tokenChecker, async function (req, res) {
         if(torneo==null){
             return res.status(404).send('Torneo non trovato')
         }
-        if(!req.body.player1 || !req.body.player2 || req.body.score1 =='undefined'|| req.body.score2=='undefined'){
+        if(!req.body.player1 || !req.body.player2 || req.body.score1 ==null|| req.body.score2==null){
             return res.status(400).send('Body della richiesta non completo');
         }
         let risultato_gia_presente = false;

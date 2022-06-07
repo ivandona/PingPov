@@ -4,8 +4,8 @@
   "description": "WebApp for PingPong in Povo",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "jest --setupFiles dotenv/config --forceExit --silent=false" 
+    "start": "node listener.js",
+    "test": "jest --setupFiles dotenv/config --forceExit --silent=false "
   },
   "repository": {
     "type": "git",
@@ -43,5 +43,10 @@
   },
   "engines": {
     "node": "18.1.0"
-  }
+  },
+  "jest": {
+    "verbose": true,
+    "collectCoverage": true
+    }
+    
 }
