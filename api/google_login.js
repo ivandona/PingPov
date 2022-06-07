@@ -76,7 +76,7 @@ module.exports = function (app) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "https://pingpov.herokuapp.com/auth/google/callback"
+        callbackURL: "http://localhost:4000/auth/google/callback"//"https://pingpov.herokuapp.com/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
             userProfile = profile;

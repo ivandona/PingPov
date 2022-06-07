@@ -7,7 +7,7 @@ const { deleteOne } = require('./models/user');
 let connection;
 
 beforeAll(async () => {
-    connection = await mongoose.connect(process.env.DB_TEST_URL);
+    connection = await mongoose.connect(process.env.DB_TEST_URL,{useNewUrlParser: true, useUnifiedTopology: true});
     //return connection; // Need to return the Promise db connection?
 });
 
