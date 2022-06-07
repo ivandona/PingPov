@@ -32,7 +32,7 @@ module.exports = function (app) {
 
     //POST per salvare dati nel db
     app.post('/v2/auth/registrazione',async (req, res) => {
-        if (!userProfile.displayName){
+        if (userProfile.displayName==null){
             return res.redirect('/v2/profilo');
         }
         let searchedUser = await User.findOne({displayName: userProfile.displayName});
@@ -56,7 +56,13 @@ module.exports = function (app) {
         res.render('pages/profilo', { searched_user: searchedUser, user: req.user });
     });
     app.get('/v2/profilo', tokenChecker, async function (req, res) {
-        let searchedUser = await User.findOne({email: req.user.emails[0].value });
+        let mail;
+        if(req.user.emails==null){
+            mail = req.user.email
+        }else{
+            mail =req.user.emails[0].value
+        } 
+        let searchedUser = await User.findOne({email: mail});
         if(searchedUser==null){
             return res.render('pages/registrazione');
         }
@@ -76,10 +82,11 @@ module.exports = function (app) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:4000/auth/google/callback" //"https://pingpov.herokuapp.com/auth/google/callback"
+        callbackURL: "https://pingpov.herokuapp.com/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
             userProfile = profile;
+            console.log(userProfile)
             return done(null, userProfile);
         }
     ));
@@ -107,9 +114,7 @@ module.exports = function (app) {
             }).status(200).redirect('/v2/profilo');
         });
     app.get('/v2/auth/logout',function(req, res){
-        req.user=""
-        res.user=""
-        //req.logout();
+        req.user="";
         res.clearCookie("token").status(200).render('pages/home',{user:""});
     })
 }

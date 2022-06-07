@@ -1,4 +1,3 @@
-config.ts
-/node_modules
 .env
-/coverage
+node_modules/
+coverage/

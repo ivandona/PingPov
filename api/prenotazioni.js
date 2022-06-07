@@ -7,14 +7,13 @@ module.exports = function (app, mongoose) {
         sede: String
     }));
     // restituisce un file json contenente tutte le prenotazioni corrispondenti alla ricerca effettuata
-    app.get('/v2/prenotazioni', (req, res) => {
-        console.log(req.user)
+    app.get('/v2/prenotazioni',tokenChecker,async (req, res) => {
         req.query.username = req.user.displayName;
         res.user = req.user
         res.locals.query = req.query;
         Prenotazione.find({}, function (err, Prenotazioni) {
             if (err) {
-                res.status(404).send(err);
+                return res.status(404).send(err);
             } else {
                 risultato = [];
                 for (i = 0; i < Prenotazioni.length; i++) {
@@ -26,58 +25,56 @@ module.exports = function (app, mongoose) {
                     }
 
                 }
-                res.status(200).json(risultato)
+                return res.status(200).json(risultato)
             }
         })
     })
 
     // inserisce una prenotazione da parte dell'utente
-    app.put('/v2/prenota/', async function (req, res) {
+    app.put('/v2/prenota/',tokenChecker, async function (req, res) {
         //const ObjectID = require('mongoose').ObjectID;
         const id = req.body.pre_id;
+        if(!req.body.prenotatore || !id){
+            return res.send(400).send('Errore, prenotatore non definito')
+        }
         const query = { 'prenotatore': req.body.prenotatore };
         res.user = req.user
-        console.log(id);
-        console.log(req.body.prenotatore)
         const body = {
             prenotatore: req.body.prenotatore,
         };
         try {
-            res.send(200).json(await Prenotazione.findByIdAndUpdate(id, body));
-            console.log("prenotazione riuscita");
+            return res.status(200).json(await Prenotazione.findByIdAndUpdate(id, body));
+            ("prenotazione riuscita");
         } catch (err) {
             console.error(`Errore nella prenotazione`, err.message);
-            next(err);
+            return res.status(404).send('Prenotazione non trovata')
         }
-
-
-
     });
 
 
     //elimina la prenotazione effettuata dall'utente
-    app.delete('/v2/prenota/', async function (req, res) {
-        console.log("chiamata delete")
+    app.delete('/v2/prenota/',tokenChecker, async function (req, res) {
+        ("chiamata delete")
         const id = req.body.pre_id;
         res.user = req.user
+        if(!req.user || !id){
+            return res.status(400).send('Errore, prenotatore non definito')
+        }
         const query = { 'id': id };
         const body = {
             prenotatore: req.body.prenotatore,
         };
         try {
-            res.status(200).json(await Prenotazione.findByIdAndUpdate(id, body));
-
-            console.log("rimozione prenotazione riuscita");
+            return res.status(200).json(await Prenotazione.findByIdAndUpdate(id, body));
         } catch (err) {
-            console.error(`Errore nella rimozione della prenotazione`, err.message);
-            next(err);
+            return res.status(400);
         }
 
     })
 
     // fa il render della pagina delle prenotazioni
     app.get('/prenotazioni', tokenChecker, (req, res) => {
-        res.render('pages/prenotazioni/ricerca_prenotazioni', { user: req.user });
+        return res.render('pages/prenotazioni/ricerca_prenotazioni', { user: req.user });
     }
     )
 }

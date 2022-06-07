@@ -11,7 +11,7 @@ const port = process.env.PORT || 4000;
  * Configure mongoose
  */
 // mongoose.Promise = global.Promise;
-app.locals.db = mongoose.connect(process.env.DB_TEST_URL, {useNewUrlParser: true, useUnifiedTopology: true})
+app.locals.db = mongoose.connect(process.env.DB_URL, {useNewUrlParser: true, useUnifiedTopology: true})
 .then ( () => {
     
     console.log("Connected to Database");

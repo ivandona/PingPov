@@ -1,7 +1,6 @@
 module.exports = function(app) {
     const User = require('./models/user');
     app.get('/v2/search', async (req, res) => {
-        console.log('SSSSSSSSSSSSSS'+req.query.displayName)
         if (!(req.query.displayName=='' || req.query.displayName===null || req.query.displayName==='undefined')){
             User.find( { displayName: { "$regex": req.query.displayName, "$options": "i" } },(err,user)=>{
                 if(user){

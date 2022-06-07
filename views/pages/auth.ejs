@@ -9,16 +9,39 @@
     
     </style>
 </head>
-<body style="background-color:rgb(66,63,63);">
+<body>
    
 
   <%- include('navbar.ejs') %>
-<div class="container" style="background-color:rgb(115,102,102) ;">
-    <div class="jumbotron text-center text-primary" style="background-color:rgb(115,102,102) ;">
+<div class="container">
+    <div class="jumbotron text-center text-primary";>
         <h1 style="color:crimson;"><span class="fa fa-lock"></span> Entra in Ping Pov</h1>
        
         <a href="/v2/auth/google" class="btn btn-danger"><span class="fa fa-google"></span>  Entra con Google</a>
     </div>
-</div>
+
+<form action="/autenticazione" method="POST">
+    <!-- Email input -->
+    <div class="form-outline mb-4">
+      <input type="email" id="form2Example1" class="form-control" name="email" />
+      <label class="form-label" for="form2Example1" >Email address</label>
+    </div>
+  
+    <!-- Password input -->
+    <div class="form-outline mb-4">
+      <input type="password" id="form2Example2" class="form-control" name="password" />
+      <label class="form-label" for="form2Example2">Password</label>
+    </div>
+  
+    <!-- 2 column grid layout for inline styling -->
+    <div class="row mb-4">
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
+  
+    <!-- Register buttons -->    
+  </form>
+</div></div>
 </body>
 </html> 
