@@ -12,7 +12,7 @@ Web App per giocare a ping pong a Povo
 
 
 PingPov  
-├── api    #cartella con l'implementazione delle api e dei test
+├── api    #cartella con l'implementazione delle api e dei test  
 │   ├── api_index.js  
 │   ├── autenticazione.js  
 │   ├── google_login.js  
@@ -30,16 +30,16 @@ PingPov
 │   ├── tornei.test.js  
 │   ├── users.js  
 │   └── users.test.js  
-├── apiary.apib  
-├── index.js  #file che istanzia l'app
+├── apiary.apib   
+├── index.js  #file che istanzia l'app  
 ├── jest  #jest
 │   └── jest.config.js  
 ├── listener.js  
 ├── package.json  
 ├── package-lock.json  
 ├── pingpov.json  
-├── Procfile  #Procfile di Heroku
-├── public  #immagini dei rank
+├── Procfile  #Procfile di Heroku  
+├── public  #immagini dei rank  
 │   ├── images  
 │   │   ├── Logo_Ping_Pov.png  
 │   │   └── rank_imgs  
@@ -53,10 +53,10 @@ PingPov
 │       ├── brackets.css  
 │       └── searchbar.css  
 ├── README.md  
-├── scripts  #script per l'inserimento automatico di slot prenotazione
+├── scripts  #script per l'inserimento automatico di slot prenotazione  
 │   └── insertMongo.py  
 └── views  
-    └── pages  #front-end
+    └── pages  #front-end  
         ├── auth.ejs  
         ├── home.ejs  
         ├── leaderboard.ejs  
