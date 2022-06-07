@@ -1,0 +1,60 @@
+.tournament {
+    height: 100%;
+    font-family: sans-serif;
+    font-size: 18px; }
+  
+  .hidden-bracket {
+    display: none !important; }
+  
+  .bracket {
+    position: relative;
+    display: flex;
+    /*height: 100%;*/
+    padding-top: 38px; }
+    .bracket:before {
+      font-size: 25px;
+      position: absolute;
+      content: "";
+      width: 50%;
+      height: 10px;
+      top: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: black; 
+      list-style: none;
+    }
+
+    .bracket li {
+      position: relative;
+      width: 50%;
+      flex: 1;
+      height: 100%;
+      padding-top: 8px;
+       /*border: 1px solid black;*/
+      list-style: none;
+      text-align: center; }
+      .bracket li:before {
+        position: absolute;
+        content: "";
+        width: 2px;
+        height: 9px;
+        top: 0;
+        left: 49%;
+        transform: translateX(-50%);
+        background-color: black; 
+        list-style: none;
+    }
+        
+      .bracket li.winner {
+        position: absolute;
+        top: 0;
+        left: -20px;
+        height: 30px;
+        width: 100%; 
+        list-style: none;
+    }
+        .bracket li.winner:before {
+        list-style: none;
+          top: 0px; 
+        }
+  

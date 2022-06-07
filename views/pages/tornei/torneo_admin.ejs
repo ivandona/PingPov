@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Lista Tornei</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="/style/brackets.css">
+    <script>
+        var torneo = "";
+        var participants;
+        getInfoTornei()
+        async function getInfoTornei() {
+            var tornei = []
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/v2/tornei/<%=id%>", true);
+            xhr.onload = function (e) {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        torneo = JSON.parse(xhr.responseText);
+                        participants = torneo.giocatori
+                        creaTorneo()
+                    } else {
+                        console.error(xhr.statusText);
+                    }
+                }
+            };
+            xhr.onerror = function (e) {
+                console.error(xhr.statusText);
+            };
+
+            xhr.send(null);
+        }
+        function creaTorneo() {
+            var $tournament = $('.tournament'),
+                $bracket = $('<ul class="bracket"><li></li><li></li></ul>');
+            function buildBracket($el, p1, p2) {
+                if (!p1 && !p2) {
+                    $el.append($bracket.clone());
+                }
+            }
+            function cleanUp() {
+                var $brackets = $('.bracket'),
+                    removed = false;
+                for (var i = 0; i < $brackets.length; i++) {
+                    // break before there aren't enough spots
+                    if ($('li:empty').length === participants.length) break;
+
+                    var empty = true;
+                    $brackets.eq(i).find('li').each(function () {
+                        if (!$(this).is(':empty')) {
+                            empty = false;
+                        }
+                    });
+                    if (empty) {
+                        $brackets.eq(i).remove();
+                        removed = true;
+                    }
+                }
+                return removed;
+            }
+            buildBracket($tournament);
+            var level = 0,
+                $brackets,
+                $previousBrackets;
+            // build 4 levels of brackets
+            while (level < 4) {
+                $brackets = $('.bracket');
+
+                $brackets = $brackets.filter(function (i, el) {
+                    if ($previousBrackets) {
+                        if ($.inArray(el, $previousBrackets) >= 0) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+
+                if (!$previousBrackets) {
+                    $previousBrackets = $brackets;
+                }
+                else {
+                    $previousBrackets = $.merge($previousBrackets, $brackets);
+                }
+
+                $brackets.each(function () {
+                    $(this).find('li:empty').each(function () {
+                        buildBracket($(this));
+                    });
+                });
+
+                level++;
+            }
+
+            // remove empty lis until there are as many spots as participants
+            while (cleanUp()) { }
+
+            // add participants to empty lis
+            var $empty = $('li:empty');
+            for (var i = 0; i < $brackets.length; i++) {
+                $empty.eq(i).html("<button class=\"btn btn-danger\">" + participants[i] + "</button>");
+            }
+
+            // check if bracket has 2 winners, if so, change to buttons
+            function changeToButtons() {
+                $('.bracket').each(function () {
+                    var $winner = $(this).children('.winner');
+                    if ($winner.length === 0) {
+                        var $winners = $(this).children('li').children('ul').children('.winner');
+                        if ($winners.length === 2) {
+                            $winners.each(function () {
+                                $(this).html('<button class="btn btn-danger winner">' + $(this).text() + '</button>');
+                            });
+                        }
+                    }
+                });
+            }
+
+            $(document).on('click', 'button', function () {
+                var $ul = $(this).parent().parent();
+                let first_score = Number(prompt("Inserisci primo giocatore", ''))
+                if (first_score < 0 || isNaN(first_score)) {
+                    alert("valore non valido")
+                    return
+                }
+                let second_score = Number(prompt("Inserisci secondo punteggio", ''))
+                if (second_score < 0 || isNaN(second_score)) {
+                    alert("valore non valido")
+                    return
+                }
+                let score = ""
+                if (first_score < second_score) {
+                    let temp = first_score;
+                    first_score = second_score;
+                    second_score = temp;
+                }
+
+                if ($(this).hasClass('winner')) {
+                    $ul = $ul.parent().parent();
+                }
+
+                $ul.append($('<li class="winner">' + $(this).text() + '</li>'));
+                let i = 0;
+                let player1, player2
+                // replace all buttons on clicked tier with text
+                $ul.find('button').each(function () {
+                    if (i == 0) {
+                        player1 = $(this).text();
+                    } else {
+                        player2 = $(this).text();
+                    }
+                    $(this).replaceWith($(this).text() + '(' + first_score + '/' + second_score + ')');
+                    i++;
+                });
+                inviaRisultato(player1, player2, first_score, second_score)
+
+                changeToButtons();
+            });
+        }
+        //POST request with body equal on data in JSON format
+        async function inviaRisultato(player1, player2, score1, score2) {
+            score = '{ "player1" : "' + player1 + '", "player2" : "' + player2 + '", "score1": "' + score1 + '","score2": "' + score2 + '"}'
+            console.log(score)
+            fetch('/v2/risultati-torneo/<%=id%>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: score,
+            }).then((response) => {
+                alert('Risultato aggiunto');
+            });
+        }
+
+    </script>
+</head>
+
+<body>
+    <%- include('../navbar.ejs') %>
+        <p hidden id="torneo">
+        </p>
+        <b>
+            <p>Clicca sopra il vincitore di ogni partita per selezionare il vincitore</p>
+        </b>
+        <!--<div id="clear" class="metroBtn">Clear</div>-->
+        <div class="tournament"></div>
+        <div class="brackets" id="brackets"></div>
+        <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.3/underscore-umd-min.js"></script>
+</body>
+
+</html>

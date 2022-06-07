@@ -1,18 +1,67 @@
-
 module.exports = function (app) {
+    const jwt = require('jsonwebtoken');
+    var bodyParser = require('body-parser');
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+    const tokenChecker = require('./tokenChecker');
+    //importa variabili nel file .env
+    require('dotenv').config();
+    //importa schema di User
+    const User = require('./models/user');
     //var used for storing profile information
     var userProfile;
     //result of logging
     
-    app.get('/auth/success', (req, res) => {
-        if(userProfile.id){
-            req.session.logged=true;
+    app.get('/v2/auth/success', async function (req, res) {
+        //req.session.email=String(userProfile.emails[0].value);
+        //cerca email nel db
+        let user = await User.find({email: req.user.emails[0].value}).exec();
+        if(!user){
+            //email non trovata
+            console.log(req.session.email + " non trovata");
+            //apre pagina registrazione
+            let path_name = ('pages/registrazione');
+            res.render(path_name,{user: userProfile, session: req.session });
+        }else{
+            req.user.rank = user.rank
+            let path_name = ('pages/profilo');
+            res.render(path_name,{user: req.user});
         }
-        //req.session.nickname=GET_FROM_DB
-        let path_name = ('pages/success');
-        res.render(path_name,{user:userProfile,log_status:req.session.logged});
-    })
-    app.get('/auth/error', (req, res) => res.send("error logging in"));
+    });
+    app.get('/v2/auth/error', (req, res) => res.send("error logging in"));
+
+    //POST per salvare dati nel db
+    app.post('/v2/auth/registrazione',async (req, res) => {
+        if (!userProfile.displayName){
+            return res.redirect('/v2/profilo');
+        }
+        let searchedUser = await User.findOne({displayName: userProfile.displayName});
+        if(searchedUser !=null){
+            return res.redirect('/v2/profilo');
+        }
+        const new_user = new User({
+            email: userProfile.emails[0].value,
+            displayName: userProfile.displayName,
+            attacco: req.body.attacco,
+            difesa: req.body.difesa,
+            spin: req.body.spin,
+            controllo: req.body.controllo,
+            all_around: req.body.all_around,
+            rank : 100
+        })
+        new_user.save().then(() => {return res.redirect('/v2/profilo');})
+    });
+    app.get('/v2/ricerca_profilo', async (req, res) => {
+        let searchedUser = await User.findOne({ _id: req.query.id });
+        res.render('pages/profilo', { searched_user: searchedUser, user: req.user });
+    });
+    app.get('/v2/profilo', tokenChecker, async function (req, res) {
+        let searchedUser = await User.findOne({email: req.user.emails[0].value });
+        if(searchedUser==null){
+            return res.render('pages/registrazione');
+        }
+        return res.render('pages/profilo', { searched_user: searchedUser, user:req.user });
+    });
 
     passport.serializeUser(function (user, cb) {
         cb(null, user);
@@ -22,13 +71,12 @@ module.exports = function (app) {
         cb(null, obj);
     });
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-    const GOOGLE_CLIENT_ID = '71410486894-clfqt9gadnobb4j27vn4sk36dbh0l5di.apps.googleusercontent.com';
-    const GOOGLE_CLIENT_SECRET = "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";
+
 
     passport.use(new GoogleStrategy({
-        clientID: GOOGLE_CLIENT_ID,
-        clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:4000/auth/google/callback"
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "https://pingpov.herokuapp.com/auth/google/callback"
     },
         function (accessToken, refreshToken, profile, done) {
             userProfile = profile;
@@ -36,21 +84,32 @@ module.exports = function (app) {
         }
     ));
 
-    app.get('/auth/google',
+    app.get('/v2/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));
 
     app.get('/auth/google/callback',
         passport.authenticate('google', { failureRedirect: '/auth/error' }),
         function (req, res) {
-            // Successful authentication, redirect success.
-            req.session.user = userProfile
-            //console.log(req.session.user)
-            //console.log(path.basename(path.dirname('api_index.js'))+'/views/pages/success')
-            res.redirect('/auth/success');
+            //Creazione del token
+            // if user is found and password is right create a token
+            var payload = {
+                user: req.user,
+                // other data encrypted in the token	
+            }
+            var options = {
+                expiresIn: 86400 // expires in 24 hours
+            }
+            var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+            console.log('token: '+token)
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.SUPER_SECRET,
+            }).status(200).redirect('/v2/profilo');
         });
-    app.get('/logout',function(req, res){
-        req.logout();        
-      
-        res.render("pages/home");
+    app.get('/v2/auth/logout',function(req, res){
+        req.user=""
+        res.user=""
+        //req.logout();
+        res.clearCookie("token").status(200).render('pages/home',{user:""});
     })
 }

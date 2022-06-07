@@ -9,8 +9,8 @@ per tutte le 24 ore del giorno selezionato, ad intervalli di 15 minuti
 
 
 #inserisci il link al database
-myclient = pymongo.MongoClient()
-mydb = myclient["torneo"]
+myclient = pymongo.MongoClient('mongodb+srv://Hydran00:aaa@cluster0.5c9ts.mongodb.net/test')
+mydb = myclient["test"]
 mycol = mydb["prenotaziones"]
 result= mycol.delete_many({})
 

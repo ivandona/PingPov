@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="Navbar.html" rel="import" />
+    <title>Registrazione</title>
+  </head>
+  <body>
+    <!-- form per l'inserimento dati -->
+    
+    <form method="post" action="/v2/auth/registrazione">
+        <h1> Registrazione </h1>
+        <h2> Inserisci dati </h2> 
+        <label for=" attacco"> Attacco (da 1 a 5) </label><br>
+        <input type="number" id="attacco" min="1" max="5" name="attacco" required><br>
+        <label for=" difesa"> Difesa (da 1 a 5) </label><br>
+        <input type="number" id="difesa" min="1" max="5" name="difesa" required><br>
+        <label for=" spin"> Spin </label><br>
+        <input type="number" id="spin" min="1" max="5" name="spin" required><br>
+        <label for="controllo"> controllo (da 1 a 5) </label><br>
+        <input type="number" id="controllo" min="1" max="5" name="controllo" required><br>
+        <label for="all_around"> All around (da 1 a 5) </label><br>
+        <input type="number" id="all_around" min="1" max="5" name="all_around" required><br>
+        <input type="submit" value="Submit">
+    </form>
+  </body>
+</html> 

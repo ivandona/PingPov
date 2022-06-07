@@ -1,80 +1,724 @@
-FORMAT: 1A
-HOST: https://polls.apiblueprint.org/
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: PingPov
+  description: >-
+    Ping Pov serve per dare svariati servizi come la creazione di tornei e
+    l'organizzazione di partite di ping pong a Povo
+  license:
+    name: MIT
+    url: https://github.com/apiaryio/polls-api/blob/master/LICENSE
+servers:
+  - url: http://localhost:4000
+paths:
+  /v1/auth/success:
+    get:
+      summary: /v1/auth/success
+      description: >-
+        Visualizza pagina profilo o, se non si è registrati, la pagina di
+        registrazione
+      responses:
+        '200':
+          description: text/html o registrazione.ejs
+    summary: Gestione login
+  /v1/auth/registrazione:
+    post:
+      summary: /v1/auth/registrazione
+      description: Aggiunge dati registrazione al db
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: user da creare
+      responses:
+        '201':
+          description: User creato
+    summary: Registrazione
+  /v1/auth/error:
+    get:
+      summary: /v1/auth/error
+      responses:
+        '400':
+          description: error loggin in
+    summary: Errore nel login
+  /v1/auth/logout:
+    get:
+      summary: /v1/auth/logout
+      description: Cancella dati sessione e visualizza pagina home
+      responses:
+        '200':
+          description: Logout effettuato.
+    summary: Logout
+  /v1/profilo:
+    get:
+      summary: /v1/profilo
+      description: Visualizza pagina profilo
+      responses:
+        '200':
+          description: Successful response
+    summary: Profilo
+  /v1/prenotazioni:
+    get:
+      summary: /v1/prenotazioni
+      description: Visualizza la pagina in cui si trovano tutte le prenotazioni
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: retrived list of names
+    summary: Prenotazioni Tavolo
+  /v1/aggiungiPrenotazione/:
+    post:
+      summary: /v1/aggiungiPrenotazione/
+      description: >-
+        aggiunge la prenotaizone ad uno slot se esso è disponibile per la
+        prenotazione
+      parameters:
+        - name: id
+          in: query
+          description: id per filtrare utente
+          schema:
+            type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/Prenotazione'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Prenotazione riuscita
+        '400':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Errore nella prenotazione
+      security:
+      - loginAuth: []
+  /v1/rimuoviPrenotazione/:
+    delete:
+      summary: /v1/rimuoviPrenotazione/
+      description: rimiuove una prenotazione da uno slot nel momento in cui è presente
+      parameters:
+        - name: id
+          in: query
+          description: id per filtrare utente
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Prenotazione riuscita
+        '400':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Errore nella prenotazione
+      security:
+      - loginAuth: []
+    summary: Rimzione Prenotazione
+#TORNEI
+  /v2/tornei:
+    get:
+      summary: /v2/tornei
+      description: ritorna la lista dei tornei attualmente attivi e monitorabili
+      responses:
+        '200':
+          description: file json con la lista dei tornei
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lista_Tornei'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              examples:
+                response:
+                  value: mongoose json error
+    post:
+      summary: /v2/tornei
+      description: crea nuovo torneo
+      requestBody:
+        $ref: '#/components/requestBodies/creaTorneo'
+      responses:
+        '200':
+          description: torneo appena creato come file json
+        '400':
+          description: Id fornito non valido
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Non tutti i campi sono stati definiti correttamente
+      security:
+        - loginAuth: []
+#TORNEO
+  /v2/tornei/{id_torneo}:
+    get:
+      summary: /v2/tornei/{id_torneo}
+      description: ritorna le informazioni sul torneo con id specificato nell'url
+      parameters:
+        - in: path
+          name: id_torneo
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: file json il torneo richiesto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Torneo'
+        '400':
+          description: Id fornito non valido
+        '404':
+          description: torneo non trovato
+        '500':
+          description: Server error
 
-# provapi
-
-Polls is a simple API allowing consumers to view polls and vote in them.
-
-## Questions Collection [/questions]
-
-### List All Questions [GET]
-
-+ Response 200 (application/json)
-
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
+    delete:
+      summary: /v2/tornei/{id_torneo}
+      description: elimina torneo specificato nell'url
+      parameters:
+        - in: path
+          name: id_torneo
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: torneo correttamente eliminato
+        '404':
+          description: torneo non trovato
+        '500':
+          description: Server error
+      security:
+      - loginAuth: []
+#ISCRIZIONI
+  /v2/iscrizione-torneo/{id_torneo}:
+    post:
+      summary: /v2/iscrizione-torneo/{id_torneo}
+      description: permette ad un utente di iscriversi ad un torneo
+      parameters:
+        - in: path
+          name: id_torneo
+          schema:
+            type: string
+          required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: iscrizione creata
+        '403':
+          description: iscrizione non riuscita con errore specificato nel testo
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Sei già iscritto , Posti finiti
+        '404':
+          description: torneo non trovato
+        '500':
+          description: Server error
+          content:
+            plain/text:
+              examples:
+                response:
+                  value:  Errore di accesso al database
+      security:
+        - loginAuth: []
+    delete:
+      summary: /v2/iscrizione-torneo/{id_torneo}
+      description: permette ad un utente di disiscriversi da un torneo dopo essersi
+        iscritto
+      parameters:
+        - in: path
+          name: id_torneo
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: disiscrizione avvenuta
+          content:
+            plain/text:
+              examples:
+                response:
+                  value: Disiscrizione avvenuta
+        '403':
+          description: Error in Response
+          content:
+            plain/text:
+              examples:
+                response:
+                  value:  Non sei iscritto al torneo
+        '404':
+          description: torneo non trovato
+        '500':
+          description: Server error
+          content:
+            plain/text:
+              examples:
+                response:
+                  value:  Errore di accesso al database
+        
+      security:
+        - loginAuth: []
+#RISULTATI
+  /v2/risultati-torneo/{id_torneo}:
+    get:
+      summary: /v2/risultati-torneo/{id_torneo}
+      description: accedi ai risultati delle partite di un torneo
+      parameters:
+        - name: id_torneo
+          in: path
+          description: id del torneo cercato
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  type: string
+        '404':
+          description: torneo non trovato
+        '500':
+          description: Server error
+    post:
+      summary: /v2/risultati-torneo/{id_torneo}
+      description: inserisci nuovo risultato di una partita del torneo (solo admin)
+      parameters:
+        - name: id_torneo
+          in: path
+          description: id del torneo per cui si vuole aggiungere un esito
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/risultato_torneo'
+      responses:
+        '200':
+          description: Successful Response
+        '403':
+          description: richiesta non valida
+        '400':
+          description: parametri nel body non validi
+        '404':
+          description: torneo non trovato
+      security:
+        - loginAuth: []
+##PARTITE
+  /v2/match:
+    get:
+      summary: /v2/match
+      description: ritorna la lista delle partite
+      responses:
+        '200':
+          description: file json con la lista delle partite
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lista_Match'
+        '500':
+          description: Server error
+    post:
+      summary: /v2/match
+      description: crea nuova partita
+      requestBody:
+        $ref: '#/components/requestBodies/creaMatch'
+      responses:
+        '201':
+          description: file json della partita appena creata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '500':
+          description: Server error
+      security:
+        - loginAuth: []
+#PARTITA
+  /v2/match/{id_partita}:
+    get:
+      summary: /v2/match/{id_partita}
+      description: mostra i dettagli di un match
+      parameters:
+        - in: path
+          name: id_partita
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: file json con le informazioni sul match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '500':
+          description: Server error
+        '404':
+          description: match non trovato
+    delete:
+      summary: /v2/match/{id_partita}
+      description: elimina un match non giocato
+      parameters:
+        - in: path
+          name: id_partita
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Match correttamente cancellato
+        '500':
+          description: Server error
+        '400':
+          description: id non valido
+        '401':
+          description: match già giocato oppure non sei tu l'organizzatore
+        '404':
+          description: match non trovato
+      security:
+        - loginAuth: []
+#ISCRIZIONE MATCH
+  /v2/iscrizione-match/{id_partita}:
+    post:
+      summary: /v2/iscrizione-match/{id_partita}
+      description: iscriviti a partite organizzate da altri utenti
+      parameters:
+        - in: path
+          name: id_partita
+          schema:
+            type: string
+          required: true
+      responses:
+        '201':
+          description: Iscrizione avvenuta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '500':
+          description: Server error
+        '403':
+          description: Sei già iscritto oppure il match è già al completo
+        '400':
+          description: Id non valido
+        '404':
+          description: match non trovato
+      security:
+        - loginAuth: []
+        
+    delete:
+      summary: /v2/iscrizione-match/{id_partita}
+      description: disiscriviti da partite organizzate da altri utenti
+      parameters:
+        - in: path
+          name: id_partita
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: disiscrizione avvenuta
+        '500':
+          description: Server error
+        '403':
+          description: Partita già terminata
+        '401':
+          description: Sei l'organizzatore (non puoi disiscriverti da partite che hai creato, però puoi eliminarle se non sono già state giocate)
+        '400':
+          description: Id non valido
+        '404':
+          description: match non trovato
+      security:
+        - loginAuth: []
+#RISULTATI MATCH
+  /v2/risultati-match/{id_partita}:
+    post:
+      description: Inserisci il risultato della partita se ne sei l'organizzatore, il risultato influirà sul rank dei giocatori. IMPORTANTE-> puoi inserire solo risultati di partite delle quali sei l'organizzatore che abbiano data passata e che abbiano raggiunto il numero di giocatori richiesto
+      parameters:
+        - in: path
+          name: id_partita
+          schema:
+            type: string
+          required: true
+      requestBody:
+        $ref: '#/components/requestBodies/risultati_match'
+      responses:
+        '200':
+          description: Risultato correttamente inserito
+        '401':
+          description : non sei tu l'organizzatore, partita scaduta, partita non giocata
+        '404':
+          description: partita non trovata
+        '400':
+          description: id non valido
+        '500':
+          description: Server error
+      security:
+        - loginAuth: []
+#CRONOLOGIA
+  /v2/cronologia-match:
+    get:
+      description: Scarica la cronologia dei match ai quali hai partecipato
+      responses:
+        '200':
+          description: file json con la lista dei match ai quali hai partecipato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '500':
+          description: Server error
+      security:
+        - loginAuth: []
+  /v2/i-miei-match : 
+    get:
+      description: Scarica i match dei quali sei l'organizzatore
+      responses:
+        '200':
+          description: file json con la lista dei match dei quali sei l'organizzatore
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '500':
+          description: Server error
+      security:
+        - loginAuth: []
+components:
+  securitySchemes:
+    loginAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  requestBodies:
+    Prenotazione:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Prenotazione'
+      description: nome del prenotatore
+      required: true
+    User:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+      description: nome dell'utente
+      required: true
+    creaTorneo:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/creaTorneo'
+      description: body della richiesta per la creazione del torneo
+      required: true
+      
+    risultato_torneo:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/risultato_torneo'
+      description: body della richiesta di aggiunta di un risultato
+      required: true
+    creaMatch:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/creaMatch'
+      description: body della richiesta di creazione di un torneo
+      required: true
+    risultati_match:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/risultato'
+      description: body della richiesta di inserimento del risultato di una partite
+      required: true
+  schemas:
+    Prenotazione:
+      type: object
+      properties:
+        prenotatore:
+          type: string
+        giorno:
+          type: string
+          format: date
+        sede:
+          type: string
+    Lista_Tornei:
+      type: array
+      items:
+        $ref: '#/components/schemas/Torneo'
+    Torneo:
+      type: object
+      properties:
+        nome_torneo:
+          type: string
+        data:
+          type: string
+          format: date-time
+        organizzatore:
+          type: string
+        sede:
+          type: string
+        max_partecipanti:
+          type: number
+        giocatori:
+          type: array
+          items: {}
+        risultati:
+          type: array
+          items: {}
+    User:
+      type: object
+      required:
+        - email
+        - name
+        - username
+        - attacco
+        - difesa
+        - spin
+        - controllo
+        - all_around
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        attacco:
+          type: integer
+        difesa:
+          type: integer
+        spin:
+          type: integer
+        controllo:
+          type: integer
+        all_around:
+          type: integer
+    creaTorneo:
+      required:
+        - nome_torneo
+        - data
+        - numero_partecipanti
+        - sede
+        - admin_gioca
+      properties:
+        nome_torneo:
+          type: string
+        data:
+          type: string
+          format: date-time
+        numero_partecipanti:
+          type: integer
+        sede:
+          type: string
+        admin_gioca:
+          type: boolean
+    risultato_torneo:
+      required:
+        - player1
+        - player2
+        - score1
+        - score2
+      properties:
+        player1:
+          type: string
+        player2:
+          type: string
+        score1: 
+          type : integer
+        score2: 
+          type : integer
+    risultato: 
+      type: object
+      required:
+        - score_sq1
+        - score_sq2
+      properties:
+        score_sq1: 
+          type: integer
+        score_sq2: 
+          type: integer
+        
+    Match:
+      type: object
+      required:
+       - squadra1
+       - squadra2
+       - organizzatore
+       - data
+       - sede
+       - modalità
+       - risultato
+      properties:
+        squadra1: 
+          type: array
+          items:
+            type: string
+        squadra2: 
+          type: array
+          items:
+            type: string
+        organizzatore:
+          type: string
+        data:
+          type: string
+          format: date-time
+        sede: 
+          enum: 
+            - Singolo 
+            - Doppio
+        modalità: 
+          enum: [Singolo, Doppio]
+        risultato:
+          oneOf: 
+            - $ref: '#/components/schemas/risultato'
+    Lista_Match:
+      type: array
+      items:
+        $ref: '#/components/schemas/Match'
+    creaMatch:
+      type: object
+      required:
+        - data
+        - sede
+        - modalità
+      properties:
+        data:
+          type: string
+          format: date-time
+        sede:
+         enum: [Povo0,Povo1]
+        modalità:
+          enum: [Singolo, Doppio]

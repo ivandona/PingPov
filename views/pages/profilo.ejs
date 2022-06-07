@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Your Profile</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- load bulma css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- load fontawesome -->
+  <link href="Navbar.html" rel="import" />
+
+  <style>
+
+  </style>
+</head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+<body style="background-color:rgb(66,63,63);">
+  <%- include('navbar.ejs') %>
+    <p style="color: rgb(255, 255, 255); font-family: 'Courier New', Courier, monospace; font-size: 20px;">
+      <strong>Email</strong>: <%= searched_user.email %> <br>
+          <strong>Name</strong>: <%= searched_user.displayName %> </a>
+    </p>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    <div style="width: 100%;">
+      <div style="width: 50%; height: 100px; float: left; ">
+
+        <h2 style="color: rgb(255, 255, 255);  font-family: 'Courier New', Courier, monospace;">
+          Stile
+        </h2>
+        <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+        <script>
+          var xValues = ["Attacco", "Difesa", "Allaround", "Spin", "Controllo"];
+          var yValues = [<%= searched_user.attacco %>, <%= searched_user.difesa %>, <%= searched_user.all_around %>, <%= searched_user.spin %>, <%= searched_user.controllo %>];
+          
+          var barColors = ["red", "green", "blue", "orange", "brown"];
+          Chart.defaults.global.defaultFontColor = "#FFFFFF";
+          new Chart("myChart", {
+            type: "bar",
+            data: {
+              labels: xValues,
+              datasets: [{
+                backgroundColor: barColors,
+                data: yValues
+              }]
+            },
+            options: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: "Statistiche"
+              }
+            }
+
+          });
+
+        </script>
+      </div>
+      <div style="margin-left: 50%; height: 100px; ">
+
+        <h2 style="color: rgb(255, 255, 255);  font-family: 'Courier New', Courier, monospace;">
+          Racchetta
+        </h2>
+
+
+
+      </div>
+    </div>
+
+
+</body>
+
+</html>

@@ -1,53 +1,75 @@
 //requiring express
 const express = require('express');
-//use session
-const session = require('express-session');
-//connection to db
+const { MongoTailableCursorError } = require('mongodb');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./pingpov.json');
+const cookieParser = require('cookie-parser');
+/*
+const swaggerJsdoc = require('swagger-jsdoc');
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'PingPov',
+      version: '1.0.0',
+    },
+  },
+  apis: ['./api/*'], // files containing annotations as above
+};
+
+const openapiSpecification = swaggerJsdoc(options);*/
+const tokenChecker = require('./api/tokenChecker');
 const mongoose = require('mongoose');
 //requiring passport for login states
 global.passport = require('passport');
+require('dotenv').config()
 
 
-
-mongoose.connect('mongodb+srv://nicolazilio0:aaa@cluster0.ioquu.mongodb.net/torneo');
 global.path = require('path')
 
 //declaring app
 const app = express();
+//const tokenChecker = require('./api/tokenChecker.js')
+
+//connection to db
+mongoose.connect(process.env.DB_URL);
+const MongoStore = require('connect-mongo');
+global.path = require('path');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(passport.initialize());
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
 app.use(require('body-parser').json());
-//declaring session
-app.use(session({
-  resave: false,
-  saveUninitialized: true,
-  logged:false,
-  username:'',
-  rank:'',
-  secret: 'thisismysecret' 
-}));
-app.use(passport.session());
+app.use(cookieParser())
+
 //get method for login
-app.get('/auth', function(req, res) {
-  res.render('pages/auth');
+app.get('/v2/auth', function (req, res) {
+  res.render('pages/auth', { user:req.user });
 });
-app.get('/home', function(req, res) {
-  res.render('pages/home');
+app.get('/v2/home', function (req, res) {
+  res.render('pages/home', { user:req.user });
 });
-function requireAutentication(req,res,next){
-  if( req.isAuthenticated() == true || req.originalUrl.includes('/auth')){
-      next();
-  }else{
-      res.render('pages/auth');
+app.use('/v2/prenotazioni', tokenChecker);
+function requireAutentication(req, res, next) {
+  if (req.isAuthenticated() == true || req.originalUrl.includes('/auth')) {
+    next();
+  } else {
+    res.render('pages/auth', { user: req.user });
   }
 }
-app.all('*',requireAutentication)
+app.get('/', function (req, res) {
+  res.redirect('/v2/home');
+});
+//app.all('*', requireAutentication)
 
 // Starting app after calling every api
-require('./api/api_index')(app,mongoose);
-app.listen(4000, () => {
-    console.log('server started!');
-  });
+module.exports = app;
+
+
+require('./api/api_index')(app, mongoose);
+app.listen(process.env.PORT || 4000, () => {
+  console.log('server started!');
+});
+
 
 

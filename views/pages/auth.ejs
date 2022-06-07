@@ -12,78 +12,12 @@
 <body style="background-color:rgb(66,63,63);">
    
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-       
-
-  
-    
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li>
-            <img src="/images/Logo_Ping_Pov.png" alt="PingPov Logo" width="70px" height="70px">
-            </li>
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Tornei<span class="sr-only">(current)</span> </a>
-            </li>
-            
-            
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Prenotazioni Tavolo<span class="sr-only">(current)</span> </a>
-            </li>
-    
-    
-              
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Partite<span class="sr-only">(current)</span> </a>
-            </li>
-  
-  
-              
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Partite<span class="sr-only">(current)</span> </a>
-            </li>
-  
-           <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Ricerca un utente..." aria-label="Ricerca un utente...">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Ricerca</button>
-          </form>
-          </ul>
-         
-        </div>
-        <div>
-          <ul class="navbar-nav mr-auto">
-          
-          <a> <% if(typeof log_status !== 'undefined') { %> </a> 
-            <li class="nav-item active">
-            <a class="nav-link" href="/auth">Logout<span class="sr-only">(current)</span> </a> 
-         </li>
-         <li>
-            <img src="<%= user.photos[0].value %>" alt="profile pic" width="70px" height="70px" style="border-radius: 50%;">
-         </li>
-            <% } else{
-              %>
-              <li class="nav-item active">
-                <a class="nav-link" href="#/auth">Login<span class="sr-only">(current)</span> </a>
-              </li>
-              
-              <%}%>
-          </ul>
-  
-        </div>
-  
-  
-  
-      </nav>
-    
-
-
-
-
+  <%- include('navbar.ejs') %>
 <div class="container" style="background-color:rgb(115,102,102) ;">
     <div class="jumbotron text-center text-primary" style="background-color:rgb(115,102,102) ;">
-        <h1 style="color:crimson;"><span class="fa fa-lock"></span> Registrati a Ping Pov</h1>
+        <h1 style="color:crimson;"><span class="fa fa-lock"></span> Entra in Ping Pov</h1>
        
-        <a href="/auth/google" class="btn btn-danger"><span class="fa fa-google"></span>  Usa Google per registrarti</a>
+        <a href="/v2/auth/google" class="btn btn-danger"><span class="fa fa-google"></span>  Entra con Google</a>
     </div>
 </div>
 </body>

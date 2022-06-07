@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <!-- load bulma css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- load fontawesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
+    <title>Prenota un tavolo</title>
+    <script>class Utenti {
+            constructor(data) {
+                data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+                Object.assign(this, data);
+            };
+        }
+        async function req() {
+            var risultato = [];
+            console.log(typeof (risultato))
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/v2/ranking", true);
+            xhr.onload = function (e) {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        data = JSON.parse(xhr.responseText);
+                        ranking = data;
+                        console.log(ranking)
+                        for (i = 0; i < data.length; i++) {
+                            risultato.push(new Utenti(data[i]));
+
+                        }
+                        console.log("risultato")
+                        console.log(risultato)
+                        //stampa il nome del torneo numero 0
+                        createTable(risultato);
+                    } else {
+                        console.error(xhr.statusText);
+                    }
+                }
+            };
+            xhr.onerror = function (e) {
+                console.error(xhr.statusText);
+            };
+            xhr.send(null);
+            console.log(typeof (risultato))
+            function createTable(ranking) {
+                tbody = document.getElementById('slot_rank');
+                let cells = ""
+                cells += '<thead><tr><th scope="col">Numero</th><th scope="col">Username</th><th scope="col">Punteggio</th></tr></thead>'
+                cells += "<tr>"
+                for (let i = 0; i < ranking.length; i++) {
+                    cells += "<td>"
+                    cells += (i+1)
+                    cells += "</td>"
+                    cells += "<td>"
+                    cells += ranking[i]['displayName']
+                    cells += "</td>"
+                    cells += "<td>"
+                    cells += ranking[i]['rank']
+                    cells += "</td>"
+
+
+                    cells += "</tr>"
+
+                    tbody.innerHTML = cells
+                }
+            }
+        };
+        req()
+
+    </script>
+
+
+</head>
+
+<body>
+    <%- include('navbar.ejs') %>
+
+
+    <div class="container">
+        <div class="jumbotron">
+        <table name="slot_rank" id="slot_rank" class="table" onload=req()>
+        </table>
+        </div></div>
+
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+            integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+            crossorigin="anonymous"></script>
+</body>
+
+</html>

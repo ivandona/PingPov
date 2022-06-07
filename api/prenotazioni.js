@@ -1,101 +1,83 @@
 // api/Prenotazione.js
 module.exports = function (app, mongoose) {
+    const tokenChecker = require('./tokenChecker')
     const Prenotazione = mongoose.model('prenotazione', mongoose.Schema({
         prenotatore: String,
         giorno: Date,
         sede: String
     }));
 
-    //GET EVERY BOOK
-    app.get('/prenotazioni', (req, res) => {
-        console.log("efnsd");
+    app.get('/v2/prenotazioni', (req, res) => {
+        console.log(req.user)
+        req.query.username = req.user.displayName;
+        res.user = req.user
         res.locals.query = req.query;
+        Prenotazione.find({}, function (err, Prenotazioni) {
+            if (err) {
+                console.log(err);
+            } else {
+                risultato = [];
+                for (i = 0; i < Prenotazioni.length; i++) {
+                    if (Prenotazioni[i]['sede'] == req.query['sede']) {
+                        day = new Date(Date.parse(req.query['data'] + 'T' + req.query['ora'] + ':00'))
+                        if (day < Prenotazioni[i]['giorno']) {
+                            risultato.push(Prenotazioni[i]);
+                        }
+                    }
 
-        Prenotazione.find({}, function(err, Prenotazioni){
-            if(err){
-              console.log(err);
-            } else{
-
-                res.render('pages/ricerca_prenotazioni',{prenotazioni: Prenotazioni})
-                console.log('retrieved list of names', Prenotazioni.length, Prenotazioni[0]);
+                }
+                res.status(200).json(risultato)
             }
         })
     })
 
-//PUT 
-app.put('/aggiungiPrenotazione/:id',async function(req, res){
-    //const ObjectID = require('mongoose').ObjectID;
- 
-    const id = req.params.id;
-    const query = { 'id':id };
-    const body = {
-      prenotatore:req.body.prenotatore,
-      giorno:req.body.giorno,
-      sede:req.body.sede,
-      utente:req.utente 
-    };
-    try{
-    res.json(await Prenotazione.findById(id).update(req.params.prenotatore,body));
-    }  
-    catch (err) {
-        console.error(`Error while updating programming language`, err.message);
-        next(err);
-      }
-   
-
-  
-});
-app.delete('/aggiungiPrenotazione/:id',async function(req, res){
-    //const ObjectID = require('mongoose').ObjectID;
-    console.log(req.session.user.displayName);
-    console.log(req.body.prenotatore);
-    if(' '+(req.session.user.displayName) == req.body.prenotatore){
-    const id = req.params.id;
-    const query = { 'id':id };
-    const body = {
-      prenotatore:'',
-      
-    };
-    try{
-    res.json(await Prenotazione.findById(id).update(req.params.prenotatore,body));
-    }  
-    catch (err) {
-        console.error(`Error while updating programming language`, err.message);
-        next(err);
-      }
-    }else{
-        res.send("non puoi annullare la prentoazione di un'altra persona");
-    }
-
-  
-});
-
-
-//GET ONE BOOK
-app.get('/Prenotazione/:id', (req, res) => {
-    const id = req.params.id;
-    console.log('id:' + id)
-    Prenotazione.find({ "_id": id }, function (err, docs) { res.send(docs) })
-});
-
-//DELETE
-app.delete('/Prenotazione/:id', (req, res) => {
-    const ObjectID = require('mongoose').ObjectID;
-    const id = req.params.id;
-    const query = { '_id': new ObjectID(id) };
-    Prenotazione.find({ "_id": id }, function (err, docs) {
-        if (docs.organizzatore == req.session.username) {
-            Prenotazione.findByIdAndRemove(id, function (docs, err) {
-                if (err) {
-                    res.send('Prenotazione non trovato')
-                } else {
-                    res.send('Prenotazione correttamente cancellato')
-                }
-            });
-        } else {
-            res.send("Non sei tu l'organizzatore")
+    //PUT 
+    app.put('/v2/prenota/', async function (req, res) {
+        //const ObjectID = require('mongoose').ObjectID;
+        const id = req.body.pre_id;
+        const query = { 'prenotatore': req.body.prenotatore };
+        res.user = req.user
+        console.log(id);
+        console.log(req.body.prenotatore)
+        const body = {
+            prenotatore: req.body.prenotatore,
+        };
+        try {
+            res.json(await Prenotazione.findByIdAndUpdate(id, body));
+            console.log("prenotazione riuscita");
+        } catch (err) {
+            console.error(`Errore nella prenotazione`, err.message);
+            next(err);
         }
+
+
+
+    });
+
+
+    //DELETE
+    app.delete('/v2/prenota/', async function (req, res) {
+        console.log("chiamata delete")
+        const id = req.body.pre_id;
+        res.user = req.user
+        const query = { 'id': id };
+        const body = {
+            prenotatore: req.body.prenotatore,
+        };
+        try {
+            res.json(await Prenotazione.findByIdAndUpdate(id, body));
+
+            console.log("rimozione prenotazione riuscita");
+        } catch (err) {
+            console.error(`Errore nella rimozione della prenotazione`, err.message);
+            next(err);
+        }
+
     })
 
-})
+
+    app.get('/prenotazioni', tokenChecker, (req, res) => {
+        res.render('pages/prenotazioni/ricerca_prenotazioni', { user: req.user });
+    }
+    )
 }

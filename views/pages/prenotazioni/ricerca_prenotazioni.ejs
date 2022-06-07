@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- load bulma css -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- load fontawesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
+
+  <title>Prenota un tavolo</title>
+
+  <script>class Prenotazioni {
+      constructor(data) {
+        data['_id'] = (data['_id'].replace(' new ObjectId("', '')).replace('")', '')
+        Object.assign(this, data);
+      };
+    }
+
+    async function req(form) {
+      var risultato = [];
+      console.log(typeof (risultato))
+
+      if (form == undefined) {
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/v2/prenotazioni/?data=" + form.data.value + "&ora=" + form.ora.value + "&sede=" + form.sede.value, true);
+      xhr.onload = function (e) {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            data = JSON.parse(xhr.responseText);
+
+            prenotazione = data;
+            for (i = 0; i < data.length; i++) {
+              risultato.push(new Prenotazioni(data[i]));
+
+            }
+            //stampa il nome del torneo numero 0
+            createTable(risultato);
+          } else {
+            console.error(xhr.statusText);
+          }
+        }
+
+
+      };
+      xhr.onerror = function (e) {
+        console.error(xhr.statusText);
+      };
+      xhr.send(null);
+      console.log(typeof (risultato))
+
+
+      function createTable(prenotazioni) {
+        tbody = document.getElementById('slot_prenotazioni');
+        let cells = ""
+        cells += '<thead><tr><th scope="col">Sede</th><th scope="col">Prenotatore</th><th scope="col">Giorno</th><th scope="col">Prenota</th></tr></thead>'
+
+        for (let i = 0; i < prenotazioni.length; i++) {
+          cells += "<td>"
+          cells += prenotazioni[i]['sede']
+          cells += "</td>"
+          cells += "<td>"
+          cells += prenotazioni[i]['prenotatore']
+          cells += "</td>"
+          cells += "<td>"
+          cells += prenotazioni[i]['giorno']
+          cells += "</td>"
+
+          cells += "<td>"
+
+          if (prenotazioni[i]['prenotatore'] == '<%=user.displayName%>') {
+            cells += '<button type="button" class="btn btn-primary" onclick="togli_prenota(\'' + prenotazioni[i]['_id'] + '\')" >Rimuovi prenotazione</button>'
+
+          } else {
+            if (prenotazioni[i]['prenotatore'] != '<%=user.displayName%>' && prenotazioni[i]['prenotatore'] != '') {
+              cells += '<button type="button" class="btn btn-danger disabled"  aria-disabled=\'true\'">Prenotato</button>'
+
+            }
+            else {
+              cells += '<button type="button" class="btn btn-success" onclick="prenota(\'' + prenotazioni[i]['_id'] + '\') ">Prenota</button>'
+
+            }
+          }
+          cells += "</td>"
+
+          cells += "</tr>"
+
+          tbody.innerHTML = cells
+        }
+      }
+
+
+
+    };
+
+    async function prenota(id) {
+      fetch('/v2/prenota/', {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pre_id: id,
+          prenotatore: '<%=user.displayName%>',
+        })
+      });
+      window.alert("prenotazione effettuata");
+      location.reload();
+
+    }
+    async function togli_prenota(id) {
+      console.log("entrata rimuovi")
+      fetch('/v2/prenota/', {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pre_id: id,
+          prenotatore: '',
+        })
+      });
+      window.alert("prenotazione rimossa");
+      location.reload();
+
+    }
+
+  </script>
+
+
+</head>
+
+<body>
+  <%- include('../navbar.ejs') %>
+
+
+    <form action="javascript:;" onsubmit="req(this)" class="form-inline">
+      <input type="date" id="data" name="data" class="form-control">
+      <input type="time" id="ora" name="ora" class="form-control">
+
+      <select id="sede" name="sede" class="form-control">
+        <option value="Povo0">Povo0</option>
+        <option value="Povo1">Povo1</option>
+      </select>
+      <input type="submit" value="Ricerca" class="btn-primary">
+    </form>
+    <div class="container">
+      <div class="jumbotron">
+        <table name="slot_prenotazioni" id="slot_prenotazioni" class="table">
+        </table>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"></script>
+</body>
+
+</html>
