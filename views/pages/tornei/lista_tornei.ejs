@@ -81,7 +81,12 @@
           cells += tornei[i]['giocatori'].length + "/" + tornei[i]['max_partecipanti']
           cells += "</td>\n"
           cells += "<td>"
-          cells += tornei[i]['data']
+          let date = new Date(Date.parse(tornei[i]['data']))
+          let itTIME =
+            date.toLocaleString("en-US", {
+              timeZone: "Europe/Rome"
+            });
+          cells += itTIME
           cells += "</td>\n"
           cells += "<td>"
           cells += tornei[i]['sede']
@@ -91,11 +96,11 @@
           cells += "</td>\n"
           if (tornei[i]['giocatori'].includes('<%=user.displayName%>') == true) {
             cells += "<td id='tasto_disiscrivi'>"
-            cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\''+tornei[i]['_id']+'\')">Disiscriviti</button>'
+            cells += '<button type="button" class="btn btn-danger" onclick="disiscriviti(\'' + tornei[i]['_id'] + '\')">Disiscriviti</button>'
             cells += "</td>\n"
           } else {
             cells += "<td id='tasto_iscriviti'>"
-            cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\''+tornei[i]['_id']+'\')">Iscriviti</button>'
+            cells += '<button type="button" class="btn btn-success" onclick="iscriviti(\'' + tornei[i]['_id'] + '\')">Iscriviti</button>'
             cells += "</td>\n"
           }
           cells += "</tr>\n"

@@ -48,7 +48,7 @@ module.exports = function (app, mongoose) {
                 }
                 return res.status(200).send(matches)
             }
-        })
+        }).sort('data')
     })
     //Creazione di un match v
     app.post('/v2/match', tokenChecker, (req, res) => {

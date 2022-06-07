@@ -18,9 +18,17 @@ module.exports = function (app, mongoose) {
             if (err) {
                 return res.status(503).send("Problema di accesso al database");
             } else {
-                return res.status(200).send(Tornei)
+                let current_date_ms = Date.now();
+                let tornei = [];
+                for (let i = 0; i < Tornei.length; i++) {
+                    if (Date.parse(Tornei[i]['data']) > current_date_ms) {
+                        tornei.push(Tornei[i]);
+                    }
+                }
+                return res.status(200).send(tornei)
             }
-        })
+
+        }).sort('data')
     })
     //Api di post per la creazione di tornei
     app.post('/v2/tornei', tokenChecker, (req, res) => {
