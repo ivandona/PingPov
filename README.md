@@ -11,7 +11,7 @@ Web App per giocare a ping pong a Povo
 
 
 
-PingPov
+PingPov  
 ├── api    #cartella con l'implementazione delle api e dei test
 │   ├── api_index.js  
 │   ├── autenticazione.js  
